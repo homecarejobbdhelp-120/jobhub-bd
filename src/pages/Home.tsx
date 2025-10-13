@@ -70,8 +70,11 @@ const Home = () => {
       <LoginPrompt open={loginPromptOpen} onOpenChange={setLoginPromptOpen} />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary to-secondary text-primary-foreground py-20">
+      <section className="bg-gradient-to-br from-[#00AEEF] to-[#6DBE45] text-white py-20">
         <div className="container mx-auto px-4 text-center">
+          <p className="text-sm md:text-base mb-6 opacity-90 animate-fade-in">
+            Bangladesh's first and most trusted free job platform for caregivers and nurses.
+          </p>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Find Your Perfect Home Care Job
           </h1>
@@ -86,7 +89,7 @@ const Home = () => {
                 placeholder="Job title or keyword"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                className="h-12"
+                className="h-12 text-gray-900"
               />
             </div>
             <div className="flex-1">
@@ -94,10 +97,10 @@ const Home = () => {
                 placeholder="Location"
                 value={searchLocation}
                 onChange={(e) => setSearchLocation(e.target.value)}
-                className="h-12"
+                className="h-12 text-gray-900"
               />
             </div>
-            <Button onClick={handleSearch} size="lg" className="h-12">
+            <Button onClick={handleSearch} size="lg" className="h-12 bg-[#6DBE45] hover:bg-[#6DBE45]/90 text-white">
               <Search className="mr-2 h-4 w-4" />
               Search Jobs
             </Button>

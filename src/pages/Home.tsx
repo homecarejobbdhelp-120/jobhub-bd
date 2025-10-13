@@ -1,17 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import JobCard from "@/components/JobCard";
+import NotificationPrompt from "@/components/NotificationPrompt";
+import LoginPrompt from "@/components/LoginPrompt";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const Home = () => {
   const navigate = useNavigate();
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+  const [loginPromptOpen, setLoginPromptOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const { data: featuredJobs, isLoading } = useQuery({
     queryKey: ["featured-jobs"],
@@ -37,9 +54,20 @@ const Home = () => {
     navigate(`/jobs?job=${id}`);
   };
 
+  const handleApplyJob = (id: string) => {
+    if (!user) {
+      setLoginPromptOpen(true);
+    } else {
+      // Navigate to job application page
+      navigate(`/jobs?job=${id}&apply=true`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <NotificationPrompt />
+      <LoginPrompt open={loginPromptOpen} onOpenChange={setLoginPromptOpen} />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-secondary text-primary-foreground py-20">
@@ -98,6 +126,7 @@ const Home = () => {
                   shift_type={job.shift_type}
                   featured={job.featured}
                   onViewDetails={handleViewDetails}
+                  onApply={handleApplyJob}
                 />
               ))}
             </div>

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, DollarSign, Clock } from "lucide-react";
+import { MapPin, DollarSign, Clock, Send } from "lucide-react";
 
 interface JobCardProps {
   id: string;
@@ -13,6 +13,7 @@ interface JobCardProps {
   shift_type: string;
   featured?: boolean;
   onViewDetails: (id: string) => void;
+  onApply: (id: string) => void;
 }
 
 const JobCard = ({
@@ -25,6 +26,7 @@ const JobCard = ({
   shift_type,
   featured,
   onViewDetails,
+  onApply,
 }: JobCardProps) => {
   return (
     <Card className={`hover:shadow-lg transition ${featured ? "border-primary border-2" : ""}`}>
@@ -54,9 +56,15 @@ const JobCard = ({
         <div className="flex gap-2">
           <Badge variant="outline">{job_type}</Badge>
         </div>
-        <Button onClick={() => onViewDetails(id)} className="w-full">
-          View Details
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => onViewDetails(id)} variant="outline" className="flex-1">
+            View Details
+          </Button>
+          <Button onClick={() => onApply(id)} className="flex-1">
+            <Send className="mr-2 h-4 w-4" />
+            Apply
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

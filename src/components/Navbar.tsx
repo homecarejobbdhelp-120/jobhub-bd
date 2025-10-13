@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { Menu, X, Share2, Bell } from "lucide-react";
+import { Menu, X, Share2, Bell, Briefcase } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -92,14 +92,23 @@ const Navbar = () => {
 
   return (
     <nav className="bg-card border-b sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center">
-            <h1 className="text-xl md:text-2xl font-bold text-primary">HomeCare Job BD</h1>
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex justify-between items-start md:items-center">
+          {/* Logo and Brand Section */}
+          <Link to="/" className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <div className="bg-primary text-primary-foreground p-2 rounded-lg">
+                <Briefcase className="h-5 w-5" />
+              </div>
+              <h1 className="text-xl md:text-2xl font-bold text-primary">HomeCare Job BD</h1>
+            </div>
+            <p className="text-xs md:text-sm text-muted-foreground max-w-md hidden md:block">
+              Bangladesh's first and most trusted free platform for caregivers and nurses to find home care jobs.
+            </p>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-4">
             <Link to="/" className="text-foreground hover:text-primary transition">
               Home
             </Link>
@@ -112,15 +121,15 @@ const Navbar = () => {
             {user ? (
               <>
                 <Link to="/dashboard">
-                  <Button variant="outline">Dashboard</Button>
+                  <Button variant="outline" size="sm">Dashboard</Button>
                 </Link>
-                <Button onClick={handleSignOut} variant="outline">
+                <Button onClick={handleSignOut} variant="outline" size="sm">
                   Sign Out
                 </Button>
               </>
             ) : (
               <Link to="/auth">
-                <Button>Login</Button>
+                <Button size="sm">Sign In / Sign Up</Button>
               </Link>
             )}
           </div>

@@ -10,6 +10,7 @@ import LoginPrompt from "@/components/LoginPrompt";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { motion } from "framer-motion";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -69,21 +70,45 @@ const Home = () => {
       <NotificationPrompt />
       <LoginPrompt open={loginPromptOpen} onOpenChange={setLoginPromptOpen} />
       
+      {/* Tagline Section - Below Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="bg-gradient-to-r from-[#00AEEF]/10 to-[#6DBE45]/10 py-3"
+      >
+        <p className="text-center text-[#0B4A79] text-sm md:text-base font-medium px-4">
+          Bangladesh's first and most trusted free platform for caregivers and nurses to find home care jobs.
+        </p>
+      </motion.div>
+      
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-[#00AEEF] to-[#6DBE45] text-white py-20">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm md:text-base mb-6 opacity-90 animate-fade-in">
-            Bangladesh's first and most trusted free job platform for caregivers and nurses.
-          </p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold mb-4"
+          >
             Find Your Perfect Home Care Job
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 opacity-90">
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl md:text-2xl mb-8 opacity-90"
+          >
             Connecting Caregivers, Nurses & Companies
-          </p>
+          </motion.p>
           
           {/* Search Bar */}
-          <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-4 flex flex-col md:flex-row gap-3">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-4 flex flex-col md:flex-row gap-3"
+          >
             <div className="flex-1">
               <Input
                 placeholder="Job title or keyword"
@@ -104,7 +129,7 @@ const Home = () => {
               <Search className="mr-2 h-4 w-4" />
               Search Jobs
             </Button>
-          </div>
+          </motion.div>
         </div>
       </section>
 

@@ -215,6 +215,44 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          job_id: string | null
+          message: string
+          read: boolean | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          message: string
+          read?: boolean | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          message?: string
+          read?: boolean | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -223,7 +261,9 @@ export type Database = {
           hide_avatar: boolean | null
           id: string
           name: string
+          notifications_enabled: boolean | null
           phone: string | null
+          push_notifications_enabled: boolean | null
           verified: boolean | null
         }
         Insert: {
@@ -233,7 +273,9 @@ export type Database = {
           hide_avatar?: boolean | null
           id: string
           name: string
+          notifications_enabled?: boolean | null
           phone?: string | null
+          push_notifications_enabled?: boolean | null
           verified?: boolean | null
         }
         Update: {
@@ -243,7 +285,9 @@ export type Database = {
           hide_avatar?: boolean | null
           id?: string
           name?: string
+          notifications_enabled?: boolean | null
           phone?: string | null
+          push_notifications_enabled?: boolean | null
           verified?: boolean | null
         }
         Relationships: []

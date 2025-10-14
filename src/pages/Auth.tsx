@@ -37,14 +37,22 @@ const Auth = () => {
         password: loginPassword,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes("Email not confirmed")) {
+          toast({
+            variant: "destructive",
+            title: "Email Not Verified",
+            description: "Please verify your email before logging in. Check your inbox for the verification link.",
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
 
-      toast({
-        title: "Success",
-        description: "Logged in successfully!",
-      });
-
-      navigate("/dashboard");
+      // Show welcome popup
+      localStorage.setItem("showWelcomePopup", "true");
+      navigate("/");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -69,20 +77,21 @@ const Auth = () => {
             name: signupName,
             role: signupRole,
           },
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `https://homecarejobbd.vercel.app/`,
         },
       });
 
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Account created! You can now log in.",
+        title: "Verification Email Sent! 📧",
+        description: "Please check your inbox and verify your email to continue.",
       });
 
-      // Switch to login tab
-      setLoginEmail(signupEmail);
-      setLoginPassword(signupPassword);
+      // Clear form
+      setSignupName("");
+      setSignupEmail("");
+      setSignupPassword("");
     } catch (error: any) {
       toast({
         variant: "destructive",

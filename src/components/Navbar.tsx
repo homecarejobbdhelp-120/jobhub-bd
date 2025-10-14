@@ -3,15 +3,10 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { Menu, X, Share2, Bell, User as UserIcon, LogOut, Settings, Briefcase } from "lucide-react";
+import { Menu, X, Share2, Bell, User as UserIcon, LogOut, Settings, Briefcase, ExternalLink } from "lucide-react";
 import logo from "@/assets/homecarejobbd.png";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,31 +15,127 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import WelcomePopup from "./WelcomePopup";
+import ShareModal from "./ShareModal";
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+  job_id: string | null;
+}
+
+interface Profile {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url: string | null;
+  notifications_enabled: boolean;
+  push_notifications_enabled: boolean;
+}
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+        fetchNotifications(session.user.id);
+        
+        // Check if we should show welcome popup
+        const shouldShowWelcome = localStorage.getItem("showWelcomePopup");
+        if (shouldShowWelcome === "true") {
+          setShowWelcome(true);
+          localStorage.removeItem("showWelcomePopup");
+        }
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+        fetchNotifications(session.user.id);
+      } else {
+        setProfile(null);
+        setNotifications([]);
+        setUnreadCount(0);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    if (data) setProfile(data);
+  };
+
+  const fetchNotifications = async (userId: string) => {
+    const { data } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(5);
+    
+    if (data) {
+      setNotifications(data);
+      setUnreadCount(data.filter(n => !n.read).length);
+    }
+  };
+
+  // Realtime subscription for notifications
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          setNotifications(prev => [payload.new as Notification, ...prev.slice(0, 4)]);
+          setUnreadCount(prev => prev + 1);
+          
+          // Show toast notification
+          toast({
+            title: "New Notification",
+            description: (payload.new as Notification).title,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, toast]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,51 +150,24 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const handleShare = async () => {
-    const shareData = {
-      title: "HomeCareJobBD",
-      text: "Share this website with your friend so that he can get a perfect home care job.",
-      url: "https://homecarejobbd.vercel.app",
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        toast({ title: "Thanks for sharing!" });
-      } catch (err) {
-        console.log("Share cancelled");
-      }
-    } else {
-      navigator.clipboard.writeText(shareData.url);
-      toast({ title: "Link copied to clipboard!" });
-    }
-    setMobileMenuOpen(false);
+  const markNotificationAsRead = async (notificationId: string) => {
+    await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("id", notificationId);
+    
+    setNotifications(prev =>
+      prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
+    );
+    setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
-  const handleNotifications = async () => {
-    if (!("Notification" in window)) {
-      toast({
-        title: "Not supported",
-        description: "Your browser doesn't support notifications",
-        variant: "destructive",
-      });
-      return;
+  const handleNotificationClick = (notification: Notification) => {
+    markNotificationAsRead(notification.id);
+    if (notification.job_id) {
+      navigate(`/jobs`);
     }
-
-    const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      toast({
-        title: "✅ Notifications enabled!",
-        description: "You will now receive updates from HomeCareJobBD.",
-      });
-    } else {
-      toast({
-        title: "Notifications blocked",
-        description: "Please enable notifications in your browser settings",
-        variant: "destructive",
-      });
-    }
-    setMobileMenuOpen(false);
+    setNotificationsOpen(false);
   };
 
   const scrollToTop = () => {
@@ -112,12 +176,6 @@ const Navbar = () => {
   };
 
   const isActiveRoute = (path: string) => location.pathname === path;
-
-  const mockNotifications = [
-    { id: 1, text: "New job posted: Senior Caregiver", time: "2 hours ago" },
-    { id: 2, text: "Application status updated", time: "1 day ago" },
-    { id: 3, text: "New message from employer", time: "2 days ago" },
-  ];
 
   return (
     <nav className={`bg-white border-b sticky top-0 z-50 transition-all duration-300 ${
@@ -197,20 +255,59 @@ const Navbar = () => {
                       className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10 relative"
                     >
                       <Bell className="h-5 w-5" />
-                      <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+                      {unreadCount > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                        >
+                          {unreadCount}
+                        </Badge>
+                      )}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-80 bg-white z-50">
                     <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {mockNotifications.map((notif) => (
-                      <DropdownMenuItem key={notif.id} className="flex flex-col items-start py-3">
-                        <span className="text-sm font-medium">{notif.text}</span>
-                        <span className="text-xs text-gray-500">{notif.time}</span>
-                      </DropdownMenuItem>
-                    ))}
+                    {notifications.length > 0 ? (
+                      notifications.map((notification) => (
+                        <DropdownMenuItem
+                          key={notification.id}
+                          className={`px-4 py-3 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          <div className="w-full">
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="font-medium text-sm">{notification.title}</p>
+                              {!notification.read && (
+                                <div className="w-2 h-2 rounded-full bg-[#6DBE45] mt-1 flex-shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">{notification.message}</p>
+                            {notification.job_id && (
+                              <span className="text-xs text-[#6DBE45] mt-1 inline-flex items-center gap-1">
+                                View Job <ExternalLink className="w-3 h-3" />
+                              </span>
+                            )}
+                          </div>
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <div className="px-4 py-6 text-center text-sm text-gray-500">
+                        No notifications yet
+                      </div>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
+
+                {/* Share Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
+                  onClick={() => setShowShareModal(true)}
+                >
+                  <Share2 className="h-5 w-5" />
+                </Button>
 
                 {/* Profile Dropdown */}
                 <DropdownMenu>
@@ -221,7 +318,7 @@ const Navbar = () => {
                       className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
                     >
                       <UserIcon className="h-5 w-5 mr-1" />
-                      <span className="hidden lg:inline">{user.email?.split('@')[0]}</span>
+                      <span className="hidden lg:inline">{profile?.name || user.email?.split('@')[0]}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 bg-white z-50">
@@ -308,18 +405,11 @@ const Navbar = () => {
                 Post a Job
               </Link>
               <button
-                onClick={handleShare}
+                onClick={() => { setShowShareModal(true); setMobileMenuOpen(false); }}
                 className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors text-left flex items-center gap-2 px-2 py-1"
               >
                 <Share2 size={18} />
                 Share this website
-              </button>
-              <button
-                onClick={handleNotifications}
-                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors text-left flex items-center gap-2 px-2 py-1"
-              >
-                <Bell size={18} />
-                Enable Notifications
               </button>
               {user ? (
                 <>
@@ -352,29 +442,16 @@ const Navbar = () => {
         </AnimatePresence>
       </div>
 
-      {/* About Dialog */}
-      <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>About HomeCareJobBD</DialogTitle>
-            <DialogDescription className="pt-4">
-              HomeCareJobBD helps you find your perfect home care job easily and quickly.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      {/* Welcome Popup */}
+      {showWelcome && profile && (
+        <WelcomePopup
+          userName={profile.name || user?.email || ""}
+          onClose={() => setShowWelcome(false)}
+        />
+      )}
 
-      {/* Contact Dialog */}
-      <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Contact Us</DialogTitle>
-            <DialogDescription className="pt-4">
-              <strong>Email:</strong> support@homecarejobbd.vercel.app
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      {/* Share Modal */}
+      <ShareModal open={showShareModal} onOpenChange={setShowShareModal} />
     </nav>
   );
 };

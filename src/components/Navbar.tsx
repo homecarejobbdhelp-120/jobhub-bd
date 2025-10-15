@@ -363,14 +363,37 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-[#0B4A79] hover:text-[#6DBE45] transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile Auth Buttons + Menu */}
+          <div className="md:hidden flex items-center gap-2">
+            {!user && (
+              <>
+                <Link to="/auth">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-[#6DBE45] text-[#6DBE45] hover:bg-[#6DBE45]/10 h-8 px-3 text-xs"
+                  >
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button 
+                    size="sm" 
+                    className="bg-[#6DBE45] hover:bg-[#6DBE45]/90 text-white h-8 px-3 text-xs"
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
+            <button
+              className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -411,7 +434,7 @@ const Navbar = () => {
                 <Share2 size={18} />
                 Share this website
               </button>
-              {user ? (
+              {user && (
                 <>
                   <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="outline" className="w-full border-[#6DBE45] text-[#6DBE45] hover:bg-[#6DBE45]/10">Dashboard</Button>
@@ -426,15 +449,6 @@ const Navbar = () => {
                     <LogOut className="h-4 w-4 mr-1" />
                     Logout
                   </Button>
-                </>
-              ) : (
-                <>
-                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full border-[#6DBE45] text-[#6DBE45] hover:bg-[#6DBE45]/10">Login</Button>
-                  </Link>
-                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full bg-[#6DBE45] hover:bg-[#6DBE45]/90 text-white">Sign Up</Button>
-                  </Link>
                 </>
               )}
             </motion.div>

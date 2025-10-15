@@ -215,13 +215,13 @@ const Navbar = () => {
               {isActiveRoute("/jobs") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
             </Link>
             <Link 
-              to="/contact" 
+              to="/post-job" 
               className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
-                isActiveRoute("/contact") ? "text-[#6DBE45] font-medium" : ""
+                isActiveRoute("/post-job") ? "text-[#6DBE45] font-medium" : ""
               }`}
             >
               Post a Job
-              {isActiveRoute("/contact") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
+              {isActiveRoute("/post-job") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
             </Link>
             
             {user ? (
@@ -421,7 +421,7 @@ const Navbar = () => {
                 Browse Jobs
               </Link>
               <Link
-                to="/contact"
+                to="/post-job"
                 className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1"
                 onClick={() => setMobileMenuOpen(false)}
               >

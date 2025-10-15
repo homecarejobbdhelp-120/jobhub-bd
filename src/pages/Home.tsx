@@ -148,7 +148,7 @@ const Home = () => {
               Find Jobs
             </Button>
             <Button
-              onClick={() => navigate(user ? "/dashboard" : "/auth")}
+              onClick={() => navigate("/post-job")}
               variant="outline"
               size="lg"
               className="w-full sm:w-auto h-11 md:h-12 text-sm md:text-base font-semibold border-2 px-8"

@@ -181,7 +181,7 @@ const Navbar = () => {
     <nav className={`bg-white border-b sticky top-0 z-50 transition-all duration-300 ${
       isScrolled ? "shadow-lg" : "shadow-sm"
     }`}>
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-2 md:py-3">
         <div className="flex justify-between items-center">
           {/* Logo Section */}
           <motion.button 
@@ -190,8 +190,8 @@ const Navbar = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <img src={logo} alt="HomeCare Job BD" className="h-12 md:h-14 transition-transform duration-300 group-hover:scale-105" />
-            <span className="text-xs text-[#0B4A79] mt-1 hidden md:block">Connecting Caregivers, Nurses & Companies</span>
+            <img src={logo} alt="HomeCare Job BD" className="h-10 md:h-12 transition-transform duration-300 group-hover:scale-105" />
+            <span className="text-xs text-secondary mt-0.5 hidden lg:block">Connecting Caregivers, Nurses & Companies</span>
           </motion.button>
 
           {/* Desktop Navigation */}

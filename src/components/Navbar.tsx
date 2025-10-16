@@ -342,7 +342,7 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/auth">
+                <Link to="/login">
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -351,7 +351,7 @@ const Navbar = () => {
                     Login
                   </Button>
                 </Link>
-                <Link to="/auth">
+                <Link to="/signup">
                   <Button 
                     size="sm" 
                     className="bg-[#6DBE45] hover:bg-[#6DBE45]/90 text-white"
@@ -367,7 +367,7 @@ const Navbar = () => {
           <div className="md:hidden flex items-center gap-2">
             {!user && (
               <>
-                <Link to="/auth">
+                <Link to="/login">
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -376,7 +376,7 @@ const Navbar = () => {
                     Login
                   </Button>
                 </Link>
-                <Link to="/auth">
+                <Link to="/signup">
                   <Button 
                     size="sm" 
                     className="bg-[#6DBE45] hover:bg-[#6DBE45]/90 text-white h-8 px-3 text-xs"

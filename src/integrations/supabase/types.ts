@@ -103,6 +103,8 @@ export type Database = {
       }
       jobs: {
         Row: {
+          company_name: string | null
+          contact_email: string | null
           created_at: string | null
           description: string
           duty_time: string
@@ -113,7 +115,7 @@ export type Database = {
           job_type: string
           location: string
           patient_details: string | null
-          salary: number
+          salary: number | null
           salary_negotiable: boolean | null
           shift_type: Database["public"]["Enums"]["shift_type"]
           start_date: string | null
@@ -121,6 +123,8 @@ export type Database = {
           title: string
         }
         Insert: {
+          company_name?: string | null
+          contact_email?: string | null
           created_at?: string | null
           description: string
           duty_time: string
@@ -131,7 +135,7 @@ export type Database = {
           job_type: string
           location: string
           patient_details?: string | null
-          salary: number
+          salary?: number | null
           salary_negotiable?: boolean | null
           shift_type: Database["public"]["Enums"]["shift_type"]
           start_date?: string | null
@@ -139,6 +143,8 @@ export type Database = {
           title: string
         }
         Update: {
+          company_name?: string | null
+          contact_email?: string | null
           created_at?: string | null
           description?: string
           duty_time?: string
@@ -149,7 +155,7 @@ export type Database = {
           job_type?: string
           location?: string
           patient_details?: string | null
-          salary?: number
+          salary?: number | null
           salary_negotiable?: boolean | null
           shift_type?: Database["public"]["Enums"]["shift_type"]
           start_date?: string | null

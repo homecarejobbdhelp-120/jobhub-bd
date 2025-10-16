@@ -112,113 +112,113 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="max-w-md mx-auto">
-          {/* Success Message Banner */}
-          {successMessage && (
-            <Alert className="mb-6 bg-green-50 border-green-200">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                {successMessage}
-              </AlertDescription>
-            </Alert>
-          )}
+      <div className="w-full max-w-md mx-auto">
+        {/* Success Message Banner */}
+        {successMessage && (
+          <Alert className="mb-6 bg-green-50 border-green-200">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              {successMessage}
+            </AlertDescription>
+          </Alert>
+        )}
 
-          {/* Error Message Banner */}
-          {error && (
-            <Alert className="mb-6 bg-red-50 border-red-200">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">
-                {error}
-              </AlertDescription>
-            </Alert>
-          )}
+        {/* Error Message Banner */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error}
+            </AlertDescription>
+          </Alert>
+        )}
 
-          {/* Login Card */}
-          <Card className="shadow-lg border-0">
-            <CardHeader className="text-center pb-8">
-              <CardTitle className="text-3xl font-bold text-[#0B4A79]">
-                Welcome Back
-              </CardTitle>
-              <CardDescription className="text-base mt-2">
-                Log in to your account to continue
-              </CardDescription>
-            </CardHeader>
+        {/* Login Card */}
+        <Card className="shadow-lg rounded-2xl">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-xl font-bold">
+              Welcome Back
+            </CardTitle>
+            <CardDescription className="text-base mt-2">
+              Log in to your account to continue
+            </CardDescription>
+          </CardHeader>
             
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-5">
-                {/* Email Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                    Email Address *
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="h-11 rounded-lg border-gray-300 focus:border-[#6DBE45] focus:ring-[#6DBE45]"
-                  />
-                </div>
-
-                {/* Password Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                    Password *
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="h-11 rounded-lg border-gray-300 focus:border-[#6DBE45] focus:ring-[#6DBE45]"
-                  />
-                </div>
-
-                {/* reCAPTCHA */}
-                <div className="flex flex-col items-center py-4">
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={RECAPTCHA_SITE_KEY}
-                    onChange={onCaptchaChange}
-                  />
-                  {captchaError && (
-                    <p className="text-red-600 text-sm mt-2">{captchaError}</p>
-                  )}
-                </div>
-
-                {/* Submit Button */}
-                <Button
-                  type="submit"
+          <CardContent className="pb-8">
+            <form onSubmit={handleLogin} className="space-y-4">
+              {/* Email Field */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-base">
+                  Email Address *
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-12 text-sm"
                   disabled={loading}
-                  className="w-full h-11 bg-[#6DBE45] hover:bg-[#5da639] text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  {loading ? "Logging in..." : "Log In"}
-                </Button>
-              </form>
-
-              {/* Switch to Signup Link */}
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  Don't have an account?{" "}
-                  <Link
-                    to="/signup"
-                    className="text-[#6DBE45] hover:text-[#5da639] font-medium underline-offset-2 hover:underline"
-                  >
-                    Create one here
-                  </Link>
-                </p>
+                />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+
+              {/* Password Field */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-base">
+                  Password *
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="h-12 text-sm"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* reCAPTCHA */}
+              <div className="flex flex-col items-center py-3">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={onCaptchaChange}
+                />
+                {captchaError && (
+                  <p className="text-destructive text-sm mt-2">{captchaError}</p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+              >
+                {loading ? "Logging in..." : "Log In"}
+              </Button>
+            </form>
+
+            {/* Switch to Signup Link */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <Link
+                  to="/signup"
+                  className="text-primary hover:text-primary/90 font-medium hover:underline"
+                >
+                  Create one here
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

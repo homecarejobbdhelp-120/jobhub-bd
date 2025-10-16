@@ -27,8 +27,7 @@ const PostJob = () => {
     duty_time: "",
     description: "",
     patient_details: "",
-    start_date: "",
-    end_date: "",
+    join_date: "",
   });
 
   useEffect(() => {
@@ -70,8 +69,8 @@ const PostJob = () => {
         duty_time: formData.duty_time,
         description: formData.description,
         patient_details: formData.patient_details || null,
-        start_date: formData.start_date || null,
-        end_date: formData.end_date || null,
+        start_date: formData.join_date || null,
+        end_date: null,
         status: "open" as const,
       }]);
 
@@ -129,36 +128,37 @@ const PostJob = () => {
             </p>
           </div>
 
-          <Card>
+          <Card className="shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle>Job Details</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-xl">Job Details</CardTitle>
+              <CardDescription className="text-base">
                 Fill in the details below to post your job listing
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <Label htmlFor="title">Job Title *</Label>
+                  <Label htmlFor="title" className="text-base">Job Title *</Label>
                   <Input
                     id="title"
                     name="title"
                     placeholder="e.g., Full-time Caregiver Needed"
                     value={formData.title}
                     onChange={handleChange}
+                    className="h-11 text-sm"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="job_type">Job Type *</Label>
+                    <Label htmlFor="job_type" className="text-base">Job Type *</Label>
                     <Select
                       value={formData.job_type}
                       onValueChange={(value) => handleSelectChange("job_type", value)}
                       required
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 text-sm">
                         <SelectValue placeholder="Select job type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -166,21 +166,19 @@ const PostJob = () => {
                         <SelectItem value="Nurse">Nurse</SelectItem>
                         <SelectItem value="Maid">Maid</SelectItem>
                         <SelectItem value="Babysitter">Babysitter</SelectItem>
-                        <SelectItem value="Cook">Cook</SelectItem>
-                        <SelectItem value="Driver">Driver</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div>
-                    <Label htmlFor="location">Location *</Label>
+                    <Label htmlFor="location" className="text-base">Location *</Label>
                     <Input
                       id="location"
                       name="location"
                       placeholder="e.g., Dhaka, Bangladesh"
                       value={formData.location}
                       onChange={handleChange}
+                      className="h-11 text-sm"
                       required
                     />
                   </div>
@@ -188,26 +186,27 @@ const PostJob = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="salary">Salary (BDT) *</Label>
+                    <Label htmlFor="salary" className="text-base">Salary (BDT) *</Label>
                     <Input
                       id="salary"
                       name="salary"
                       type="number"
-                      placeholder="e.g., 15000"
+                      placeholder="Enter expected salary (BDT)"
                       value={formData.salary}
                       onChange={handleChange}
+                      className="h-11 text-sm"
                       required
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="shift_type">Shift Type *</Label>
+                    <Label htmlFor="shift_type" className="text-base">Shift Type *</Label>
                     <Select
                       value={formData.shift_type}
                       onValueChange={(value) => handleSelectChange("shift_type", value)}
                       required
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 text-sm">
                         <SelectValue placeholder="Select shift" />
                       </SelectTrigger>
                       <SelectContent>
@@ -235,43 +234,32 @@ const PostJob = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="duty_time">Duty Time/Hours *</Label>
+                  <Label htmlFor="duty_time" className="text-base">Duty Time/Hours *</Label>
                   <Input
                     id="duty_time"
                     name="duty_time"
                     placeholder="e.g., 8:00 AM - 5:00 PM"
                     value={formData.duty_time}
                     onChange={handleChange}
+                    className="h-11 text-sm"
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="start_date">Start Date</Label>
-                    <Input
-                      id="start_date"
-                      name="start_date"
-                      type="date"
-                      value={formData.start_date}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="end_date">End Date</Label>
-                    <Input
-                      id="end_date"
-                      name="end_date"
-                      type="date"
-                      value={formData.end_date}
-                      onChange={handleChange}
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="join_date" className="text-base">Join Date</Label>
+                  <Input
+                    id="join_date"
+                    name="join_date"
+                    type="date"
+                    value={formData.join_date}
+                    onChange={handleChange}
+                    className="h-11 text-sm"
+                  />
                 </div>
 
                 <div>
-                  <Label htmlFor="description">Job Description *</Label>
+                  <Label htmlFor="description" className="text-base">Job Description *</Label>
                   <Textarea
                     id="description"
                     name="description"
@@ -279,12 +267,13 @@ const PostJob = () => {
                     value={formData.description}
                     onChange={handleChange}
                     rows={6}
+                    className="text-sm"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="patient_details">Patient/Care Details (Optional)</Label>
+                  <Label htmlFor="patient_details" className="text-base">Patient/Care Details (Optional)</Label>
                   <Textarea
                     id="patient_details"
                     name="patient_details"
@@ -292,13 +281,14 @@ const PostJob = () => {
                     value={formData.patient_details}
                     onChange={handleChange}
                     rows={4}
+                    className="text-sm"
                   />
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button
                     type="submit"
-                    className="flex-1 bg-primary hover:bg-primary/90"
+                    className="flex-1 h-11 bg-primary hover:bg-primary/90 text-primary-foreground"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Posting..." : "Post Job"}
@@ -306,6 +296,7 @@ const PostJob = () => {
                   <Button
                     type="button"
                     variant="outline"
+                    className="h-11"
                     onClick={() => navigate(-1)}
                     disabled={isSubmitting}
                   >

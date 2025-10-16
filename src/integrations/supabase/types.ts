@@ -270,6 +270,7 @@ export type Database = {
           notifications_enabled: boolean | null
           phone: string | null
           push_notifications_enabled: boolean | null
+          username: string | null
           verified: boolean | null
         }
         Insert: {
@@ -282,6 +283,7 @@ export type Database = {
           notifications_enabled?: boolean | null
           phone?: string | null
           push_notifications_enabled?: boolean | null
+          username?: string | null
           verified?: boolean | null
         }
         Update: {
@@ -294,6 +296,7 @@ export type Database = {
           notifications_enabled?: boolean | null
           phone?: string | null
           push_notifications_enabled?: boolean | null
+          username?: string | null
           verified?: boolean | null
         }
         Relationships: []

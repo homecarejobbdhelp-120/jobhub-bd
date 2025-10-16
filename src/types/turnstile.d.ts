@@ -1,6 +1,4 @@
-/// <reference types="vite/client" />
-
-// Cloudflare Turnstile
+// Cloudflare Turnstile type definitions
 declare global {
   interface Window {
     turnstile?: {
@@ -14,4 +12,3 @@ declare global {
 }
 
 export {};
-

@@ -20,31 +20,37 @@ const LoginPrompt = ({ open, onOpenChange }: LoginPromptProps) => {
 
   const handleSignUp = () => {
     onOpenChange(false);
-    navigate("/auth");
+    navigate("/signup");
   };
 
   const handleSignIn = () => {
     onOpenChange(false);
-    navigate("/auth");
+    navigate("/login");
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md backdrop-blur-sm">
         <DialogHeader>
-          <DialogTitle>Account Required</DialogTitle>
-          <DialogDescription className="pt-4">
-            You need to have an account to apply for jobs. Please sign up or sign in to continue.
+          <DialogTitle className="text-center text-xl">Authentication Required</DialogTitle>
+          <DialogDescription className="pt-4 text-center">
+            Please log in or sign up to continue.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="flex-col gap-2 sm:flex-col sm:gap-2">
-          <Button onClick={handleSignUp} className="w-full">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Sign Up (Recommended)
-          </Button>
-          <Button onClick={handleSignIn} variant="outline" className="w-full">
+        <DialogFooter className="flex-col gap-3 sm:flex-col sm:gap-3 mt-2">
+          <Button 
+            onClick={handleSignIn} 
+            className="w-full bg-[#6DBE45] hover:bg-[#6DBE45]/90 text-white"
+          >
             <LogIn className="mr-2 h-4 w-4" />
-            Already have an account? Sign In
+            Login
+          </Button>
+          <Button 
+            onClick={handleSignUp} 
+            className="w-full bg-[#0B4A79] hover:bg-[#0B4A79]/90 text-white"
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Sign Up
           </Button>
         </DialogFooter>
       </DialogContent>

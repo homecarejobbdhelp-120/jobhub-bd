@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import WelcomePopup from "./WelcomePopup";
 import ShareModal from "./ShareModal";
+import LoginPrompt from "./LoginPrompt";
 
 interface Notification {
   id: string;
@@ -50,6 +51,8 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -177,6 +180,25 @@ const Navbar = () => {
 
   const isActiveRoute = (path: string) => location.pathname === path;
 
+  const handleProtectedNavigation = async (path: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setPendingAction(path);
+      setShowLoginPrompt(true);
+    } else {
+      navigate(path);
+    }
+  };
+
+  // Redirect after successful login
+  useEffect(() => {
+    if (user && pendingAction) {
+      navigate(pendingAction);
+      setPendingAction(null);
+      setShowLoginPrompt(false);
+    }
+  }, [user, pendingAction, navigate]);
+
   return (
     <nav className={`bg-white border-b sticky top-0 z-50 transition-all duration-300 ${
       isScrolled ? "shadow-lg" : "shadow-sm"
@@ -205,24 +227,24 @@ const Navbar = () => {
               Home
               {isActiveRoute("/") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
             </Link>
-            <Link 
-              to="/jobs" 
+            <button
+              onClick={() => handleProtectedNavigation("/jobs")}
               className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
                 isActiveRoute("/jobs") ? "text-[#6DBE45] font-medium" : ""
               }`}
             >
               Browse Jobs
               {isActiveRoute("/jobs") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
-            </Link>
-            <Link 
-              to="/post-job" 
+            </button>
+            <button
+              onClick={() => handleProtectedNavigation("/post-job")}
               className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
                 isActiveRoute("/post-job") ? "text-[#6DBE45] font-medium" : ""
               }`}
             >
               Post a Job
               {isActiveRoute("/post-job") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
-            </Link>
+            </button>
             
             {user ? (
               <>
@@ -413,20 +435,24 @@ const Navbar = () => {
               >
                 Home
               </Link>
-              <Link
-                to="/jobs"
-                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1"
-                onClick={() => setMobileMenuOpen(false)}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleProtectedNavigation("/jobs");
+                }}
+                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1 text-left"
               >
                 Browse Jobs
-              </Link>
-              <Link
-                to="/post-job"
-                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1"
-                onClick={() => setMobileMenuOpen(false)}
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleProtectedNavigation("/post-job");
+                }}
+                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1 text-left"
               >
                 Post a Job
-              </Link>
+              </button>
               <button
                 onClick={() => { setShowShareModal(true); setMobileMenuOpen(false); }}
                 className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors text-left flex items-center gap-2 px-2 py-1"
@@ -466,6 +492,9 @@ const Navbar = () => {
 
       {/* Share Modal */}
       <ShareModal open={showShareModal} onOpenChange={setShowShareModal} />
+
+      {/* Login Prompt Modal */}
+      <LoginPrompt open={showLoginPrompt} onOpenChange={setShowLoginPrompt} />
     </nav>
   );
 };

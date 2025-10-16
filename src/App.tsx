@@ -11,6 +11,8 @@ import Signup from "./pages/Signup";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import PostJob from "./pages/PostJob";
+import Feed from "./pages/Feed";
+import CompanyFeed from "./pages/CompanyFeed";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/post-job" element={<PostJob />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/company-feed" element={<CompanyFeed />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

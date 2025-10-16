@@ -262,42 +262,66 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          company_name: string | null
           created_at: string | null
           email: string
+          face_scan_url: string | null
           hide_avatar: boolean | null
           id: string
+          license_number: string | null
+          location: string | null
           name: string
+          nid_back_url: string | null
+          nid_front_url: string | null
+          nid_number: string | null
           notifications_enabled: boolean | null
           phone: string | null
           push_notifications_enabled: boolean | null
           username: string | null
           verified: boolean | null
+          verified_percentage: number | null
         }
         Insert: {
           avatar_url?: string | null
+          company_name?: string | null
           created_at?: string | null
           email: string
+          face_scan_url?: string | null
           hide_avatar?: boolean | null
           id: string
+          license_number?: string | null
+          location?: string | null
           name: string
+          nid_back_url?: string | null
+          nid_front_url?: string | null
+          nid_number?: string | null
           notifications_enabled?: boolean | null
           phone?: string | null
           push_notifications_enabled?: boolean | null
           username?: string | null
           verified?: boolean | null
+          verified_percentage?: number | null
         }
         Update: {
           avatar_url?: string | null
+          company_name?: string | null
           created_at?: string | null
           email?: string
+          face_scan_url?: string | null
           hide_avatar?: boolean | null
           id?: string
+          license_number?: string | null
+          location?: string | null
           name?: string
+          nid_back_url?: string | null
+          nid_front_url?: string | null
+          nid_number?: string | null
           notifications_enabled?: boolean | null
           phone?: string | null
           push_notifications_enabled?: boolean | null
           username?: string | null
           verified?: boolean | null
+          verified_percentage?: number | null
         }
         Relationships: []
       }
@@ -438,7 +462,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "employer" | "caregiver"
+      app_role: "admin" | "employer" | "caregiver" | "nurse"
       application_status: "pending" | "accepted" | "rejected"
       job_status: "open" | "closed" | "expired"
       report_status: "pending" | "resolved" | "dismissed"
@@ -571,7 +595,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "employer", "caregiver"],
+      app_role: ["admin", "employer", "caregiver", "nurse"],
       application_status: ["pending", "accepted", "rejected"],
       job_status: ["open", "closed", "expired"],
       report_status: ["pending", "resolved", "dismissed"],

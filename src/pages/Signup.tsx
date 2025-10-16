@@ -15,9 +15,12 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   
+  // User type selection
+  const [userType, setUserType] = useState<"caregiver" | "company">("caregiver");
+  
   // Form fields
   const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -70,14 +73,16 @@ const Signup = () => {
     setCaptchaError("");
 
     // Validate all fields
-    if (!fullName.trim()) {
-      setError("Please enter your full name.");
-      return;
-    }
-
-    if (!username.trim()) {
-      setError("Please enter a username.");
-      return;
+    if (userType === "company") {
+      if (!companyName.trim()) {
+        setError("Please enter your company name.");
+        return;
+      }
+    } else {
+      if (!fullName.trim()) {
+        setError("Please enter your full name.");
+        return;
+      }
     }
 
     // Validate email format
@@ -107,15 +112,22 @@ const Signup = () => {
     setLoading(true);
 
     try {
+      const metadata: any = {
+        user_type: userType,
+      };
+
+      if (userType === "company") {
+        metadata.company_name = companyName;
+      } else {
+        metadata.full_name = fullName;
+      }
+
       const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/login`,
-          data: {
-            full_name: fullName,
-            username: username,
-          },
+          data: metadata,
         },
       });
 
@@ -133,7 +145,7 @@ const Signup = () => {
       setSuccess(true);
       toast({
         title: "Success!",
-        description: "Account created successfully! Please check your email for verification.",
+        description: "Account created successfully! Please login to continue.",
       });
       
       setTimeout(() => {
@@ -161,7 +173,7 @@ const Signup = () => {
           <Alert className="mb-6 bg-green-50 border-green-200">
             <CheckCircle2 className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800">
-              Account created successfully! Please check your email for verification.
+              Account created successfully! Please login to continue.
             </AlertDescription>
           </Alert>
         )}
@@ -189,39 +201,66 @@ const Signup = () => {
             
           <CardContent className="pb-8">
             <form onSubmit={handleSignup} className="space-y-5">
-              {/* Full Name Field */}
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-base font-medium">
-                  Full Name *
-                </Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  className="h-11 text-sm"
-                  disabled={loading || success}
-                />
+              {/* User Type Toggle */}
+              <div className="flex gap-2 p-1 bg-muted rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setUserType("caregiver")}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                    userType === "caregiver" 
+                      ? "bg-background shadow-sm text-foreground" 
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Caregiver / Nurse
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserType("company")}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                    userType === "company" 
+                      ? "bg-background shadow-sm text-foreground" 
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Company
+                </button>
               </div>
 
-              {/* Username Field */}
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-base font-medium">
-                  Username *
-                </Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Choose a username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  className="h-11 text-sm"
-                  disabled={loading || success}
-                />
-              </div>
+              {/* Conditional Name Field */}
+              {userType === "company" ? (
+                <div className="space-y-2">
+                  <Label htmlFor="companyName" className="text-base font-medium">
+                    Company Name *
+                  </Label>
+                  <Input
+                    id="companyName"
+                    type="text"
+                    placeholder="Enter your company name"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    required
+                    className="h-11 text-sm"
+                    disabled={loading || success}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-base font-medium">
+                    Full Name *
+                  </Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="h-11 text-sm"
+                    disabled={loading || success}
+                  />
+                </div>
+              )}
 
               {/* Email Field */}
               <div className="space-y-2">
@@ -257,7 +296,7 @@ const Signup = () => {
                   disabled={loading || success}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Password must be at least 8 characters long (letters or numbers).
+                  Password must contain at least 8 characters.
                 </p>
               </div>
 

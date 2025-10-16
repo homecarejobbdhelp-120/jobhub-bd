@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
-import ReCAPTCHA from "react-google-recaptcha";
+
 import { AlertCircle, CheckCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
@@ -23,13 +23,13 @@ const Login = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   
-  // reCAPTCHA
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  // Cloudflare Turnstile
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState("");
+  const turnstileRef = useRef<HTMLDivElement>(null);
 
-  // Get reCAPTCHA site key from environment
-  const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"; // Test key for development
+  // Cloudflare Turnstile site key
+  const TURNSTILE_SITE_KEY = "0x4AAAAAAB6---qkWG8NYhRuG";
 
   // Check if already logged in
   useEffect(() => {
@@ -42,6 +42,19 @@ const Login = () => {
     checkUser();
   }, [navigate]);
 
+  // Load Turnstile widget
+  useEffect(() => {
+    if (turnstileRef.current && (window as any).turnstile) {
+      (window as any).turnstile.render(turnstileRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: (token: string) => {
+          setCaptchaToken(token);
+          setCaptchaError("");
+        },
+      });
+    }
+  }, []);
+
   // Show success message if redirected from signup
   useEffect(() => {
     if (searchParams.get("msg") === "created") {
@@ -49,11 +62,6 @@ const Login = () => {
     }
   }, [searchParams]);
 
-  // Handle reCAPTCHA change
-  const onCaptchaChange = (token: string | null) => {
-    setCaptchaToken(token);
-    setCaptchaError("");
-  };
 
   // Email validation
   const isValidEmail = (email: string) => {
@@ -99,14 +107,30 @@ const Login = () => {
         return;
       }
 
-      // Success - redirect to dashboard
-      navigate("/dashboard");
+      // Get user role and redirect accordingly
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .single();
+
+      const userRole = roleData?.role;
+      
+      if (userRole === "employer") {
+        navigate("/company-feed");
+      } else if (userRole === "caregiver" || userRole === "nurse") {
+        navigate("/feed");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err: any) {
       setError("Something went wrong, please try again.");
     } finally {
       setLoading(false);
       // Reset captcha after submission
-      recaptchaRef.current?.reset();
+      if ((window as any).turnstile) {
+        (window as any).turnstile.reset();
+      }
       setCaptchaToken(null);
     }
   };
@@ -183,13 +207,9 @@ const Login = () => {
                 />
               </div>
 
-              {/* reCAPTCHA */}
+              {/* Cloudflare Turnstile */}
               <div className="flex flex-col items-center py-3">
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={RECAPTCHA_SITE_KEY}
-                  onChange={onCaptchaChange}
-                />
+                <div ref={turnstileRef} className="cf-turnstile"></div>
                 {captchaError && (
                   <p className="text-destructive text-sm mt-2">{captchaError}</p>
                 )}

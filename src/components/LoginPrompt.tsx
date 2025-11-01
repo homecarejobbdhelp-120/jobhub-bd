@@ -30,7 +30,7 @@ const LoginPrompt = ({ open, onOpenChange }: LoginPromptProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-[420px] mx-auto p-6 sm:p-8 rounded-xl">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-[420px] mx-auto p-6 sm:p-8 rounded-xl z-[100]">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-center text-xl sm:text-2xl font-bold">
             Authentication Required

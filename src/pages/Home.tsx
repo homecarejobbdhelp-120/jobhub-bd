@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
 import JobCard from "@/components/JobCard";
-import LoginPrompt from "@/components/LoginPrompt";
+import AuthPopup from "@/components/AuthPopup";
 import NotificationPrompt from "@/components/NotificationPrompt";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -80,9 +80,10 @@ const Home = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <NotificationPrompt />
-      <LoginPrompt
-        open={showLoginPrompt}
+      <AuthPopup 
+        open={showLoginPrompt} 
         onOpenChange={setShowLoginPrompt}
+        defaultMode="login"
       />
 
       {/* Hero Section with Background */}

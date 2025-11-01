@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import WelcomePopup from "./WelcomePopup";
 import ShareModal from "./ShareModal";
-import LoginPrompt from "./LoginPrompt";
+import AuthPopup from "./AuthPopup";
 
 interface Notification {
   id: string;
@@ -51,7 +51,8 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   useEffect(() => {
@@ -184,8 +185,9 @@ const Navbar = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setPendingAction(path);
-      setShowLoginPrompt(true);
-      setMobileMenuOpen(false); // Close mobile menu when showing login prompt
+      setAuthMode("login");
+      setShowAuthPopup(true);
+      setMobileMenuOpen(false); // Close mobile menu when showing auth popup
     } else {
       navigate(path);
     }
@@ -196,7 +198,7 @@ const Navbar = () => {
     if (user && pendingAction) {
       navigate(pendingAction);
       setPendingAction(null);
-      setShowLoginPrompt(false);
+      setShowAuthPopup(false);
     }
   }, [user, pendingAction, navigate]);
 
@@ -421,7 +423,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         <AnimatePresence>
-          {mobileMenuOpen && (
+          {mobileMenuOpen && !showAuthPopup && (
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -494,8 +496,12 @@ const Navbar = () => {
       {/* Share Modal */}
       <ShareModal open={showShareModal} onOpenChange={setShowShareModal} />
 
-      {/* Login Prompt Modal */}
-      <LoginPrompt open={showLoginPrompt} onOpenChange={setShowLoginPrompt} />
+      {/* Auth Popup Modal */}
+      <AuthPopup 
+        open={showAuthPopup} 
+        onOpenChange={setShowAuthPopup}
+        defaultMode={authMode}
+      />
     </nav>
   );
 };

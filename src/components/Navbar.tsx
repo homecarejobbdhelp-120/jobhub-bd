@@ -185,6 +185,7 @@ const Navbar = () => {
     if (!user) {
       setPendingAction(path);
       setShowLoginPrompt(true);
+      setMobileMenuOpen(false); // Close mobile menu when showing login prompt
     } else {
       navigate(path);
     }

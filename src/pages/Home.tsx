@@ -27,6 +27,10 @@ const Home = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      // Close login prompt when user logs in
+      if (session?.user) {
+        setShowLoginPrompt(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -61,6 +65,14 @@ const Home = () => {
       setShowLoginPrompt(true);
     } else {
       navigate(`/jobs?job=${id}&apply=true`);
+    }
+  };
+
+  const handlePostJob = () => {
+    if (!user) {
+      setShowLoginPrompt(true);
+    } else {
+      navigate("/post-job");
     }
   };
 
@@ -148,7 +160,7 @@ const Home = () => {
               Find Jobs
             </Button>
             <Button
-              onClick={() => navigate("/post-job")}
+              onClick={handlePostJob}
               variant="outline"
               size="lg"
               className="w-full sm:w-auto h-11 md:h-12 text-sm md:text-base font-semibold border-2 px-8"

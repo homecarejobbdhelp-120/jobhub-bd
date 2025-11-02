@@ -208,7 +208,7 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
       onOpenChange(isOpen);
       if (!isOpen) resetForm();
     }}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-[440px] mx-auto p-6 sm:p-8 rounded-xl z-[100] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[440px] p-6 sm:p-8 rounded-xl shadow-lg bg-background z-[100] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-center text-xl sm:text-2xl font-bold">
             {mode === "login" ? "Welcome Back" : "Create Account"}

@@ -31,6 +31,7 @@ const Signup = () => {
   // Cloudflare Turnstile
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState("");
+  const [showCaptcha, setShowCaptcha] = useState(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
 
   // Cloudflare Turnstile site key (using test key - replace with your actual key in production)
@@ -47,8 +48,10 @@ const Signup = () => {
     checkUser();
   }, [navigate]);
 
-  // Load Turnstile widget
+  // Load Turnstile widget only when needed
   useEffect(() => {
+    if (!showCaptcha) return;
+
     const loadTurnstile = () => {
       if (turnstileRef.current && (window as any).turnstile) {
         try {
@@ -83,7 +86,7 @@ const Signup = () => {
 
       return () => clearInterval(checkTurnstile);
     }
-  }, [TURNSTILE_SITE_KEY]);
+  }, [TURNSTILE_SITE_KEY, showCaptcha]);
 
   // Email validation
   const isValidEmail = (email: string) => {
@@ -128,7 +131,14 @@ const Signup = () => {
       return;
     }
 
-    // Check captcha
+    // Show captcha if not already shown
+    if (!showCaptcha) {
+      setShowCaptcha(true);
+      setCaptchaError("Please complete the CAPTCHA verification below.");
+      return;
+    }
+
+    // Check captcha token after captcha is shown
     if (!captchaToken) {
       setCaptchaError("Please verify you are not a robot.");
       return;
@@ -341,17 +351,19 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Cloudflare Turnstile */}
-              <div className="flex flex-col items-center justify-center py-3 w-full">
-                <div 
-                  ref={turnstileRef} 
-                  className="cf-turnstile w-full flex justify-center [&_.cf-chl-opt]:!hidden [&_*[class*='pass']]:!hidden [&_*[class*='Pass']]:!hidden [&_div:has-text('pass')]:!hidden [&_div:has-text('Pass')]:!hidden"
-                  style={{ minHeight: '65px' }}
-                ></div>
-                {captchaError && (
-                  <p className="text-destructive text-sm mt-2 text-center">{captchaError}</p>
-                )}
-              </div>
+              {/* Cloudflare Turnstile - Only shown after first submit attempt */}
+              {showCaptcha && (
+                <div className="flex flex-col items-center justify-center py-3 w-full">
+                  <div 
+                    ref={turnstileRef} 
+                    className="cf-turnstile w-full flex justify-center"
+                    style={{ minHeight: '65px' }}
+                  ></div>
+                </div>
+              )}
+              {captchaError && (
+                <p className="text-destructive text-sm mt-2 text-center">{captchaError}</p>
+              )}
 
               {/* Submit Button */}
               <Button

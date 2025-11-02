@@ -220,7 +220,8 @@ const Navbar = () => {
           </motion.button>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          {!showAuthPopup && (
+            <div className="hidden md:flex items-center gap-6">
             <Link 
               to="/" 
               className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
@@ -387,6 +388,7 @@ const Navbar = () => {
               </>
             )}
           </div>
+          )}
 
           {/* Mobile Auth Buttons + Menu */}
           <div className="md:hidden flex items-center gap-2">

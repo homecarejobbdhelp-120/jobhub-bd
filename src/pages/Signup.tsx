@@ -345,7 +345,7 @@ const Signup = () => {
               <div className="flex flex-col items-center justify-center py-3 w-full">
                 <div 
                   ref={turnstileRef} 
-                  className="cf-turnstile w-full flex justify-center [&_.cf-chl-opt]:!hidden [&_[class*='pass']]:!hidden"
+                  className="cf-turnstile w-full flex justify-center [&_.cf-chl-opt]:!hidden [&_*[class*='pass']]:!hidden [&_*[class*='Pass']]:!hidden [&_div:has-text('pass')]:!hidden [&_div:has-text('Pass')]:!hidden"
                   style={{ minHeight: '65px' }}
                 ></div>
                 {captchaError && (

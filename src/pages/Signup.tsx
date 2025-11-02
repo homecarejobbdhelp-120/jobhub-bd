@@ -33,8 +33,8 @@ const Signup = () => {
   const [captchaError, setCaptchaError] = useState("");
   const turnstileRef = useRef<HTMLDivElement>(null);
 
-  // Cloudflare Turnstile site key
-  const TURNSTILE_SITE_KEY = "0x4AAAAAAB6---qkWG8NYhRuG";
+  // Cloudflare Turnstile site key (using test key - replace with your actual key in production)
+  const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
 
   // Check if already logged in
   useEffect(() => {
@@ -49,16 +49,41 @@ const Signup = () => {
 
   // Load Turnstile widget
   useEffect(() => {
-    if (turnstileRef.current && (window as any).turnstile) {
-      (window as any).turnstile.render(turnstileRef.current, {
-        sitekey: TURNSTILE_SITE_KEY,
-        callback: (token: string) => {
-          setCaptchaToken(token);
-          setCaptchaError("");
-        },
-      });
+    const loadTurnstile = () => {
+      if (turnstileRef.current && (window as any).turnstile) {
+        try {
+          (window as any).turnstile.render(turnstileRef.current, {
+            sitekey: TURNSTILE_SITE_KEY,
+            callback: (token: string) => {
+              setCaptchaToken(token);
+              setCaptchaError("");
+            },
+            'error-callback': () => {
+              setCaptchaError("CAPTCHA verification failed. Please try again.");
+            },
+            theme: 'light',
+            size: 'normal',
+          });
+        } catch (error) {
+          console.error("Turnstile render error:", error);
+        }
+      }
+    };
+
+    // Wait for Turnstile script to load
+    if ((window as any).turnstile) {
+      loadTurnstile();
+    } else {
+      const checkTurnstile = setInterval(() => {
+        if ((window as any).turnstile) {
+          clearInterval(checkTurnstile);
+          loadTurnstile();
+        }
+      }, 100);
+
+      return () => clearInterval(checkTurnstile);
     }
-  }, []);
+  }, [TURNSTILE_SITE_KEY]);
 
   // Email validation
   const isValidEmail = (email: string) => {
@@ -317,10 +342,14 @@ const Signup = () => {
               </div>
 
               {/* Cloudflare Turnstile */}
-              <div className="flex flex-col items-center py-3">
-                <div ref={turnstileRef} className="cf-turnstile"></div>
+              <div className="flex flex-col items-center justify-center py-3 w-full">
+                <div 
+                  ref={turnstileRef} 
+                  className="cf-turnstile w-full flex justify-center"
+                  style={{ minHeight: '65px' }}
+                ></div>
                 {captchaError && (
-                  <p className="text-destructive text-sm mt-2">{captchaError}</p>
+                  <p className="text-destructive text-sm mt-2 text-center">{captchaError}</p>
                 )}
               </div>
 

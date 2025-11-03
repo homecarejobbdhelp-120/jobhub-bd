@@ -26,6 +26,7 @@ const Login = () => {
   // Cloudflare Turnstile
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState("");
+  const [showCaptcha, setShowCaptcha] = useState(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
 
   // Cloudflare Turnstile site key
@@ -42,18 +43,41 @@ const Login = () => {
     checkUser();
   }, [navigate]);
 
-  // Load Turnstile widget
+  // Load Turnstile widget only when needed
   useEffect(() => {
-    if (turnstileRef.current && (window as any).turnstile) {
-      (window as any).turnstile.render(turnstileRef.current, {
-        sitekey: TURNSTILE_SITE_KEY,
-        callback: (token: string) => {
-          setCaptchaToken(token);
-          setCaptchaError("");
-        },
-      });
+    if (!showCaptcha) return;
+
+    const loadTurnstile = () => {
+      if (turnstileRef.current && (window as any).turnstile) {
+        try {
+          (window as any).turnstile.render(turnstileRef.current, {
+            sitekey: TURNSTILE_SITE_KEY,
+            callback: (token: string) => {
+              setCaptchaToken(token);
+              setCaptchaError("");
+            },
+          });
+        } catch (error) {
+          console.error("Turnstile render error:", error);
+        }
+      }
+    };
+
+    // Check if Turnstile script is loaded
+    if ((window as any).turnstile) {
+      loadTurnstile();
+    } else {
+      // Wait for Turnstile to load
+      const checkTurnstile = setInterval(() => {
+        if ((window as any).turnstile) {
+          loadTurnstile();
+          clearInterval(checkTurnstile);
+        }
+      }, 100);
+
+      return () => clearInterval(checkTurnstile);
     }
-  }, []);
+  }, [TURNSTILE_SITE_KEY, showCaptcha]);
 
   // Show success message if redirected from signup
   useEffect(() => {
@@ -81,7 +105,14 @@ const Login = () => {
       return;
     }
 
-    // Check captcha
+    // Show captcha if not already shown
+    if (!showCaptcha) {
+      setShowCaptcha(true);
+      setCaptchaError("Please complete the CAPTCHA verification below.");
+      return;
+    }
+
+    // Check captcha token after captcha is shown
     if (!captchaToken) {
       setCaptchaError("Please verify you are not a robot.");
       return;
@@ -205,13 +236,19 @@ const Login = () => {
                 />
               </div>
 
-              {/* Cloudflare Turnstile */}
-              <div className="flex flex-col items-center py-3">
-                <div ref={turnstileRef} className="cf-turnstile"></div>
-                {captchaError && (
-                  <p className="text-destructive text-sm mt-2">{captchaError}</p>
-                )}
-              </div>
+              {/* Cloudflare Turnstile - Only shown after first submit attempt */}
+              {showCaptcha && (
+                <div className="flex flex-col items-center justify-center py-3 w-full">
+                  <div 
+                    ref={turnstileRef} 
+                    className="cf-turnstile w-full flex justify-center"
+                    style={{ minHeight: '65px' }}
+                  ></div>
+                </div>
+              )}
+              {captchaError && (
+                <p className="text-destructive text-sm mt-2 text-center">{captchaError}</p>
+              )}
 
               {/* Submit Button */}
               <Button

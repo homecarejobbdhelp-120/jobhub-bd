@@ -30,7 +30,7 @@ const Login = () => {
   const turnstileRef = useRef<HTMLDivElement>(null);
 
   // Cloudflare Turnstile site key
-  const TURNSTILE_SITE_KEY = "0x4AAAAAAB6---qkWG8NYhRuG";
+  const TURNSTILE_SITE_KEY = "0x4AAAAAB-jAF9b9QV3eY20";
 
   // Check if already logged in
   useEffect(() => {
@@ -121,40 +121,49 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Call edge function to verify CAPTCHA and login
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('verify-login', {
+        body: {
+          email,
+          password,
+          captchaToken,
+        },
       });
 
-      if (authError) {
-        // Handle specific auth errors
-        if (authError.message.includes("Invalid login credentials")) {
-          setError("Invalid email or password.");
-        } else if (authError.message.includes("Email not confirmed")) {
-          setError("Please verify your email before logging in.");
-        } else {
-          setError(authError.message);
-        }
+      if (functionError) {
+        setError(functionError.message || "Login failed. Please try again.");
         return;
+      }
+
+      if (functionData.error) {
+        setError(functionData.error);
+        return;
+      }
+
+      // Set the session in Supabase client
+      if (functionData.session) {
+        await supabase.auth.setSession({
+          access_token: functionData.session.access_token,
+          refresh_token: functionData.session.refresh_token,
+        });
       }
 
       // Get user role and redirect accordingly
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", data.user.id)
+        .eq("user_id", functionData.user.id)
         .single();
 
       const userRole = roleData?.role;
       
-      if (userRole === "employer") {
-        navigate("/company-feed");
-      } else if (userRole === "caregiver" || userRole === "nurse") {
-        navigate("/feed");
+      if (userRole === "caregiver" || userRole === "nurse") {
+        navigate("/caregiver-dashboard");
       } else {
-        navigate("/dashboard");
+        navigate("/general-dashboard");
       }
     } catch (err: any) {
+      console.error("Login error:", err);
       setError("Something went wrong, please try again.");
     } finally {
       setLoading(false);

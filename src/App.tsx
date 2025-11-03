@@ -13,6 +13,8 @@ import Dashboard from "./pages/Dashboard";
 import PostJob from "./pages/PostJob";
 import Feed from "./pages/Feed";
 import CompanyFeed from "./pages/CompanyFeed";
+import CaregiverDashboard from "./pages/CaregiverDashboard";
+import GeneralDashboard from "./pages/GeneralDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/company-feed" element={<CompanyFeed />} />
+          <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
+          <Route path="/general-dashboard" element={<GeneralDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

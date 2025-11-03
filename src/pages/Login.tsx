@@ -27,7 +27,6 @@ const Login = () => {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState("");
   const [showCaptcha, setShowCaptcha] = useState(false);
-  const turnstileRef = useRef<HTMLDivElement>(null);
 
   // Cloudflare Turnstile site key
   const TURNSTILE_SITE_KEY = "0x4AAAAAB-jAF9b9QV3eY20";
@@ -43,41 +42,18 @@ const Login = () => {
     checkUser();
   }, [navigate]);
 
-  // Load Turnstile widget only when needed
+  // Set up Turnstile callback
   useEffect(() => {
-    if (!showCaptcha) return;
-
-    const loadTurnstile = () => {
-      if (turnstileRef.current && (window as any).turnstile) {
-        try {
-          (window as any).turnstile.render(turnstileRef.current, {
-            sitekey: TURNSTILE_SITE_KEY,
-            callback: (token: string) => {
-              setCaptchaToken(token);
-              setCaptchaError("");
-            },
-          });
-        } catch (error) {
-          console.error("Turnstile render error:", error);
-        }
-      }
+    // Define callback function on window for Turnstile
+    (window as any).onTurnstileSuccess = (token: string) => {
+      setCaptchaToken(token);
+      setCaptchaError("");
     };
 
-    // Check if Turnstile script is loaded
-    if ((window as any).turnstile) {
-      loadTurnstile();
-    } else {
-      // Wait for Turnstile to load
-      const checkTurnstile = setInterval(() => {
-        if ((window as any).turnstile) {
-          loadTurnstile();
-          clearInterval(checkTurnstile);
-        }
-      }, 100);
-
-      return () => clearInterval(checkTurnstile);
-    }
-  }, [TURNSTILE_SITE_KEY, showCaptcha]);
+    return () => {
+      delete (window as any).onTurnstileSuccess;
+    };
+  }, []);
 
   // Show success message if redirected from signup
   useEffect(() => {
@@ -249,8 +225,9 @@ const Login = () => {
               {showCaptcha && (
                 <div className="flex flex-col items-center justify-center py-3 w-full">
                   <div 
-                    ref={turnstileRef} 
                     className="cf-turnstile w-full flex justify-center"
+                    data-sitekey={TURNSTILE_SITE_KEY}
+                    data-callback="onTurnstileSuccess"
                     style={{ minHeight: '65px' }}
                   ></div>
                 </div>

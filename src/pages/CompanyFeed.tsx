@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Briefcase, User, Settings, LogOut, Plus } from "lucide-react";
+import { AlertCircle, Briefcase, User, Settings, LogOut, Plus, MessageSquare, MapPin, DollarSign, Calendar, Trash2, Users } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const CompanyFeed = () => {
@@ -76,6 +76,17 @@ const CompanyFeed = () => {
     navigate("/login");
   };
 
+  const handleDeleteJob = async (jobId: string) => {
+    const { error } = await supabase
+      .from("jobs")
+      .delete()
+      .eq("id", jobId);
+
+    if (!error) {
+      setJobs(jobs.filter(job => job.id !== jobId));
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -140,6 +151,39 @@ const CompanyFeed = () => {
           </Alert>
         )}
 
+        {/* Navigation Menu */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/dashboard")}>
+            <CardHeader className="flex flex-row items-center space-x-4">
+              <User className="h-8 w-8 text-primary" />
+              <CardTitle>Profile</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">View and edit your profile</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/post-job")}>
+            <CardHeader className="flex flex-row items-center space-x-4">
+              <Plus className="h-8 w-8 text-primary" />
+              <CardTitle>Job Post</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Create and manage job postings</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/dashboard")}>
+            <CardHeader className="flex flex-row items-center space-x-4">
+              <MessageSquare className="h-8 w-8 text-primary" />
+              <CardTitle>Messages</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Chat with applicants</p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Stats */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           <Card>
@@ -179,22 +223,36 @@ const CompanyFeed = () => {
 
         {/* Jobs List */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold mb-6">Your Posted Jobs</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Your Posted Jobs</h2>
+            <Button onClick={() => navigate("/post-job")}>
+              <Plus className="mr-2 h-4 w-4" />
+              Post New Job
+            </Button>
+          </div>
           
           {jobs.length === 0 ? (
             <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">You haven't posted any jobs yet.</p>
+              <CardContent className="py-12 text-center">
+                <Briefcase className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground mb-4">You haven't posted any jobs yet</p>
+                <Button onClick={() => navigate("/post-job")}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Post Your First Job
+                </Button>
               </CardContent>
             </Card>
           ) : (
             jobs.map((job) => (
-              <Card key={job.id} className="shadow-md">
+              <Card key={job.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle>{job.title}</CardTitle>
-                      <CardDescription>{job.location}</CardDescription>
+                      <CardTitle className="text-xl">{job.title}</CardTitle>
+                      <CardDescription className="flex items-center mt-2">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {job.location}
+                      </CardDescription>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       job.status === 'open' 
@@ -206,16 +264,43 @@ const CompanyFeed = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {job.description?.substring(0, 150)}...
+                  <p className="text-muted-foreground mb-4 line-clamp-2">
+                    {job.description}
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">
-                      <span className="font-semibold">Salary:</span>{" "}
-                      {job.salary_negotiable ? "Negotiable" : `BDT ${job.salary}`}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center">
+                        <DollarSign className="h-4 w-4 mr-1" />
+                        ৳{job.salary?.toLocaleString()}
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {new Date(job.created_at).toLocaleDateString()}
+                      </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                      View Details
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => navigate("/dashboard")}
+                    >
+                      <Users className="mr-2 h-4 w-4" />
+                      View Applicants
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => navigate("/dashboard")}
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Messages
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      onClick={() => handleDeleteJob(job.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardContent>

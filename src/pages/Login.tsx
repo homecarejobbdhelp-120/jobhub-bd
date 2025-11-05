@@ -86,6 +86,8 @@ const Login = () => {
       
       if (userRole === "caregiver" || userRole === "nurse") {
         navigate("/caregiver-dashboard");
+      } else if (userRole === "employer") {
+        navigate("/company-feed");
       } else {
         navigate("/general-dashboard");
       }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,13 +23,6 @@ const Login = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   
-  // Cloudflare Turnstile
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaError, setCaptchaError] = useState("");
-  const [showCaptcha, setShowCaptcha] = useState(false);
-
-  // Cloudflare Turnstile site key
-  const TURNSTILE_SITE_KEY = "0x4AAAAAB-jAF9b9QV3eY20";
 
   // Check if already logged in
   useEffect(() => {
@@ -42,18 +35,6 @@ const Login = () => {
     checkUser();
   }, [navigate]);
 
-  // Set up Turnstile callback
-  useEffect(() => {
-    // Define callback function on window for Turnstile
-    (window as any).onTurnstileSuccess = (token: string) => {
-      setCaptchaToken(token);
-      setCaptchaError("");
-    };
-
-    return () => {
-      delete (window as any).onTurnstileSuccess;
-    };
-  }, []);
 
   // Show success message if redirected from signup
   useEffect(() => {
@@ -73,7 +54,6 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setCaptchaError("");
 
     // Validate email format
     if (!isValidEmail(email)) {
@@ -81,54 +61,25 @@ const Login = () => {
       return;
     }
 
-    // Show captcha if not already shown
-    if (!showCaptcha) {
-      setShowCaptcha(true);
-      setCaptchaError("Please complete the CAPTCHA verification below.");
-      return;
-    }
-
-    // Check captcha token after captcha is shown
-    if (!captchaToken) {
-      setCaptchaError("Please verify you are not a robot.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // Call edge function to verify CAPTCHA and login
-      const { data: functionData, error: functionError } = await supabase.functions.invoke('verify-login', {
-        body: {
-          email,
-          password,
-          captchaToken,
-        },
+      // Sign in with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (functionError) {
-        setError(functionError.message || "Login failed. Please try again.");
+      if (authError) {
+        setError(authError.message || "Login failed. Please try again.");
         return;
-      }
-
-      if (functionData.error) {
-        setError(functionData.error);
-        return;
-      }
-
-      // Set the session in Supabase client
-      if (functionData.session) {
-        await supabase.auth.setSession({
-          access_token: functionData.session.access_token,
-          refresh_token: functionData.session.refresh_token,
-        });
       }
 
       // Get user role and redirect accordingly
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", functionData.user.id)
+        .eq("user_id", authData.user.id)
         .single();
 
       const userRole = roleData?.role;
@@ -143,11 +94,6 @@ const Login = () => {
       setError("Something went wrong, please try again.");
     } finally {
       setLoading(false);
-      // Reset captcha after submission
-      if ((window as any).turnstile) {
-        (window as any).turnstile.reset();
-      }
-      setCaptchaToken(null);
     }
   };
 
@@ -221,20 +167,6 @@ const Login = () => {
                 />
               </div>
 
-              {/* Cloudflare Turnstile - Only shown after first submit attempt */}
-              {showCaptcha && (
-                <div className="flex flex-col items-center justify-center py-3 w-full">
-                  <div 
-                    className="cf-turnstile w-full flex justify-center"
-                    data-sitekey={TURNSTILE_SITE_KEY}
-                    data-callback="onTurnstileSuccess"
-                    style={{ minHeight: '65px' }}
-                  ></div>
-                </div>
-              )}
-              {captchaError && (
-                <p className="text-destructive text-sm mt-2 text-center">{captchaError}</p>
-              )}
 
               {/* Submit Button */}
               <Button

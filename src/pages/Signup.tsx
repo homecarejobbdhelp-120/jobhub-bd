@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,14 +28,6 @@ const Signup = () => {
   // Error state
   const [error, setError] = useState("");
   
-  // Cloudflare Turnstile
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaError, setCaptchaError] = useState("");
-  const [showCaptcha, setShowCaptcha] = useState(false);
-  const turnstileRef = useRef<HTMLDivElement>(null);
-
-  // Cloudflare Turnstile site key (using test key - replace with your actual key in production)
-  const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
 
   // Check if already logged in
   useEffect(() => {
@@ -48,45 +40,6 @@ const Signup = () => {
     checkUser();
   }, [navigate]);
 
-  // Load Turnstile widget only when needed
-  useEffect(() => {
-    if (!showCaptcha) return;
-
-    const loadTurnstile = () => {
-      if (turnstileRef.current && (window as any).turnstile) {
-        try {
-          (window as any).turnstile.render(turnstileRef.current, {
-            sitekey: TURNSTILE_SITE_KEY,
-            callback: (token: string) => {
-              setCaptchaToken(token);
-              setCaptchaError("");
-            },
-            'error-callback': () => {
-              setCaptchaError("CAPTCHA verification failed. Please try again.");
-            },
-            theme: 'light',
-            size: 'normal',
-          });
-        } catch (error) {
-          console.error("Turnstile render error:", error);
-        }
-      }
-    };
-
-    // Wait for Turnstile script to load
-    if ((window as any).turnstile) {
-      loadTurnstile();
-    } else {
-      const checkTurnstile = setInterval(() => {
-        if ((window as any).turnstile) {
-          clearInterval(checkTurnstile);
-          loadTurnstile();
-        }
-      }, 100);
-
-      return () => clearInterval(checkTurnstile);
-    }
-  }, [TURNSTILE_SITE_KEY, showCaptcha]);
 
   // Email validation
   const isValidEmail = (email: string) => {
@@ -98,7 +51,6 @@ const Signup = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setCaptchaError("");
 
     // Validate all fields
     if (userType === "company") {
@@ -128,19 +80,6 @@ const Signup = () => {
     // Check if passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
-      return;
-    }
-
-    // Show captcha if not already shown
-    if (!showCaptcha) {
-      setShowCaptcha(true);
-      setCaptchaError("Please complete the CAPTCHA verification below.");
-      return;
-    }
-
-    // Check captcha token after captcha is shown
-    if (!captchaToken) {
-      setCaptchaError("Please verify you are not a robot.");
       return;
     }
 
@@ -190,11 +129,6 @@ const Signup = () => {
       setError("Something went wrong, please try again.");
     } finally {
       setLoading(false);
-      // Reset captcha after submission
-      if ((window as any).turnstile) {
-        (window as any).turnstile.reset();
-      }
-      setCaptchaToken(null);
     }
   };
 
@@ -351,19 +285,6 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Cloudflare Turnstile - Only shown after first submit attempt */}
-              {showCaptcha && (
-                <div className="flex flex-col items-center justify-center py-3 w-full">
-                  <div 
-                    ref={turnstileRef} 
-                    className="cf-turnstile w-full flex justify-center"
-                    style={{ minHeight: '65px' }}
-                  ></div>
-                </div>
-              )}
-              {captchaError && (
-                <p className="text-destructive text-sm mt-2 text-center">{captchaError}</p>
-              )}
 
               {/* Submit Button */}
               <Button

@@ -39,7 +39,7 @@ const CaregiverDashboard = () => {
         .from("profiles")
         .select("name")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (profile) {
         setUserName(profile.name);

@@ -80,14 +80,14 @@ const Login = () => {
         .from("user_roles")
         .select("role")
         .eq("user_id", authData.user.id)
-        .single();
+        .maybeSingle();
 
       const userRole = roleData?.role;
       
       if (userRole === "caregiver" || userRole === "nurse") {
         navigate("/caregiver-dashboard");
       } else if (userRole === "employer") {
-        navigate("/company-feed");
+        navigate("/company-dashboard");
       } else {
         navigate("/general-dashboard");
       }

@@ -31,7 +31,7 @@ const CompanyFeed = () => {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) throw profileError;
 
@@ -40,7 +40,7 @@ const CompanyFeed = () => {
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       const userRole = roleData?.role;
       if (userRole !== "employer") {

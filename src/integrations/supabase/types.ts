@@ -445,10 +445,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      expire_old_jobs: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      expire_old_jobs: { Args: never; Returns: undefined }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

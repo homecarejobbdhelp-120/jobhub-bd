@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { Menu, X, Share2, Bell, User as UserIcon, LogOut, Settings, Briefcase, ExternalLink } from "lucide-react";

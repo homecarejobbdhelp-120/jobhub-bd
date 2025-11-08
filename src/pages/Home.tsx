@@ -7,7 +7,7 @@ import JobCard from "@/components/JobCard";
 import AuthPopup from "@/components/AuthPopup";
 import NotificationPrompt from "@/components/NotificationPrompt";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import { User } from "@supabase/supabase-js";
 import { motion } from "framer-motion";

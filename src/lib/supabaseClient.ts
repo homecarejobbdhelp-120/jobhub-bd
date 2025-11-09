@@ -3,8 +3,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 // Strict client: ONLY uses VITE_SUPABASE_PUBLISHABLE_KEY as required
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env
-  .VITE_SUPABASE_PUBLISHABLE_KEY as string;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   // Surface a clear diagnostic for misconfigured deployments

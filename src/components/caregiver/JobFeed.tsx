@@ -86,14 +86,7 @@ const JobFeed = () => {
   };
 
   const handleApply = async (jobId: string) => {
-    if (verificationPercentage < 50) {
-      toast({
-        title: "Verification Required",
-        description: "Please complete your profile verification to apply for jobs",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Application restriction temporarily disabled
 
     try {
       const { error } = await supabase
@@ -132,13 +125,6 @@ const JobFeed = () => {
 
   return (
     <div className="pb-20">
-      {verificationPercentage < 50 && (
-        <Alert className="mb-4 border-orange-200 bg-orange-50">
-          <AlertDescription className="text-orange-800">
-            Complete your profile verification ({verificationPercentage}%) to apply for jobs
-          </AlertDescription>
-        </Alert>
-      )}
 
       <div className="space-y-4">
         {jobs.length === 0 ? (
@@ -188,7 +174,7 @@ const JobFeed = () => {
 
                   <Button 
                     className="w-full bg-primary hover:bg-primary/90"
-                    disabled={verificationPercentage < 50 || hasApplied}
+                    disabled={hasApplied}
                     onClick={() => handleApply(job.id)}
                   >
                     {hasApplied ? "Already Applied" : "Apply Now"}

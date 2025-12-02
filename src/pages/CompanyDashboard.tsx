@@ -6,6 +6,7 @@ import MyJobsTab from "@/components/company/MyJobsTab";
 import PostJobTab from "@/components/company/PostJobTab";
 import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import ApplicantsTab from "@/components/company/ApplicantsTab";
+import Navbar from "@/components/Navbar";
 
 const CompanyDashboard = () => {
   const navigate = useNavigate();
@@ -50,24 +51,31 @@ const CompanyDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold">HomeCare Job BD</h1>
+      {/* Desktop: Full Navbar */}
+      <div className="hidden md:block">
+        <Navbar />
+      </div>
+
+      {/* Mobile: Simple Header */}
+      <header className="md:hidden sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
+        <div className="container mx-auto px-4 py-3">
+          <h1 className="text-lg font-bold">HomeCare Job BD</h1>
           <p className="text-xs text-primary-foreground/80">Employer Dashboard</p>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 max-w-lg">
+      <main className="container mx-auto px-4 py-6 max-w-lg md:max-w-4xl">
         {currentTab === "jobs" && <MyJobsTab />}
         {currentTab === "post" && <PostJobTab />}
         {currentTab === "profile" && <CompanyProfileTab />}
         {currentTab === "applicants" && <ApplicantsTab />}
       </main>
 
-      {/* Bottom Navigation */}
-      <BottomNavigation role="employer" />
+      {/* Mobile: Bottom Navigation */}
+      <div className="md:hidden">
+        <BottomNavigation role="employer" />
+      </div>
     </div>
   );
 };

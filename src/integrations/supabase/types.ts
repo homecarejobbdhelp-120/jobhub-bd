@@ -261,15 +261,22 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           avatar_url: string | null
+          certificate_url: string | null
           company_name: string | null
           created_at: string | null
+          cv_url: string | null
           email: string
           face_scan_url: string | null
+          gender: string | null
+          height_cm: number | null
+          height_ft: number | null
           hide_avatar: boolean | null
           id: string
           license_number: string | null
           location: string | null
+          marital_status: string | null
           name: string
           nid_back_url: string | null
           nid_front_url: string | null
@@ -277,20 +284,30 @@ export type Database = {
           notifications_enabled: boolean | null
           phone: string | null
           push_notifications_enabled: boolean | null
+          shift_preferences: string[] | null
+          skills: string[] | null
           username: string | null
           verified: boolean | null
           verified_percentage: number | null
+          weight_kg: number | null
         }
         Insert: {
+          age?: number | null
           avatar_url?: string | null
+          certificate_url?: string | null
           company_name?: string | null
           created_at?: string | null
+          cv_url?: string | null
           email: string
           face_scan_url?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          height_ft?: number | null
           hide_avatar?: boolean | null
           id: string
           license_number?: string | null
           location?: string | null
+          marital_status?: string | null
           name: string
           nid_back_url?: string | null
           nid_front_url?: string | null
@@ -298,20 +315,30 @@ export type Database = {
           notifications_enabled?: boolean | null
           phone?: string | null
           push_notifications_enabled?: boolean | null
+          shift_preferences?: string[] | null
+          skills?: string[] | null
           username?: string | null
           verified?: boolean | null
           verified_percentage?: number | null
+          weight_kg?: number | null
         }
         Update: {
+          age?: number | null
           avatar_url?: string | null
+          certificate_url?: string | null
           company_name?: string | null
           created_at?: string | null
+          cv_url?: string | null
           email?: string
           face_scan_url?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          height_ft?: number | null
           hide_avatar?: boolean | null
           id?: string
           license_number?: string | null
           location?: string | null
+          marital_status?: string | null
           name?: string
           nid_back_url?: string | null
           nid_front_url?: string | null
@@ -319,9 +346,12 @@ export type Database = {
           notifications_enabled?: boolean | null
           phone?: string | null
           push_notifications_enabled?: boolean | null
+          shift_preferences?: string[] | null
+          skills?: string[] | null
           username?: string | null
           verified?: boolean | null
           verified_percentage?: number | null
+          weight_kg?: number | null
         }
         Relationships: []
       }

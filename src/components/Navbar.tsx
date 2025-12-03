@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { Menu, X, Share2, Bell, User as UserIcon, LogOut, Settings, Briefcase, ExternalLink } from "lucide-react";
+import { Menu, X, Share2, Bell, User as UserIcon, LogOut, Settings, Briefcase, ExternalLink, Home, MessageSquare, PlusCircle } from "lucide-react";
 import logo from "@/assets/homecarejobbd.png";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,12 +38,15 @@ interface Profile {
   push_notifications_enabled: boolean;
 }
 
+type UserRole = "admin" | "employer" | "caregiver" | "nurse" | null;
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userRole, setUserRole] = useState<UserRole>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -55,12 +58,22 @@ const Navbar = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [pendingAction, setPendingAction] = useState<string | null>(null);
 
+  const fetchUserRole = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+    if (data) setUserRole(data.role as UserRole);
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
         fetchNotifications(session.user.id);
+        fetchUserRole(session.user.id);
         
         // Check if we should show welcome popup
         const shouldShowWelcome = localStorage.getItem("showWelcomePopup");
@@ -76,10 +89,12 @@ const Navbar = () => {
       if (session?.user) {
         fetchProfile(session.user.id);
         fetchNotifications(session.user.id);
+        fetchUserRole(session.user.id);
       } else {
         setProfile(null);
         setNotifications([]);
         setUnreadCount(0);
+        setUserRole(null);
       }
     });
 
@@ -240,37 +255,93 @@ const Navbar = () => {
               Browse Jobs
               {isActiveRoute("/jobs") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
             </button>
-            <button
-              onClick={() => handleProtectedNavigation("/post-job")}
-              className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
-                isActiveRoute("/post-job") ? "text-[#6DBE45] font-medium" : ""
-              }`}
-            >
-              Post a Job
-              {isActiveRoute("/post-job") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
-            </button>
+            {/* Only show Post a Job for employers or non-logged-in users */}
+            {(!user || userRole === "employer") && (
+              <button
+                onClick={() => handleProtectedNavigation("/post-job")}
+                className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
+                  isActiveRoute("/post-job") ? "text-[#6DBE45] font-medium" : ""
+                }`}
+              >
+                Post a Job
+                {isActiveRoute("/post-job") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
+              </button>
+            )}
             
             {user ? (
               <>
-                <Link to="/dashboard">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
-                  >
-                    Dashboard
-                  </Button>
-                </Link>
-                <Link to="/dashboard">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
-                  >
-                    <Briefcase className="h-4 w-4 mr-1" />
-                    My Jobs
-                  </Button>
-                </Link>
+                {/* Role-specific dashboard navigation */}
+                {userRole === "caregiver" || userRole === "nurse" ? (
+                  <>
+                    <Link 
+                      to="/dashboard/caregiver?tab=feed"
+                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
+                        location.pathname === "/dashboard/caregiver" && location.search.includes("feed") ? "text-[#6DBE45] font-medium" : ""
+                      }`}
+                    >
+                      <Home className="h-4 w-4" />
+                      Feed
+                    </Link>
+                    <Link 
+                      to="/dashboard/caregiver?tab=messages"
+                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
+                        location.pathname === "/dashboard/caregiver" && location.search.includes("messages") ? "text-[#6DBE45] font-medium" : ""
+                      }`}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      Messages
+                    </Link>
+                    <Link 
+                      to="/dashboard/caregiver?tab=profile"
+                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
+                        location.pathname === "/dashboard/caregiver" && location.search.includes("profile") ? "text-[#6DBE45] font-medium" : ""
+                      }`}
+                    >
+                      <UserIcon className="h-4 w-4" />
+                      Profile
+                    </Link>
+                  </>
+                ) : userRole === "employer" ? (
+                  <>
+                    <Link 
+                      to="/dashboard/company?tab=jobs"
+                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
+                        location.pathname === "/dashboard/company" && location.search.includes("jobs") ? "text-[#6DBE45] font-medium" : ""
+                      }`}
+                    >
+                      <Briefcase className="h-4 w-4" />
+                      My Jobs
+                    </Link>
+                    <Link 
+                      to="/dashboard/company?tab=post"
+                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
+                        location.pathname === "/dashboard/company" && location.search.includes("post") ? "text-[#6DBE45] font-medium" : ""
+                      }`}
+                    >
+                      <PlusCircle className="h-4 w-4" />
+                      Post Job
+                    </Link>
+                    <Link 
+                      to="/dashboard/company?tab=profile"
+                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
+                        location.pathname === "/dashboard/company" && location.search.includes("profile") ? "text-[#6DBE45] font-medium" : ""
+                      }`}
+                    >
+                      <UserIcon className="h-4 w-4" />
+                      Profile
+                    </Link>
+                  </>
+                ) : (
+                  <Link to="/dashboard">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
+                    >
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
                 
                 {/* Notifications Dropdown */}
                 <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
@@ -449,15 +520,18 @@ const Navbar = () => {
               >
                 Browse Jobs
               </button>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleProtectedNavigation("/post-job");
-                }}
-                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1 text-left"
-              >
-                Post a Job
-              </button>
+              {/* Only show Post a Job for employers or non-logged-in users in mobile menu */}
+              {(!user || userRole === "employer") && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleProtectedNavigation("/post-job");
+                  }}
+                  className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1 text-left"
+                >
+                  Post a Job
+                </button>
+              )}
               <button
                 onClick={() => { setShowShareModal(true); setMobileMenuOpen(false); }}
                 className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors text-left flex items-center gap-2 px-2 py-1"

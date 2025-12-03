@@ -47,12 +47,43 @@ const Auth = () => {
         } else {
           throw error;
         }
+        setLoading(false);
+        return;
+      }
+
+      if (!data.user) {
+        throw new Error("Login failed. Please try again.");
+      }
+
+      // Fetch user role from user_roles table
+      const { data: roleData, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .single();
+
+      if (roleError) {
+        console.error("Error fetching role:", roleError);
+        // Default to home if role fetch fails
+        localStorage.setItem("showWelcomePopup", "true");
+        navigate("/");
         return;
       }
 
       // Show welcome popup
       localStorage.setItem("showWelcomePopup", "true");
-      navigate("/");
+
+      // Redirect based on role (case-insensitive comparison)
+      const userRole = roleData?.role?.toLowerCase();
+      if (userRole === "employer") {
+        navigate("/dashboard/company");
+      } else if (userRole === "caregiver" || userRole === "nurse") {
+        navigate("/dashboard/caregiver");
+      } else if (userRole === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",

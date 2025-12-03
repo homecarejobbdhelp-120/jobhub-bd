@@ -11,21 +11,21 @@ interface AvatarPickerProps {
   onSelect: (avatarUrl: string) => void;
 }
 
-// Default avatar URLs from Supabase storage
+// Default avatar URLs from Supabase storage (avatars-public bucket)
 const MALE_AVATARS = [
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/male-1.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/male-2.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/male-3.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/male-4.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/male-5.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/male-1.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/male-2.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/male-3.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/male-4.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/male-5.png",
 ];
 
 const FEMALE_AVATARS = [
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/female-1.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/female-2.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/female-3.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/female-4.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/defaults/female-5.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/female-1.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/female-2.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/female-3.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/female-4.png",
+  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars-public/female-5.png",
 ];
 
 const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) => {

@@ -174,6 +174,11 @@ const Auth = () => {
                         required
                       />
                     </div>
+                    <div className="text-right">
+                      <a href="/forgot-password" className="text-sm text-primary hover:underline">
+                        Forgot Password?
+                      </a>
+                    </div>
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Logging in..." : "Login"}
                     </Button>

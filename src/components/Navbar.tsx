@@ -255,8 +255,8 @@ const Navbar = () => {
               Browse Jobs
               {isActiveRoute("/jobs") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
             </button>
-            {/* Only show Post a Job for employers or non-logged-in users */}
-            {(!user || userRole === "employer") && (
+            {/* Only show Post a Job for non-logged-in users (employers see it in their dashboard nav) */}
+            {!user && (
               <button
                 onClick={() => handleProtectedNavigation("/post-job")}
                 className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
@@ -421,14 +421,39 @@ const Navbar = () => {
                   <DropdownMenuContent align="end" className="w-56 bg-white z-50">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <DropdownMenuItem onClick={() => {
+                      if (userRole === "employer") {
+                        navigate("/dashboard/company?tab=profile");
+                      } else if (userRole === "caregiver" || userRole === "nurse") {
+                        navigate("/dashboard/caregiver?tab=profile");
+                      } else {
+                        navigate("/dashboard");
+                      }
+                    }}>
                       <UserIcon className="mr-2 h-4 w-4" />
                       View Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <DropdownMenuItem onClick={() => {
+                      if (userRole === "employer") {
+                        navigate("/dashboard/company?tab=profile");
+                      } else if (userRole === "caregiver" || userRole === "nurse") {
+                        navigate("/dashboard/caregiver?tab=profile");
+                      } else {
+                        navigate("/dashboard");
+                      }
+                    }}>
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
                     </DropdownMenuItem>
+                    {userRole === "employer" && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=post")}>
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Post a Job
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
                       <LogOut className="mr-2 h-4 w-4" />

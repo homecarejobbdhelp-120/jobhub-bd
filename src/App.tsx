@@ -20,6 +20,7 @@ import CompanyDashboard from "./pages/CompanyDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ForgotPassword from "./pages/ForgotPassword";
 import UpdatePassword from "./pages/UpdatePassword";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/update-password" element={<UpdatePassword />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/post-job" element={<PostJob />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/feed" element={<Feed />} />

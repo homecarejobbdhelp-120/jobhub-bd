@@ -3,9 +3,11 @@ import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, DollarSign, Clock, Building2 } from "lucide-react";
+import { MapPin, DollarSign, Clock, Building2, Eye } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Job {
   id: string;
@@ -26,11 +28,15 @@ interface Job {
 }
 
 const JobFeed = () => {
+  const { role } = useUserRole();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string>("");
   const [verificationPercentage, setVerificationPercentage] = useState(0);
   const [appliedJobs, setAppliedJobs] = useState<Set<string>>(new Set());
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  
+  const isEmployer = role === "employer";
 
   useEffect(() => {
     fetchJobsAndProfile();
@@ -172,19 +178,85 @@ const JobFeed = () => {
                     </div>
                   </div>
 
-                  <Button 
-                    className="w-full bg-primary hover:bg-primary/90"
-                    disabled={hasApplied}
-                    onClick={() => handleApply(job.id)}
-                  >
-                    {hasApplied ? "Already Applied" : "Apply Now"}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setSelectedJob(job)}
+                    >
+                      <Eye className="mr-2 h-4 w-4" />
+                      View Details
+                    </Button>
+                    {!isEmployer && (
+                      <Button 
+                        className="flex-1 bg-primary hover:bg-primary/90"
+                        disabled={hasApplied}
+                        onClick={() => handleApply(job.id)}
+                      >
+                        {hasApplied ? "Already Applied" : "Apply Now"}
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );
           })
         )}
       </div>
+
+      {/* Job Details Dialog */}
+      <Dialog open={!!selectedJob} onOpenChange={() => setSelectedJob(null)}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+          {selectedJob && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedJob.title}</DialogTitle>
+                <DialogDescription className="flex items-center gap-1">
+                  <Building2 className="h-3 w-3" />
+                  {selectedJob.profiles?.company_name || selectedJob.company_name}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <p className="text-sm text-muted-foreground">{selectedJob.description}</p>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm">
+                    <MapPin className="h-4 w-4 mr-2 text-primary" />
+                    <span>{selectedJob.location}</span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <DollarSign className="h-4 w-4 mr-2 text-primary" />
+                    <span className="font-semibold">
+                      {selectedJob.salary_negotiable ? "Negotiable" : `৳${selectedJob.salary?.toLocaleString()}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <Clock className="h-4 w-4 mr-2 text-primary" />
+                    <span>{selectedJob.shift_type}</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Badge variant="secondary">{selectedJob.job_type}</Badge>
+                </div>
+
+                {!isEmployer && (
+                  <Button 
+                    className="w-full"
+                    disabled={appliedJobs.has(selectedJob.id)}
+                    onClick={() => {
+                      handleApply(selectedJob.id);
+                      setSelectedJob(null);
+                    }}
+                  >
+                    {appliedJobs.has(selectedJob.id) ? "Already Applied" : "Apply Now"}
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

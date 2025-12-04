@@ -433,15 +433,7 @@ const Navbar = () => {
                       <UserIcon className="mr-2 h-4 w-4" />
                       View Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => {
-                      if (userRole === "employer") {
-                        navigate("/dashboard/company?tab=profile");
-                      } else if (userRole === "caregiver" || userRole === "nurse") {
-                        navigate("/dashboard/caregiver?tab=profile");
-                      } else {
-                        navigate("/dashboard");
-                      }
-                    }}>
+                    <DropdownMenuItem onClick={() => navigate("/settings")}>
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
                     </DropdownMenuItem>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { User, Mail, Phone, MapPin, LogOut, Upload, FileText, Award, Loader2 } from "lucide-react";
+import { User, Mail, Phone, MapPin, ArrowLeft, Upload, FileText, Award, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -233,9 +233,8 @@ const ProfileTab = () => {
     }));
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
+  const handleBack = () => {
+    navigate(-1);
   };
 
   const completion = calculateProfileCompletion(profile);
@@ -566,10 +565,10 @@ const ProfileTab = () => {
         {saving ? "Saving..." : "Save Changes"}
       </Button>
 
-      {/* Logout Button */}
-      <Button variant="outline" className="w-full" onClick={handleLogout}>
-        <LogOut className="mr-2 h-4 w-4" />
-        Logout
+      {/* Back Button */}
+      <Button variant="outline" className="w-full" onClick={handleBack}>
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back
       </Button>
     </div>
   );

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -17,9 +18,9 @@ const PostJobTab = () => {
     description: "",
     location: "",
     salary: "",
+    salary_negotiable: false,
     job_type: "Full-time",
     shift_type: "8am-8pm",
-    duty_time: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,6 +30,16 @@ const PostJobTab = () => {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // If salary is not negotiable, require a salary amount
+    if (!formData.salary_negotiable && !formData.salary) {
+      toast({
+        title: "Error",
+        description: "Please enter a salary amount or mark it as negotiable",
         variant: "destructive",
       });
       return;
@@ -45,10 +56,11 @@ const PostJobTab = () => {
           title: formData.title,
           description: formData.description,
           location: formData.location,
-          salary: formData.salary ? parseFloat(formData.salary) : null,
+          salary: formData.salary_negotiable ? 0 : (formData.salary ? parseFloat(formData.salary) : null),
+          salary_negotiable: formData.salary_negotiable,
           job_type: formData.job_type,
           shift_type: formData.shift_type as "8am-8pm" | "8pm-8am" | "24hr" | "10hr",
-          duty_time: formData.duty_time || formData.shift_type,
+          duty_time: formData.shift_type,
           employer_id: user.id,
           status: "open",
         }]);
@@ -66,9 +78,9 @@ const PostJobTab = () => {
         description: "",
         location: "",
         salary: "",
+        salary_negotiable: false,
         job_type: "Full-time",
         shift_type: "8am-8pm",
-        duty_time: "",
       });
 
       // Navigate to jobs tab
@@ -132,10 +144,29 @@ const PostJobTab = () => {
               <Input
                 id="salary"
                 type="number"
-                placeholder="e.g., 15000"
+                placeholder={formData.salary_negotiable ? "Negotiable" : "e.g., 15000"}
                 value={formData.salary}
                 onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                disabled={formData.salary_negotiable}
+                className={formData.salary_negotiable ? "bg-muted" : ""}
               />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="salary_negotiable"
+                checked={formData.salary_negotiable}
+                onCheckedChange={(checked) => 
+                  setFormData({ 
+                    ...formData, 
+                    salary_negotiable: checked as boolean,
+                    salary: checked ? "" : formData.salary 
+                  })
+                }
+              />
+              <Label htmlFor="salary_negotiable" className="text-sm font-normal cursor-pointer">
+                Salary is Negotiable
+              </Label>
             </div>
 
             <div className="space-y-2">

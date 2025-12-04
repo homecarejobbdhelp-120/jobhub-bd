@@ -12,6 +12,7 @@ interface JobCardProps {
   job_type: string;
   shift_type: string;
   featured?: boolean;
+  hideApply?: boolean;
   onViewDetails: (id: string) => void;
   onApply: (id: string) => void;
 }
@@ -25,6 +26,7 @@ const JobCard = ({
   job_type,
   shift_type,
   featured,
+  hideApply = false,
   onViewDetails,
   onApply,
 }: JobCardProps) => {
@@ -57,13 +59,15 @@ const JobCard = ({
           <Badge variant="outline">{job_type}</Badge>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => onViewDetails(id)} variant="outline" className="flex-1">
+          <Button onClick={() => onViewDetails(id)} variant="outline" className={hideApply ? "w-full" : "flex-1"}>
             View Details
           </Button>
-          <Button onClick={() => onApply(id)} className="flex-1">
-            <Send className="mr-2 h-4 w-4" />
-            Apply
-          </Button>
+          {!hideApply && (
+            <Button onClick={() => onApply(id)} className="flex-1">
+              <Send className="mr-2 h-4 w-4" />
+              Apply
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { User, Mail, Phone, MapPin, ArrowLeft, Upload, FileText, Award, Loader2 } from "lucide-react";
+import { User, Mail, Phone, MapPin, ArrowLeft, Upload, FileText, Award, Loader2, Menu, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import AvatarPicker from "./AvatarPicker";
 import VerifiedBadge from "./VerifiedBadge";
 import { calculateProfileCompletion } from "@/lib/profileCompletion";
-
 interface Profile {
   name: string;
   email: string;
@@ -237,6 +237,11 @@ const ProfileTab = () => {
     navigate(-1);
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
+
   const completion = calculateProfileCompletion(profile);
 
   if (loading) {
@@ -249,6 +254,27 @@ const ProfileTab = () => {
 
   return (
     <div className="pb-20 space-y-4">
+      {/* Hamburger Menu - Top Right */}
+      <div className="flex justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background border">
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       {/* Profile Header Card */}
       <Card>
         <CardHeader>

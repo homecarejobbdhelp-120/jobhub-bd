@@ -21,6 +21,12 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ForgotPassword from "./pages/ForgotPassword";
 import UpdatePassword from "./pages/UpdatePassword";
 import Settings from "./pages/Settings";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminJobs from "./pages/admin/AdminJobs";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -46,13 +52,31 @@ const App = () => (
           <Route path="/company-feed" element={<CompanyFeed />} />
           <Route path="/company-dashboard" element={<CompanyFeed />} />
           <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
-          <Route path="/dashboard/caregiver" element={<ProtectedRoute allowedRoles={['caregiver','nurse']}>\
-            <CaregiverDashboard />\
-          </ProtectedRoute>} />
-          <Route path="/dashboard/company" element={<ProtectedRoute allowedRoles={['employer']}>\
-            <CompanyDashboard />\
-          </ProtectedRoute>} />
+          <Route path="/dashboard/caregiver" element={
+            <ProtectedRoute allowedRoles={['caregiver','nurse']}>
+              <CaregiverDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/company" element={
+            <ProtectedRoute allowedRoles={['employer']}>
+              <CompanyDashboard />
+            </ProtectedRoute>
+          } />
           <Route path="/general-dashboard" element={<GeneralDashboard />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<AdminOverview />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="jobs" element={<AdminJobs />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

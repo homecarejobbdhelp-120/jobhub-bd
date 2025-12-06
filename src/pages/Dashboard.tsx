@@ -26,7 +26,9 @@ const Dashboard = () => {
         const userRole = roleData?.role;
         
         // Redirect based on role
-        if (userRole === "caregiver" || userRole === "nurse") {
+        if (userRole === "admin") {
+          navigate("/admin", { replace: true });
+        } else if (userRole === "caregiver" || userRole === "nurse") {
           navigate("/dashboard/caregiver?tab=feed", { replace: true });
         } else if (userRole === "employer") {
           navigate("/dashboard/company?tab=jobs", { replace: true });

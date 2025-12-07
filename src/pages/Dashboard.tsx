@@ -24,9 +24,11 @@ const Dashboard = () => {
           .maybeSingle();
 
         const userRole = roleData?.role;
+        const userEmail = session.user.email?.toLowerCase();
+        const isDefaultAdmin = userEmail === "homecarejobbd.help@gmail.com";
         
-        // Redirect based on role
-        if (userRole === "admin") {
+        // Redirect based on role (prioritize admin check)
+        if (userRole === "admin" || isDefaultAdmin) {
           navigate("/admin", { replace: true });
         } else if (userRole === "caregiver" || userRole === "nurse") {
           navigate("/dashboard/caregiver?tab=feed", { replace: true });

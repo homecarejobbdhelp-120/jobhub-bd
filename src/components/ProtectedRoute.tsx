@@ -50,8 +50,14 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
         }
 
         const role = roleData?.role as AllowedRole | undefined;
+        const userEmail = session.user.email?.toLowerCase();
+        const isDefaultAdmin = userEmail === "homecarejobbd.help@gmail.com";
         
-        if (!role || !allowedRoles.includes(role)) {
+        // Allow access if user has required role OR is default admin accessing admin routes
+        const hasAccess = role && allowedRoles.includes(role);
+        const adminAccessingAdminRoute = isDefaultAdmin && allowedRoles.includes("admin");
+        
+        if (!hasAccess && !adminAccessingAdminRoute) {
           console.log("User role not authorized:", role, "Required:", allowedRoles);
           if (mounted) navigate("/", { replace: true });
           return;

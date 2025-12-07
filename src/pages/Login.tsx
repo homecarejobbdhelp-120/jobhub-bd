@@ -84,12 +84,17 @@ const Login = () => {
 
       const userRole = roleData?.role;
       
-      if (userRole === "caregiver" || userRole === "nurse") {
-        navigate("/dashboard/caregiver");
+      // Check for default admin email
+      const isDefaultAdmin = email.toLowerCase() === "homecarejobbd.help@gmail.com";
+      
+      if (userRole === "admin" || isDefaultAdmin) {
+        navigate("/admin", { replace: true });
+      } else if (userRole === "caregiver" || userRole === "nurse") {
+        navigate("/dashboard/caregiver", { replace: true });
       } else if (userRole === "employer") {
-        navigate("/dashboard/company");
+        navigate("/dashboard/company", { replace: true });
       } else {
-        navigate("/general-dashboard");
+        navigate("/general-dashboard", { replace: true });
       }
     } catch (err: any) {
       console.error("Login error:", err);

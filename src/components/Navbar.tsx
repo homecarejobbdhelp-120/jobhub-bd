@@ -410,99 +410,118 @@ const Navbar = () => {
 
           {/* Mobile Auth Buttons + Menu */}
           <div className="md:hidden flex items-center gap-2">
-            {!user && (
-              <>
-                <Link to="/login">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-[#6DBE45] text-[#6DBE45] hover:bg-[#6DBE45]/10 h-8 px-3 text-xs"
-                  >
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button 
-                    size="sm" 
-                    className="bg-[#6DBE45] hover:bg-[#6DBE45]/90 text-white h-8 px-3 text-xs"
-                  >
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
+            {user ? (
+              /* Logged in: Show only hamburger menu */
+              <button
+                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors relative"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
+                )}
+              </button>
+            ) : (
+              /* Logged out: Show Sign In button */
+              <Link to="/login">
+                <Button 
+                  size="sm" 
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 px-4 text-xs"
+                >
+                  Sign In
+                </Button>
+              </Link>
             )}
-            <button
-              className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Only show when user is logged in and menu is open */}
         <AnimatePresence>
-          {mobileMenuOpen && !showAuthPopup && (
+          {mobileMenuOpen && user && (
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden py-4 flex flex-col gap-4 bg-white overflow-hidden"
+              className="md:hidden py-4 flex flex-col gap-2 bg-white overflow-hidden"
             >
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors text-left px-2 py-1"
+                className="text-foreground hover:text-primary transition-colors text-left px-2 py-2 flex items-center gap-2"
               >
+                <Home className="h-4 w-4" />
                 Home
               </Link>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  handleProtectedNavigation("/jobs");
+                  navigate("/jobs");
                 }}
-                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1 text-left"
+                className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
               >
+                <Briefcase className="h-4 w-4" />
                 Browse Jobs
               </button>
-              {/* Only show Post a Job for employers or non-logged-in users in mobile menu */}
-              {(!user || userRole === "employer") && (
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    handleProtectedNavigation("/post-job");
-                  }}
-                  className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors px-2 py-1 text-left"
-                >
-                  Post a Job
-                </button>
-              )}
               <button
                 onClick={() => { setShowShareModal(true); setMobileMenuOpen(false); }}
-                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors text-left flex items-center gap-2 px-2 py-1"
+                className="text-foreground hover:text-primary transition-colors text-left flex items-center gap-2 px-2 py-2"
               >
-                <Share2 size={18} />
-                Share this website
+                <Share2 className="h-4 w-4" />
+                Share Website
               </button>
-              {user && (
-                <>
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full border-[#6DBE45] text-[#6DBE45] hover:bg-[#6DBE45]/10">Dashboard</Button>
-                  </Link>
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full border-[#6DBE45] text-[#6DBE45] hover:bg-[#6DBE45]/10">
-                      <Briefcase className="h-4 w-4 mr-1" />
-                      My Jobs
-                    </Button>
-                  </Link>
-                  <Button onClick={handleSignOut} variant="outline" className="w-full border-red-500 text-red-500 hover:bg-red-50">
-                    <LogOut className="h-4 w-4 mr-1" />
-                    Logout
-                  </Button>
-                </>
+              
+              <div className="h-px bg-border my-2" />
+              
+              {/* Role-specific navigation */}
+              {(userRole === "caregiver" || userRole === "nurse") && (
+                <button
+                  onClick={() => { navigate("/dashboard/caregiver?tab=profile"); setMobileMenuOpen(false); }}
+                  className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
+                >
+                  <UserIcon className="h-4 w-4" />
+                  My Profile
+                </button>
               )}
+              
+              {userRole === "employer" && (
+                <button
+                  onClick={() => { navigate("/dashboard/company?tab=profile"); setMobileMenuOpen(false); }}
+                  className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
+                >
+                  <UserIcon className="h-4 w-4" />
+                  Company Profile
+                </button>
+              )}
+              
+              {userRole === "admin" && (
+                <button
+                  onClick={() => { navigate("/admin"); setMobileMenuOpen(false); }}
+                  className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  Admin Dashboard
+                </button>
+              )}
+              
+              <button
+                onClick={() => { navigate("/settings"); setMobileMenuOpen(false); }}
+                className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </button>
+              
+              <div className="h-px bg-border my-2" />
+              
+              <button
+                onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}
+                className="text-destructive hover:text-destructive/80 transition-colors px-2 py-2 text-left flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

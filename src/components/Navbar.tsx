@@ -237,113 +237,37 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           {!showAuthPopup && (
             <div className="hidden md:flex items-center gap-6">
-            <Link 
-              to="/" 
-              className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
-                isActiveRoute("/") ? "text-[#6DBE45] font-medium" : ""
-              }`}
-            >
-              Home
-              {isActiveRoute("/") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
-            </Link>
-            <button
-              onClick={() => handleProtectedNavigation("/jobs")}
-              className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
-                isActiveRoute("/jobs") ? "text-[#6DBE45] font-medium" : ""
-              }`}
-            >
-              Browse Jobs
-              {isActiveRoute("/jobs") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
-            </button>
-            {/* Only show Post a Job for non-logged-in users (employers see it in their dashboard nav) */}
-            {!user && (
-              <button
-                onClick={() => handleProtectedNavigation("/post-job")}
+              <Link 
+                to="/" 
                 className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
-                  isActiveRoute("/post-job") ? "text-[#6DBE45] font-medium" : ""
+                  isActiveRoute("/") ? "text-[#6DBE45] font-medium" : ""
                 }`}
               >
-                Post a Job
-                {isActiveRoute("/post-job") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
+                Home
+                {isActiveRoute("/") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
+              </Link>
+              <button
+                onClick={() => handleProtectedNavigation("/jobs")}
+                className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
+                  isActiveRoute("/jobs") ? "text-[#6DBE45] font-medium" : ""
+                }`}
+              >
+                Browse Jobs
+                {isActiveRoute("/jobs") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
               </button>
-            )}
-            
-            {user ? (
-              <>
-                {/* Role-specific dashboard navigation */}
-                {userRole === "caregiver" || userRole === "nurse" ? (
-                  <>
-                    <Link 
-                      to="/dashboard/caregiver?tab=feed"
-                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
-                        location.pathname === "/dashboard/caregiver" && location.search.includes("feed") ? "text-[#6DBE45] font-medium" : ""
-                      }`}
-                    >
-                      <Home className="h-4 w-4" />
-                      Feed
-                    </Link>
-                    <Link 
-                      to="/dashboard/caregiver?tab=messages"
-                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
-                        location.pathname === "/dashboard/caregiver" && location.search.includes("messages") ? "text-[#6DBE45] font-medium" : ""
-                      }`}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                      Messages
-                    </Link>
-                    <Link 
-                      to="/dashboard/caregiver?tab=profile"
-                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
-                        location.pathname === "/dashboard/caregiver" && location.search.includes("profile") ? "text-[#6DBE45] font-medium" : ""
-                      }`}
-                    >
-                      <UserIcon className="h-4 w-4" />
-                      Profile
-                    </Link>
-                  </>
-                ) : userRole === "employer" ? (
-                  <>
-                    <Link 
-                      to="/dashboard/company?tab=jobs"
-                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
-                        location.pathname === "/dashboard/company" && location.search.includes("jobs") ? "text-[#6DBE45] font-medium" : ""
-                      }`}
-                    >
-                      <Briefcase className="h-4 w-4" />
-                      My Jobs
-                    </Link>
-                    <Link 
-                      to="/dashboard/company?tab=post"
-                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
-                        location.pathname === "/dashboard/company" && location.search.includes("post") ? "text-[#6DBE45] font-medium" : ""
-                      }`}
-                    >
-                      <PlusCircle className="h-4 w-4" />
-                      Post Job
-                    </Link>
-                    <Link 
-                      to="/dashboard/company?tab=profile"
-                      className={`flex items-center gap-1 text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 ${
-                        location.pathname === "/dashboard/company" && location.search.includes("profile") ? "text-[#6DBE45] font-medium" : ""
-                      }`}
-                    >
-                      <UserIcon className="h-4 w-4" />
-                      Profile
-                    </Link>
-                  </>
-                ) : (
-                  <Link to="/dashboard">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
-                    >
-                      Dashboard
-                    </Button>
-                  </Link>
-                )}
-                
-                {/* Notifications Dropdown */}
+
+              {/* Share Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
+                onClick={() => setShowShareModal(true)}
+              >
+                <Share2 className="h-5 w-5" />
+              </Button>
+
+              {/* Notifications (for logged-in users) */}
+              {user && (
                 <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
                   <DropdownMenuTrigger asChild>
                     <Button 
@@ -395,87 +319,93 @@ const Navbar = () => {
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
 
-                {/* Share Button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
-                  onClick={() => setShowShareModal(true)}
-                >
-                  <Share2 className="h-5 w-5" />
-                </Button>
-
-                {/* Profile Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
-                    >
-                      <UserIcon className="h-5 w-5 mr-1" />
-                      <span className="hidden lg:inline">{profile?.name || user.email?.split('@')[0]}</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-white z-50">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => {
-                      if (userRole === "employer") {
-                        navigate("/dashboard/company?tab=profile");
-                      } else if (userRole === "caregiver" || userRole === "nurse") {
-                        navigate("/dashboard/caregiver?tab=profile");
-                      } else {
-                        navigate("/dashboard");
-                      }
-                    }}>
-                      <UserIcon className="mr-2 h-4 w-4" />
-                      View Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/settings")}>
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
-                    </DropdownMenuItem>
-                    {userRole === "employer" && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=post")}>
-                          <PlusCircle className="mr-2 h-4 w-4" />
-                          Post a Job
+              {/* Hamburger Menu - Single unified dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white z-50">
+                  {user ? (
+                    <>
+                      <DropdownMenuLabel className="flex items-center gap-2">
+                        <UserIcon className="h-4 w-4" />
+                        {profile?.name || user.email?.split('@')[0]}
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      
+                      {/* Role-specific navigation */}
+                      {(userRole === "caregiver" || userRole === "nurse") && (
+                        <>
+                          <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=feed")}>
+                            <Home className="mr-2 h-4 w-4" />
+                            Job Feed
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=messages")}>
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Messages
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=profile")}>
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            My Profile
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      
+                      {userRole === "employer" && (
+                        <>
+                          <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=jobs")}>
+                            <Briefcase className="mr-2 h-4 w-4" />
+                            My Jobs
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=post")}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Post a Job
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=profile")}>
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            Company Profile
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      
+                      {userRole === "admin" && (
+                        <DropdownMenuItem onClick={() => navigate("/admin")}>
+                          <Briefcase className="mr-2 h-4 w-4" />
+                          Admin Dashboard
                         </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                <Link to="/login">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-[#6DBE45] text-[#6DBE45] hover:bg-[#6DBE45]/10"
-                  >
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button 
-                    size="sm" 
-                    className="bg-[#6DBE45] hover:bg-[#6DBE45]/90 text-white"
-                  >
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
+                      )}
+                      
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate("/settings")}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem onClick={() => navigate("/login")}>
+                        Login
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/signup")}>
+                        Sign Up
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           )}
 
           {/* Mobile Auth Buttons + Menu */}

@@ -92,7 +92,7 @@ const Login = () => {
       } else if (userRole === "caregiver" || userRole === "nurse") {
         navigate("/dashboard/caregiver", { replace: true });
       } else if (userRole === "employer") {
-        navigate("/dashboard/company", { replace: true });
+        navigate("/", { replace: true });
       } else {
         navigate("/general-dashboard", { replace: true });
       }

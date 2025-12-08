@@ -29,9 +29,9 @@ const BottomNavigation = ({ role }: BottomNavigationProps) => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 safe-area-inset-bottom">
-      <div className="max-w-lg mx-auto px-4">
-        <div className="flex justify-around items-center h-16">
+    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-40 safe-area-inset-bottom">
+      <div className="max-w-lg mx-auto">
+        <div className="flex justify-around items-center h-12">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = isActive(tab.path);
@@ -40,14 +40,14 @@ const BottomNavigation = ({ role }: BottomNavigationProps) => {
                 key={tab.path}
                 onClick={() => navigate(tab.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center flex-1 h-full transition-colors",
+                  "flex flex-col items-center justify-center flex-1 h-full transition-colors py-1",
                   active
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Icon className="h-6 w-6 mb-1" />
-                <span className="text-xs font-medium">{tab.label}</span>
+                <Icon className="h-5 w-5" />
+                <span className="text-[10px] font-medium mt-0.5">{tab.label}</span>
               </button>
             );
           })}

@@ -1,4 +1,4 @@
-import { Home, MessageSquare, User, Briefcase, PlusCircle } from "lucide-react";
+import { Home, MessageSquare, User, Briefcase, PlusCircle, LayoutGrid } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,7 @@ const BottomNavigation = ({ role }: BottomNavigationProps) => {
     { icon: Briefcase, label: "My Jobs", path: "/dashboard/company?tab=jobs" },
     { icon: PlusCircle, label: "Post Job", path: "/dashboard/company?tab=post" },
     { icon: User, label: "Profile", path: "/dashboard/company?tab=profile" },
+    { icon: LayoutGrid, label: "All Jobs", path: "/dashboard/company?tab=feed" },
   ];
 
   const tabs = role === "caregiver" ? caregiverTabs : employerTabs;

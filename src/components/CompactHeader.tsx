@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X, Briefcase, Settings, Bell, LogOut } from "lucide-react";
+import { Menu, X, Briefcase, Settings, Bell, LogOut, Share2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import ShareModal from "./ShareModal";
 
 interface CompactHeaderProps {
   showBackButton?: boolean;
@@ -14,6 +15,7 @@ const CompactHeader = ({ showBackButton }: CompactHeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [user, setUser] = useState<any>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -51,8 +53,14 @@ const CompactHeader = ({ showBackButton }: CompactHeaderProps) => {
     navigate("/");
   };
 
+  const handleShare = () => {
+    setMenuOpen(false);
+    setShowShareModal(true);
+  };
+
   const menuItems = [
     { icon: Briefcase, label: "Browse Jobs", path: "/jobs", priority: true },
+    { icon: Share2, label: "Share Website", action: handleShare },
     { icon: Settings, label: "Settings", path: "/settings" },
     { 
       icon: Bell, 
@@ -61,7 +69,6 @@ const CompactHeader = ({ showBackButton }: CompactHeaderProps) => {
       badge: unreadCount > 0 ? unreadCount : undefined 
     },
   ];
-
   return (
     <>
       {/* Compact Fixed Header */}
@@ -130,12 +137,16 @@ const CompactHeader = ({ showBackButton }: CompactHeaderProps) => {
 
               {/* Menu Items */}
               <nav className="flex flex-col p-2">
-                {menuItems.map((item) => (
+                {menuItems.map((item, index) => (
                   <button
-                    key={item.path}
+                    key={item.path || `action-${index}`}
                     onClick={() => {
-                      navigate(item.path);
-                      setMenuOpen(false);
+                      if (item.action) {
+                        item.action();
+                      } else if (item.path) {
+                        navigate(item.path);
+                        setMenuOpen(false);
+                      }
                     }}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors ${
                       item.priority 
@@ -183,6 +194,9 @@ const CompactHeader = ({ showBackButton }: CompactHeaderProps) => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Share Modal */}
+      <ShareModal open={showShareModal} onOpenChange={setShowShareModal} />
     </>
   );
 };

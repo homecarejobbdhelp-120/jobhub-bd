@@ -6,6 +6,7 @@ import MyJobsTab from "@/components/company/MyJobsTab";
 import PostJobTab from "@/components/company/PostJobTab";
 import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import ApplicantsTab from "@/components/company/ApplicantsTab";
+import CompanyFeedTab from "@/components/company/CompanyFeedTab";
 import Navbar from "@/components/Navbar";
 import CompactHeader from "@/components/CompactHeader";
 
@@ -68,6 +69,7 @@ const CompanyDashboard = () => {
         {currentTab === "post" && <PostJobTab />}
         {currentTab === "profile" && <CompanyProfileTab />}
         {currentTab === "applicants" && <ApplicantsTab />}
+        {currentTab === "feed" && <CompanyFeedTab />}
       </main>
 
       {/* Mobile: Bottom Navigation */}

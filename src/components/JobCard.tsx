@@ -1,7 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, DollarSign, Clock, Send } from "lucide-react";
+import { MapPin, Clock, Send } from "lucide-react";
 
 interface JobCardProps {
   id: string;
@@ -31,40 +31,55 @@ const JobCard = ({
   onApply,
 }: JobCardProps) => {
   return (
-    <Card className={`hover:shadow-lg transition ${featured ? "border-primary border-2" : ""}`}>
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg">{title}</CardTitle>
-            <CardDescription className="flex items-center gap-1 mt-1">
-              <MapPin className="h-3 w-3" />
-              {location}
-            </CardDescription>
+    <Card className={`hover:shadow-md transition-shadow ${featured ? "border-primary border" : "border-border"}`}>
+      <CardContent className="p-3">
+        {/* Header row */}
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-sm text-foreground truncate">{title}</h3>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+              <MapPin className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">{location}</span>
+            </div>
           </div>
-          {featured && <Badge variant="default">Featured</Badge>}
+          {featured && (
+            <Badge variant="default" className="text-xs px-1.5 py-0.5 h-5 flex-shrink-0">
+              Featured
+            </Badge>
+          )}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center gap-2 text-sm">
-          <DollarSign className="h-4 w-4 text-primary" />
-          <span>
+
+        {/* Info row */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+          <span className="font-medium text-primary">
             {salary_negotiable ? "Negotiable" : `৳${salary.toLocaleString()}`}
           </span>
+          <span className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {shift_type}
+          </span>
+          <Badge variant="outline" className="text-xs px-1.5 py-0 h-5">
+            {job_type}
+          </Badge>
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Clock className="h-4 w-4 text-primary" />
-          <span>{shift_type}</span>
-        </div>
+
+        {/* Actions row */}
         <div className="flex gap-2">
-          <Badge variant="outline">{job_type}</Badge>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => onViewDetails(id)} variant="outline" className={hideApply ? "w-full" : "flex-1"}>
+          <Button 
+            onClick={() => onViewDetails(id)} 
+            variant="outline" 
+            size="sm"
+            className={`text-xs h-8 ${hideApply ? "w-full" : "flex-1"}`}
+          >
             View Details
           </Button>
           {!hideApply && (
-            <Button onClick={() => onApply(id)} className="flex-1">
-              <Send className="mr-2 h-4 w-4" />
+            <Button 
+              onClick={() => onApply(id)} 
+              size="sm"
+              className="flex-1 text-xs h-8"
+            >
+              <Send className="mr-1 h-3 w-3" />
               Apply
             </Button>
           )}

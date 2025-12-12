@@ -223,14 +223,17 @@ const Navbar = () => {
     }`}>
       <div className="container mx-auto px-3 md:px-4 h-12 md:h-14">
         <div className="flex justify-between items-center h-full">
-          {/* Logo Section */}
+          {/* Logo Section - Bdjobs Style */}
           <motion.button 
             onClick={scrollToTop}
             className="flex items-center gap-2 focus:outline-none group"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <img src={logo} alt="HomeCare Job BD" className="h-8 md:h-10 transition-transform duration-300 group-hover:scale-105" />
+            <img src={logo} alt="HomeCare Job BD" className="h-10 md:h-12 transition-transform duration-300 group-hover:scale-105" />
+            <span className="text-lg md:text-xl font-bold text-secondary">
+              HomeCare <span className="text-primary">Job BD</span>
+            </span>
           </motion.button>
 
           {/* Right Side Navigation */}

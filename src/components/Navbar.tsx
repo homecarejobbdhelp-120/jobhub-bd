@@ -221,310 +221,171 @@ const Navbar = () => {
     <nav className={`bg-white border-b sticky top-0 z-50 transition-all duration-300 ${
       isScrolled ? "shadow-lg" : "shadow-sm"
     }`}>
-      <div className="container mx-auto px-4 py-2 md:py-3">
-        <div className="flex justify-between items-center">
+      <div className="container mx-auto px-3 md:px-4 h-12 md:h-14">
+        <div className="flex justify-between items-center h-full">
           {/* Logo Section */}
           <motion.button 
             onClick={scrollToTop}
-            className="flex flex-col items-start focus:outline-none group"
+            className="flex items-center gap-2 focus:outline-none group"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <img src={logo} alt="HomeCare Job BD" className="h-10 md:h-12 transition-transform duration-300 group-hover:scale-105" />
-            <span className="text-xs text-secondary mt-0.5 hidden lg:block">Connecting Caregivers, Nurses & Companies</span>
+            <img src={logo} alt="HomeCare Job BD" className="h-8 md:h-10 transition-transform duration-300 group-hover:scale-105" />
           </motion.button>
 
-          {/* Desktop Navigation */}
-          {!showAuthPopup && (
-            <div className="hidden md:flex items-center gap-6">
-              <Link 
-                to="/" 
-                className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
-                  isActiveRoute("/") ? "text-[#6DBE45] font-medium" : ""
-                }`}
-              >
-                Home
-                {isActiveRoute("/") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
-              </Link>
-              <button
-                onClick={() => handleProtectedNavigation("/jobs")}
-                className={`text-[#0B4A79] hover:text-[#6DBE45] transition-all duration-200 hover:scale-105 relative group ${
-                  isActiveRoute("/jobs") ? "text-[#6DBE45] font-medium" : ""
-                }`}
-              >
-                Browse Jobs
-                {isActiveRoute("/jobs") && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#6DBE45]" />}
-              </button>
+          {/* Right Side Navigation */}
+          <div className="flex items-center gap-1 md:gap-2">
+            {!user ? (
+              /* Guest User: Create Account + Sign In + Hamburger */
+              <>
+                <Link to="/signup">
+                  <Button 
+                    size="sm" 
+                    className="h-7 md:h-8 px-2 md:px-3 text-xs md:text-sm font-medium"
+                  >
+                    Create Account
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button 
+                    variant="ghost"
+                    size="sm" 
+                    className="h-7 md:h-8 px-2 md:px-3 text-xs md:text-sm text-secondary hover:text-primary"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </>
+            ) : null}
 
-              {/* Share Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
-                onClick={() => setShowShareModal(true)}
-              >
-                <Share2 className="h-5 w-5" />
-              </Button>
-
-              {/* Notifications (for logged-in users) */}
-              {user && (
-                <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10 relative"
-                    >
-                      <Bell className="h-5 w-5" />
+            {/* Hamburger Menu - Always visible */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 text-secondary hover:text-primary hover:bg-primary/10 relative"
+                >
+                  <Menu className="h-5 w-5" />
+                  {user && unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-destructive" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white z-50">
+                {user ? (
+                  <>
+                    <DropdownMenuLabel className="flex items-center gap-2">
+                      <UserIcon className="h-4 w-4" />
+                      {profile?.name || user.email?.split('@')[0]}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    
+                    <DropdownMenuItem onClick={() => navigate("/")}>
+                      <Home className="mr-2 h-4 w-4" />
+                      Home
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/jobs")}>
+                      <Briefcase className="mr-2 h-4 w-4" />
+                      Browse Jobs
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowShareModal(true)}>
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Share Website
+                    </DropdownMenuItem>
+                    
+                    {/* Notifications */}
+                    <DropdownMenuItem onClick={() => setNotificationsOpen(true)}>
+                      <Bell className="mr-2 h-4 w-4" />
+                      Notifications
                       {unreadCount > 0 && (
-                        <Badge
-                          variant="destructive"
-                          className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                        >
+                        <Badge variant="destructive" className="ml-auto h-5 min-w-5 flex items-center justify-center text-xs px-1.5">
                           {unreadCount}
                         </Badge>
                       )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-80 bg-white z-50">
-                    <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                    </DropdownMenuItem>
+                    
                     <DropdownMenuSeparator />
-                    {notifications.length > 0 ? (
-                      notifications.map((notification) => (
-                        <DropdownMenuItem
-                          key={notification.id}
-                          className={`px-4 py-3 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
-                          onClick={() => handleNotificationClick(notification)}
-                        >
-                          <div className="w-full">
-                            <div className="flex items-start justify-between gap-2">
-                              <p className="font-medium text-sm">{notification.title}</p>
-                              {!notification.read && (
-                                <div className="w-2 h-2 rounded-full bg-[#6DBE45] mt-1 flex-shrink-0" />
-                              )}
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1">{notification.message}</p>
-                            {notification.job_id && (
-                              <span className="text-xs text-[#6DBE45] mt-1 inline-flex items-center gap-1">
-                                View Job <ExternalLink className="w-3 h-3" />
-                              </span>
-                            )}
-                          </div>
+                    
+                    {/* Role-specific navigation */}
+                    {(userRole === "caregiver" || userRole === "nurse") && (
+                      <>
+                        <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=feed")}>
+                          <Home className="mr-2 h-4 w-4" />
+                          Job Feed
                         </DropdownMenuItem>
-                      ))
-                    ) : (
-                      <div className="px-4 py-6 text-center text-sm text-gray-500">
-                        No notifications yet
-                      </div>
+                        <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=messages")}>
+                          <MessageSquare className="mr-2 h-4 w-4" />
+                          Messages
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=profile")}>
+                          <UserIcon className="mr-2 h-4 w-4" />
+                          My Profile
+                        </DropdownMenuItem>
+                      </>
                     )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-
-              {/* Hamburger Menu - Single unified dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-[#0B4A79] hover:text-[#6DBE45] hover:bg-[#6DBE45]/10"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-white z-50">
-                  {user ? (
-                    <>
-                      <DropdownMenuLabel className="flex items-center gap-2">
-                        <UserIcon className="h-4 w-4" />
-                        {profile?.name || user.email?.split('@')[0]}
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      
-                      {/* Role-specific navigation */}
-                      {(userRole === "caregiver" || userRole === "nurse") && (
-                        <>
-                          <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=feed")}>
-                            <Home className="mr-2 h-4 w-4" />
-                            Job Feed
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=messages")}>
-                            <MessageSquare className="mr-2 h-4 w-4" />
-                            Messages
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=profile")}>
-                            <UserIcon className="mr-2 h-4 w-4" />
-                            My Profile
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      
-                      {userRole === "employer" && (
-                        <>
-                          <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=jobs")}>
-                            <Briefcase className="mr-2 h-4 w-4" />
-                            My Jobs
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=post")}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Post a Job
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=profile")}>
-                            <UserIcon className="mr-2 h-4 w-4" />
-                            Company Profile
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      
-                      {userRole === "admin" && (
-                        <DropdownMenuItem onClick={() => navigate("/admin")}>
+                    
+                    {userRole === "employer" && (
+                      <>
+                        <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=jobs")}>
                           <Briefcase className="mr-2 h-4 w-4" />
-                          Admin Dashboard
+                          My Jobs
                         </DropdownMenuItem>
-                      )}
-                      
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate("/settings")}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        Settings
+                        <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=post")}>
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Post a Job
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=profile")}>
+                          <UserIcon className="mr-2 h-4 w-4" />
+                          Company Profile
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    
+                    {userRole === "admin" && (
+                      <DropdownMenuItem onClick={() => navigate("/admin")}>
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        Admin Dashboard
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Logout
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <>
-                      <DropdownMenuItem onClick={() => navigate("/login")}>
-                        Login
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/signup")}>
-                        Sign Up
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
-
-          {/* Mobile Auth Buttons + Menu */}
-          <div className="md:hidden flex items-center gap-2">
-            {user ? (
-              /* Logged in: Show only hamburger menu */
-              <button
-                className="text-[#0B4A79] hover:text-[#6DBE45] transition-colors relative"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle menu"
-              >
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
+                    )}
+                    
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/settings")}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem onClick={() => navigate("/")}>
+                      <Home className="mr-2 h-4 w-4" />
+                      Home
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/jobs")}>
+                      <Briefcase className="mr-2 h-4 w-4" />
+                      Browse Jobs
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowShareModal(true)}>
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Share Website
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/login")}>
+                      Login
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/signup")}>
+                      Sign Up
+                    </DropdownMenuItem>
+                  </>
                 )}
-              </button>
-            ) : (
-              /* Logged out: Show Sign In button */
-              <Link to="/login">
-                <Button 
-                  size="sm" 
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 px-4 text-xs"
-                >
-                  Sign In
-                </Button>
-              </Link>
-            )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
-
-        {/* Mobile Navigation - Only show when user is logged in and menu is open */}
-        <AnimatePresence>
-          {mobileMenuOpen && user && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden py-4 flex flex-col gap-2 bg-white overflow-hidden"
-            >
-              <Link
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-foreground hover:text-primary transition-colors text-left px-2 py-2 flex items-center gap-2"
-              >
-                <Home className="h-4 w-4" />
-                Home
-              </Link>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate("/jobs");
-                }}
-                className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
-              >
-                <Briefcase className="h-4 w-4" />
-                Browse Jobs
-              </button>
-              <button
-                onClick={() => { setShowShareModal(true); setMobileMenuOpen(false); }}
-                className="text-foreground hover:text-primary transition-colors text-left flex items-center gap-2 px-2 py-2"
-              >
-                <Share2 className="h-4 w-4" />
-                Share Website
-              </button>
-              
-              <div className="h-px bg-border my-2" />
-              
-              {/* Role-specific navigation */}
-              {(userRole === "caregiver" || userRole === "nurse") && (
-                <button
-                  onClick={() => { navigate("/dashboard/caregiver?tab=profile"); setMobileMenuOpen(false); }}
-                  className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
-                >
-                  <UserIcon className="h-4 w-4" />
-                  My Profile
-                </button>
-              )}
-              
-              {userRole === "employer" && (
-                <button
-                  onClick={() => { navigate("/dashboard/company?tab=profile"); setMobileMenuOpen(false); }}
-                  className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
-                >
-                  <UserIcon className="h-4 w-4" />
-                  Company Profile
-                </button>
-              )}
-              
-              {userRole === "admin" && (
-                <button
-                  onClick={() => { navigate("/admin"); setMobileMenuOpen(false); }}
-                  className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  Admin Dashboard
-                </button>
-              )}
-              
-              <button
-                onClick={() => { navigate("/settings"); setMobileMenuOpen(false); }}
-                className="text-foreground hover:text-primary transition-colors px-2 py-2 text-left flex items-center gap-2"
-              >
-                <Settings className="h-4 w-4" />
-                Settings
-              </button>
-              
-              <div className="h-px bg-border my-2" />
-              
-              <button
-                onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}
-                className="text-destructive hover:text-destructive/80 transition-colors px-2 py-2 text-left flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Welcome Popup */}

@@ -17,7 +17,7 @@ interface ShareModalProps {
 
 const ShareModal = ({ open, onOpenChange }: ShareModalProps) => {
   const [copied, setCopied] = useState(false);
-  const siteUrl = "https://homecarejobbd.vercel.app";
+  const siteUrl = "https://homecarejobbd.netlify.app";
   const shareMessage = "Find your perfect home care job at HomeCare Job BD!";
 
   const copyToClipboard = () => {

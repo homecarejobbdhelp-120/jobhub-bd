@@ -234,29 +234,16 @@ const Navbar = () => {
           </motion.button>
 
           {/* Right Side Navigation */}
-          <div className="flex items-center gap-1 md:gap-2">
-            {!user ? (
-              /* Guest User: Create Account + Sign In + Hamburger */
-              <>
-                <Link to="/signup">
-                  <Button 
-                    size="sm" 
-                    className="h-7 md:h-8 px-2 md:px-3 text-xs md:text-sm font-medium"
-                  >
-                    Create Account
-                  </Button>
-                </Link>
-                <Link to="/login">
-                  <Button 
-                    variant="ghost"
-                    size="sm" 
-                    className="h-7 md:h-8 px-2 md:px-3 text-xs md:text-sm text-secondary hover:text-primary"
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-              </>
-            ) : null}
+          <div className="flex items-center gap-2">
+            {!user && (
+              /* Guest User: Single compact "Sign in or Create" text link */
+              <Link 
+                to="/login"
+                className="text-xs md:text-sm font-medium text-secondary hover:text-primary transition-colors whitespace-nowrap"
+              >
+                Sign in or Create
+              </Link>
+            )}
 
             {/* Hamburger Menu - Always visible */}
             <DropdownMenu>

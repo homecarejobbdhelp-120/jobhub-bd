@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ interface Job {
 }
 
 const JobFeed = () => {
+  const navigate = useNavigate();
   const { role } = useUserRole();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -148,7 +150,13 @@ const JobFeed = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg mb-1">{job.title}</CardTitle>
-                      <CardDescription className="flex items-center gap-1">
+                      <CardDescription 
+                        className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/company/${job.employer_id}`);
+                        }}
+                      >
                         <Building2 className="h-3 w-3" />
                         {job.profiles?.company_name || job.company_name}
                       </CardDescription>
@@ -211,7 +219,13 @@ const JobFeed = () => {
             <>
               <DialogHeader>
                 <DialogTitle>{selectedJob.title}</DialogTitle>
-                <DialogDescription className="flex items-center gap-1">
+                <DialogDescription 
+                  className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors w-fit"
+                  onClick={() => {
+                    setSelectedJob(null);
+                    navigate(`/company/${selectedJob.employer_id}`);
+                  }}
+                >
                   <Building2 className="h-3 w-3" />
                   {selectedJob.profiles?.company_name || selectedJob.company_name}
                 </DialogDescription>

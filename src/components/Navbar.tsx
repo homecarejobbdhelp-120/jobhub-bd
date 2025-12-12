@@ -190,7 +190,8 @@ const Navbar = () => {
   const handleNotificationClick = (notification: Notification) => {
     markNotificationAsRead(notification.id);
     if (notification.job_id) {
-      navigate(`/jobs`);
+      // Navigate to jobs page with specific job ID
+      navigate(`/jobs?job=${notification.job_id}`);
     }
     setNotificationsOpen(false);
   };

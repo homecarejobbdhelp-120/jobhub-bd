@@ -54,6 +54,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "applications_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "applications_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
@@ -118,6 +125,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -191,6 +205,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "jobs_employer_id_fkey"
+            columns: ["employer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       messages: {
@@ -234,10 +255,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -420,10 +455,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reports_reported_user_id_fkey"
+            columns: ["reported_user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reports_reporter_id_fkey"
             columns: ["reporter_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -462,10 +511,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reviews_reviewed_id_fkey"
+            columns: ["reviewed_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reviews_reviewer_id_fkey"
             columns: ["reviewer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -493,10 +556,110 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          age: number | null
+          avatar_url: string | null
+          certificate_url: string | null
+          company_name: string | null
+          created_at: string | null
+          cv_url: string | null
+          gender: string | null
+          height_cm: number | null
+          height_ft: number | null
+          hide_avatar: boolean | null
+          id: string | null
+          location: string | null
+          marital_status: string | null
+          name: string | null
+          shift_preferences: string[] | null
+          skills: string[] | null
+          username: string | null
+          verified: boolean | null
+          verified_percentage: number | null
+          weight_kg: number | null
+        }
+        Insert: {
+          age?: number | null
+          avatar_url?: string | null
+          certificate_url?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          cv_url?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          height_ft?: number | null
+          hide_avatar?: boolean | null
+          id?: string | null
+          location?: string | null
+          marital_status?: string | null
+          name?: string | null
+          shift_preferences?: string[] | null
+          skills?: string[] | null
+          username?: string | null
+          verified?: boolean | null
+          verified_percentage?: number | null
+          weight_kg?: number | null
+        }
+        Update: {
+          age?: number | null
+          avatar_url?: string | null
+          certificate_url?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          cv_url?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          height_ft?: number | null
+          hide_avatar?: boolean | null
+          id?: string | null
+          location?: string | null
+          marital_status?: string | null
+          name?: string | null
+          shift_preferences?: string[] | null
+          skills?: string[] | null
+          username?: string | null
+          verified?: boolean | null
+          verified_percentage?: number | null
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      can_view_contact_info: {
+        Args: { target_profile_id: string }
+        Returns: boolean
+      }
       expire_old_jobs: { Args: never; Returns: undefined }
+      get_profile_with_contact: {
+        Args: { target_profile_id: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          can_view_contact: boolean
+          certificate_url: string
+          company_name: string
+          created_at: string
+          cv_url: string
+          email: string
+          gender: string
+          height_cm: number
+          height_ft: number
+          hide_avatar: boolean
+          id: string
+          location: string
+          marital_status: string
+          name: string
+          phone: string
+          shift_preferences: string[]
+          skills: string[]
+          username: string
+          verified: boolean
+          verified_percentage: number
+          weight_kg: number
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

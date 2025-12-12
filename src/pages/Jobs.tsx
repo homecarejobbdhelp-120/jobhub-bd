@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Search, MapPin, Clock, DollarSign, Star, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
+import Navbar from "@/components/Navbar";
 
 const Jobs = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -73,24 +74,8 @@ const Jobs = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <Link to="/">
-              <h1 className="text-2xl font-bold text-primary">HomeCare Job BD</h1>
-            </Link>
-            <div className="flex gap-2">
-              <Link to="/post-job">
-                <Button>Post Job</Button>
-              </Link>
-              <Link to="/auth">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Global Navbar */}
+      <Navbar />
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

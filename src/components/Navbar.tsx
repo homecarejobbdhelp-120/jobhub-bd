@@ -19,6 +19,12 @@ import { Badge } from "@/components/ui/badge";
 import WelcomePopup from "./WelcomePopup";
 import ShareModal from "./ShareModal";
 import AuthPopup from "./AuthPopup";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface Notification {
   id: string;
@@ -395,6 +401,41 @@ const Navbar = () => {
         onOpenChange={setShowAuthPopup}
         defaultMode={authMode}
       />
+
+      {/* Notifications Sheet */}
+      <Sheet open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notifications
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-3">
+            {notifications.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No notifications yet</p>
+            ) : (
+              notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
+                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                    notification.read 
+                      ? "bg-background hover:bg-muted/50" 
+                      : "bg-primary/5 border-primary/20 hover:bg-primary/10"
+                  }`}
+                >
+                  <p className="font-medium text-sm">{notification.title}</p>
+                  <p className="text-muted-foreground text-xs mt-1">{notification.message}</p>
+                  <p className="text-muted-foreground text-xs mt-2">
+                    {new Date(notification.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </nav>
   );
 };

@@ -31,7 +31,7 @@ const Dashboard = () => {
         if (userRole === "admin" || isDefaultAdmin) {
           navigate("/admin", { replace: true });
         } else if (userRole === "caregiver" || userRole === "nurse") {
-          navigate("/dashboard/caregiver?tab=feed", { replace: true });
+          navigate("/", { replace: true });
         } else if (userRole === "employer") {
           navigate("/dashboard/company?tab=jobs", { replace: true });
         } else {

@@ -90,7 +90,7 @@ const Login = () => {
       if (userRole === "admin" || isDefaultAdmin) {
         navigate("/admin", { replace: true });
       } else if (userRole === "caregiver" || userRole === "nurse") {
-        navigate("/dashboard/caregiver", { replace: true });
+        navigate("/", { replace: true });
       } else if (userRole === "employer") {
         navigate("/", { replace: true });
       } else {
@@ -172,6 +172,14 @@ const Login = () => {
                   className="h-12 text-sm"
                   disabled={loading}
                 />
+                <div className="text-right">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
               </div>
 
 

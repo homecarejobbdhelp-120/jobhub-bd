@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import JobCard from "@/components/JobCard";
 import AuthPopup from "@/components/AuthPopup";
 import NotificationPrompt from "@/components/NotificationPrompt";
+import EmailNotificationPrompt from "@/components/EmailNotificationPrompt";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
@@ -80,6 +81,7 @@ const Home = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <NotificationPrompt />
+      <EmailNotificationPrompt />
       <AuthPopup 
         open={showLoginPrompt} 
         onOpenChange={setShowLoginPrompt}

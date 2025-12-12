@@ -22,7 +22,6 @@ interface CompanyProfile {
   id: string;
   name: string;
   company_name: string;
-  email: string;
   avatar_url: string | null;
   location: string | null;
   verified_percentage: number;
@@ -65,9 +64,9 @@ const CompanyProfile = () => {
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUserId(user?.id || null);
 
-      // Fetch company profile
+      // Fetch company profile from public_profiles view (excludes sensitive data)
       const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
+        .from("public_profiles")
         .select("*")
         .eq("id", id)
         .single();

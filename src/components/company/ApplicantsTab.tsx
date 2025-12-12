@@ -16,13 +16,13 @@ interface Application {
   job_id: string;
   profiles: {
     name: string;
-    email: string;
-    phone: string;
+    email: string | null;
+    phone: string | null;
     verified_percentage: number;
-  };
+  } | null;
   jobs: {
     title: string;
-  };
+  } | null;
 }
 
 const ApplicantsTab = () => {
@@ -141,13 +141,13 @@ const ApplicantsTab = () => {
                   <div className="flex items-center gap-3">
                     <Avatar>
                       <AvatarFallback className="bg-primary text-primary-foreground">
-                        {app.profiles.name.charAt(0).toUpperCase()}
+                        {app.profiles?.name?.charAt(0).toUpperCase() || "?"}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <CardTitle className="text-base">{app.profiles.name}</CardTitle>
+                      <CardTitle className="text-base">{app.profiles?.name || "Unknown"}</CardTitle>
                       <CardDescription className="text-xs">
-                        Applied for: {app.jobs.title}
+                        Applied for: {app.jobs?.title || "Job"}
                       </CardDescription>
                     </div>
                   </div>
@@ -164,18 +164,25 @@ const ApplicantsTab = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Mail className="h-4 w-4 mr-2" />
-                    {app.profiles.email}
-                  </div>
-                  {app.profiles.phone && (
+                  {app.profiles?.email ? (
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Mail className="h-4 w-4 mr-2" />
+                      {app.profiles.email}
+                    </div>
+                  ) : (
+                    <div className="flex items-center text-sm text-muted-foreground/60 italic">
+                      <Mail className="h-4 w-4 mr-2" />
+                      Contact info protected
+                    </div>
+                  )}
+                  {app.profiles?.phone ? (
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Phone className="h-4 w-4 mr-2" />
                       {app.profiles.phone}
                     </div>
-                  )}
+                  ) : null}
                   <div className="text-sm text-muted-foreground">
-                    Verification: {app.profiles.verified_percentage}%
+                    Verification: {app.profiles?.verified_percentage || 0}%
                   </div>
                 </div>
 

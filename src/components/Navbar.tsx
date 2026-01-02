@@ -246,13 +246,22 @@ const Navbar = () => {
           {/* Right Side Navigation */}
           <div className="flex items-center gap-2">
             {!user && (
-              /* Guest User: Single compact "Sign in or Create" text link */
-              <Link 
-                to="/login"
-                className="text-xs md:text-sm font-medium text-secondary hover:text-primary transition-colors whitespace-nowrap"
-              >
-                Sign in or Create
-              </Link>
+              /* Guest User: Separate "Sign in" and "Create" links */
+              <div className="flex items-center gap-1 text-xs md:text-sm font-medium">
+                <Link 
+                  to="/login"
+                  className="text-secondary hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  Sign in
+                </Link>
+                <span className="text-muted-foreground">or</span>
+                <Link 
+                  to="/signup"
+                  className="text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
+                >
+                  Create
+                </Link>
+              </div>
             )}
 
             {/* Hamburger Menu - Always visible */}

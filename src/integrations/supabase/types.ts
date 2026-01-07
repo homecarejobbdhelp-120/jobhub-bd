@@ -69,6 +69,42 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          accessed_fields: string[] | null
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accessed_fields?: string[] | null
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accessed_fields?: string[] | null
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string
@@ -632,6 +668,39 @@ export type Database = {
         Returns: boolean
       }
       expire_old_jobs: { Args: never; Returns: undefined }
+      get_profile_with_audit: {
+        Args: { target_profile_id: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          can_view_sensitive: boolean
+          certificate_url: string
+          company_name: string
+          created_at: string
+          cv_url: string
+          email: string
+          face_scan_url: string
+          gender: string
+          height_cm: number
+          height_ft: number
+          hide_avatar: boolean
+          id: string
+          license_number: string
+          location: string
+          marital_status: string
+          name: string
+          nid_back_url: string
+          nid_front_url: string
+          nid_number: string
+          phone: string
+          shift_preferences: string[]
+          skills: string[]
+          username: string
+          verified: boolean
+          verified_percentage: number
+          weight_kg: number
+        }[]
+      }
       get_profile_with_contact: {
         Args: { target_profile_id: string }
         Returns: {

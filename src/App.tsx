@@ -24,6 +24,7 @@ import Settings from "./pages/Settings";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminVerifications from "./pages/admin/AdminVerifications";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -74,6 +75,7 @@ const App = () => (
           }>
             <Route index element={<AdminOverview />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="verifications" element={<AdminVerifications />} />
             <Route path="jobs" element={<AdminJobs />} />
             <Route path="reports" element={<AdminReports />} />
             <Route path="settings" element={<AdminSettings />} />

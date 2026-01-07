@@ -9,7 +9,8 @@ import {
   Menu, 
   X,
   LogOut,
-  ChevronLeft
+  ChevronLeft,
+  Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
@@ -18,6 +19,7 @@ import { toast } from "@/hooks/use-toast";
 const navItems = [
   { to: "/admin", icon: LayoutDashboard, label: "Overview", end: true },
   { to: "/admin/users", icon: Users, label: "Users" },
+  { to: "/admin/verifications", icon: Shield, label: "Verifications" },
   { to: "/admin/jobs", icon: Briefcase, label: "Jobs" },
   { to: "/admin/reports", icon: Flag, label: "Reports" },
   { to: "/admin/settings", icon: Settings, label: "Settings" },

@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import AvatarPicker from "./AvatarPicker";
 import VerifiedBadge from "./VerifiedBadge";
+import VerificationCenter from "./VerificationCenter";
 import { calculateProfileCompletion } from "@/lib/profileCompletion";
 interface Profile {
   name: string;
@@ -20,10 +21,13 @@ interface Profile {
   phone: string;
   location: string;
   verified_percentage: number;
+  verified: boolean;
   avatar_url: string | null;
   gender: string | null;
   age: number | null;
   nid_number: string | null;
+  nid_front_url: string | null;
+  nid_back_url: string | null;
   height_ft: number | null;
   height_cm: number | null;
   weight_kg: number | null;
@@ -61,10 +65,13 @@ const ProfileTab = () => {
     phone: "",
     location: "",
     verified_percentage: 0,
+    verified: false,
     avatar_url: null,
     gender: null,
     age: null,
     nid_number: null,
+    nid_front_url: null,
+    nid_back_url: null,
     height_ft: null,
     height_cm: null,
     weight_kg: null,
@@ -105,10 +112,13 @@ const ProfileTab = () => {
           phone: data.phone || "",
           location: data.location || "",
           verified_percentage: data.verified_percentage || 0,
+          verified: data.verified || false,
           avatar_url: data.avatar_url || null,
           gender: data.gender || null,
           age: data.age || null,
           nid_number: data.nid_number || null,
+          nid_front_url: data.nid_front_url || null,
+          nid_back_url: data.nid_back_url || null,
           height_ft: data.height_ft || null,
           height_cm: data.height_cm || null,
           weight_kg: data.weight_kg || null,
@@ -386,17 +396,23 @@ const ProfileTab = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="nid">NID Number (Optional)</Label>
-            <Input
-              id="nid"
-              value={profile.nid_number || ""}
-              onChange={(e) => setProfile({ ...profile, nid_number: e.target.value })}
-              placeholder="Enter NID number"
-            />
-          </div>
         </CardContent>
       </Card>
+
+      {/* Verification Center */}
+      <VerificationCenter
+        userId={userId}
+        nidNumber={profile.nid_number}
+        nidFrontUrl={profile.nid_front_url}
+        nidBackUrl={profile.nid_back_url}
+        verified={profile.verified}
+        onUpdate={(data) => setProfile(prev => ({ 
+          ...prev, 
+          nid_number: data.nid_number ?? prev.nid_number,
+          nid_front_url: data.nid_front_url ?? prev.nid_front_url,
+          nid_back_url: data.nid_back_url ?? prev.nid_back_url,
+        }))}
+      />
 
       {/* Physical Information */}
       <Card>

@@ -8,20 +8,27 @@ import { Check, X, Mail, Phone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
 
+interface ApplicantProfile {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  verified_percentage: number | null;
+  avatar_url: string | null;
+}
+
 interface Application {
   id: string;
   status: string;
   created_at: string;
   caregiver_id: string;
   job_id: string;
-  profiles: {
-    name: string;
-    email: string | null;
-    phone: string | null;
-    verified_percentage: number;
-  } | null;
+  message: string | null;
+  cv_url: string | null;
+  applicant: ApplicantProfile | null;
   jobs: {
     title: string;
+    employer_id: string;
   } | null;
 }
 
@@ -30,23 +37,31 @@ const ApplicantsTab = () => {
   const jobId = searchParams.get("jobId");
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    if (jobId) {
-      fetchApplications();
-    }
+    fetchApplications();
   }, [jobId]);
 
   const fetchApplications = async () => {
+    setLoading(true);
+    setCheckingAuth(true);
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setCheckingAuth(false);
+        setLoading(false);
+        return;
+      }
+      setCheckingAuth(false);
 
+      // Use the exact join syntax with foreign key hint
       let query = supabase
         .from("applications")
         .select(`
           *,
-          profiles(name, email, phone, verified_percentage),
+          applicant:profiles!caregiver_id(*),
           jobs(title, employer_id)
         `)
         .order("created_at", { ascending: false });
@@ -60,8 +75,10 @@ const ApplicantsTab = () => {
       if (error) throw error;
 
       // Filter to only jobs owned by current user
-      const filteredData = data?.filter((app: any) => app.jobs.employer_id === user.id);
-      setApplications(filteredData || []);
+      const filteredData = (data || []).filter((app: any) => 
+        app.jobs && app.jobs.employer_id === user.id
+      );
+      setApplications(filteredData as Application[]);
     } catch (error) {
       console.error("Error fetching applications:", error);
       toast({
@@ -114,10 +131,12 @@ const ApplicantsTab = () => {
     }
   };
 
-  if (loading) {
+  if (checkingAuth || loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Loading applicants...</p>
+        <p className="text-muted-foreground">
+          {checkingAuth ? "Checking permissions..." : "Loading applicants..."}
+        </p>
       </div>
     );
   }
@@ -134,57 +153,75 @@ const ApplicantsTab = () => {
             </CardContent>
           </Card>
         ) : (
-          applications.map((app) => (
-            <Card key={app.id} className="shadow-md">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        {app.profiles?.name?.charAt(0).toUpperCase() || "?"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-base">{app.profiles?.name || "Unknown"}</CardTitle>
-                      <CardDescription className="text-xs">
-                        Applied for: {app.jobs?.title || "Job"}
-                      </CardDescription>
+          applications.map((app) => {
+            const isProfileRestricted = !app.applicant;
+            const applicantName = app.applicant?.name || "Profile Restricted";
+            const applicantInitial = app.applicant?.name?.charAt(0).toUpperCase() || "?";
+            
+            return (
+              <Card key={app.id} className="shadow-md">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {applicantInitial}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-base">
+                          {applicantName}
+                          {isProfileRestricted && (
+                            <Badge variant="outline" className="ml-2 text-xs">
+                              Restricted
+                            </Badge>
+                          )}
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                          Applied for: {app.jobs?.title || "Job"}
+                        </CardDescription>
+                      </div>
                     </div>
+                    <Badge 
+                      variant={
+                        app.status === "accepted" ? "default" :
+                        app.status === "rejected" ? "destructive" :
+                        "secondary"
+                      }
+                    >
+                      {app.status}
+                    </Badge>
                   </div>
-                  <Badge 
-                    variant={
-                      app.status === "accepted" ? "default" :
-                      app.status === "rejected" ? "destructive" :
-                      "secondary"
-                    }
-                  >
-                    {app.status}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  {app.profiles?.email ? (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Mail className="h-4 w-4 mr-2" />
-                      {app.profiles.email}
+                </CardHeader>
+                <CardContent>
+                  {isProfileRestricted ? (
+                    <div className="text-sm text-muted-foreground/60 italic mb-4">
+                      Applicant profile is restricted. Accept the application to view full details.
                     </div>
                   ) : (
-                    <div className="flex items-center text-sm text-muted-foreground/60 italic">
-                      <Mail className="h-4 w-4 mr-2" />
-                      Contact info protected
+                    <div className="space-y-2 mb-4">
+                      {app.applicant?.email ? (
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Mail className="h-4 w-4 mr-2" />
+                          {app.applicant.email}
+                        </div>
+                      ) : (
+                        <div className="flex items-center text-sm text-muted-foreground/60 italic">
+                          <Mail className="h-4 w-4 mr-2" />
+                          Contact info protected
+                        </div>
+                      )}
+                      {app.applicant?.phone && (
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Phone className="h-4 w-4 mr-2" />
+                          {app.applicant.phone}
+                        </div>
+                      )}
+                      <div className="text-sm text-muted-foreground">
+                        Verification: {app.applicant?.verified_percentage || 0}%
+                      </div>
                     </div>
                   )}
-                  {app.profiles?.phone ? (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Phone className="h-4 w-4 mr-2" />
-                      {app.profiles.phone}
-                    </div>
-                  ) : null}
-                  <div className="text-sm text-muted-foreground">
-                    Verification: {app.profiles?.verified_percentage || 0}%
-                  </div>
-                </div>
 
                 {app.status === "pending" && (
                   <div className="flex gap-2">
@@ -204,10 +241,11 @@ const ApplicantsTab = () => {
                       Reject
                     </Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          ))
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
     </div>

@@ -154,8 +154,7 @@ const ApplicantsTab = () => {
           </Card>
         ) : (
           applications.map((app) => {
-            const isProfileRestricted = !app.applicant;
-            const applicantName = app.applicant?.name || "Profile Restricted";
+            const applicantName = app.applicant?.name || "Unknown Applicant";
             const applicantInitial = app.applicant?.name?.charAt(0).toUpperCase() || "?";
             
             return (
@@ -164,18 +163,21 @@ const ApplicantsTab = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {applicantInitial}
-                        </AvatarFallback>
+                        {app.applicant?.avatar_url ? (
+                          <img 
+                            src={app.applicant.avatar_url} 
+                            alt={applicantName}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {applicantInitial}
+                          </AvatarFallback>
+                        )}
                       </Avatar>
                       <div>
                         <CardTitle className="text-base">
                           {applicantName}
-                          {isProfileRestricted && (
-                            <Badge variant="outline" className="ml-2 text-xs">
-                              Restricted
-                            </Badge>
-                          )}
                         </CardTitle>
                         <CardDescription className="text-xs">
                           Applied for: {app.jobs?.title || "Job"}
@@ -194,34 +196,23 @@ const ApplicantsTab = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {isProfileRestricted ? (
-                    <div className="text-sm text-muted-foreground/60 italic mb-4">
-                      Applicant profile is restricted. Accept the application to view full details.
-                    </div>
-                  ) : (
-                    <div className="space-y-2 mb-4">
-                      {app.applicant?.email ? (
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Mail className="h-4 w-4 mr-2" />
-                          {app.applicant.email}
-                        </div>
-                      ) : (
-                        <div className="flex items-center text-sm text-muted-foreground/60 italic">
-                          <Mail className="h-4 w-4 mr-2" />
-                          Contact info protected
-                        </div>
-                      )}
-                      {app.applicant?.phone && (
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Phone className="h-4 w-4 mr-2" />
-                          {app.applicant.phone}
-                        </div>
-                      )}
-                      <div className="text-sm text-muted-foreground">
-                        Verification: {app.applicant?.verified_percentage || 0}%
+                  <div className="space-y-2 mb-4">
+                    {app.applicant?.email && (
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Mail className="h-4 w-4 mr-2" />
+                        {app.applicant.email}
                       </div>
+                    )}
+                    {app.applicant?.phone && (
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Phone className="h-4 w-4 mr-2" />
+                        {app.applicant.phone}
+                      </div>
+                    )}
+                    <div className="text-sm text-muted-foreground">
+                      Verification: {app.applicant?.verified_percentage || 0}%
                     </div>
-                  )}
+                  </div>
 
                 {app.status === "pending" && (
                   <div className="flex gap-2">

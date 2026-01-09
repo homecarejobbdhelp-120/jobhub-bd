@@ -107,6 +107,30 @@ const AdminVerifications = () => {
     await loadSignedUrls(user);
   };
 
+  const sendVerificationEmail = async (email: string, name: string, status: "approved" | "rejected", reason?: string) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-verification-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, name, status, reason }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Email send error:", errorData);
+        // Don't throw - email failure shouldn't block verification
+      }
+    } catch (error) {
+      console.error("Failed to send verification email:", error);
+      // Don't throw - email failure shouldn't block verification
+    }
+  };
+
   const handleApproveVerification = async () => {
     if (!selectedUser) return;
 
@@ -122,9 +146,12 @@ const AdminVerifications = () => {
 
       if (error) throw error;
 
+      // Send approval email
+      await sendVerificationEmail(selectedUser.email, selectedUser.name, "approved");
+
       toast({
         title: "User Verified",
-        description: `${selectedUser.name} has been verified successfully`,
+        description: `${selectedUser.name} has been verified successfully and notified via email`,
       });
 
       // Remove from pending list

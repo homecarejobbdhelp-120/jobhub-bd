@@ -18,7 +18,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Eye, CheckCircle, Shield, User, IdCard, AlertCircle } from "lucide-react";
+import { Loader2, Eye, CheckCircle, Shield, User, IdCard, AlertCircle, XCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -41,6 +42,9 @@ const AdminVerifications = () => {
   const [backImageUrl, setBackImageUrl] = useState<string | null>(null);
   const [loadingImages, setLoadingImages] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
 
   const fetchPendingVerifications = async () => {
     try {
@@ -104,6 +108,8 @@ const AdminVerifications = () => {
 
   const handleViewUser = async (user: PendingUser) => {
     setSelectedUser(user);
+    setShowRejectForm(false);
+    setRejectReason("");
     await loadSignedUrls(user);
   };
 
@@ -157,6 +163,8 @@ const AdminVerifications = () => {
       // Remove from pending list
       setPendingUsers(pendingUsers.filter((u) => u.id !== selectedUser.id));
       setSelectedUser(null);
+      setShowRejectForm(false);
+      setRejectReason("");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -166,6 +174,61 @@ const AdminVerifications = () => {
     } finally {
       setVerifying(false);
     }
+  };
+
+  const handleRejectVerification = async () => {
+    if (!selectedUser || !rejectReason.trim()) {
+      toast({
+        title: "Reason Required",
+        description: "Please provide a reason for rejection",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRejecting(true);
+    try {
+      // Clear NID data and reset verification status
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          nid_number: null,
+          nid_front_url: null,
+          nid_back_url: null,
+          verified_percentage: 0,
+        })
+        .eq("id", selectedUser.id);
+
+      if (error) throw error;
+
+      // Send rejection email
+      await sendVerificationEmail(selectedUser.email, selectedUser.name, "rejected", rejectReason.trim());
+
+      toast({
+        title: "Verification Rejected",
+        description: `${selectedUser.name} has been notified about the rejection`,
+      });
+
+      // Remove from pending list
+      setPendingUsers(pendingUsers.filter((u) => u.id !== selectedUser.id));
+      setSelectedUser(null);
+      setShowRejectForm(false);
+      setRejectReason("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reject verification",
+        variant: "destructive",
+      });
+    } finally {
+      setRejecting(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedUser(null);
+    setShowRejectForm(false);
+    setRejectReason("");
   };
 
   return (
@@ -267,7 +330,7 @@ const AdminVerifications = () => {
       </Card>
 
       {/* Review Dialog */}
-      <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
+      <Dialog open={!!selectedUser} onOpenChange={(open) => !open && handleCloseDialog()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -347,30 +410,91 @@ const AdminVerifications = () => {
                   )}
                 </div>
               </div>
+
+              {/* Rejection Form */}
+              {showRejectForm && (
+                <div className="space-y-3 p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-900">
+                  <p className="font-medium text-sm text-red-700 dark:text-red-400">
+                    Reason for Rejection
+                  </p>
+                  <Textarea
+                    placeholder="Please provide a clear reason for rejecting this verification (e.g., documents are blurry, information doesn't match, etc.)"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    className="min-h-[100px] border-red-200 dark:border-red-800"
+                    maxLength={500}
+                  />
+                  <p className="text-xs text-muted-foreground text-right">
+                    {rejectReason.length}/500 characters
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setSelectedUser(null)}>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={handleCloseDialog}>
               Cancel
             </Button>
-            <Button
-              onClick={handleApproveVerification}
-              disabled={verifying}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {verifying ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Verifying...
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Approve & Verify
-                </>
-              )}
-            </Button>
+            {!showRejectForm ? (
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowRejectForm(true)}
+                  disabled={verifying}
+                >
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Reject
+                </Button>
+                <Button
+                  onClick={handleApproveVerification}
+                  disabled={verifying}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {verifying ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Approve
+                    </>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowRejectForm(false);
+                    setRejectReason("");
+                  }}
+                  disabled={rejecting}
+                >
+                  Back
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleRejectVerification}
+                  disabled={rejecting || !rejectReason.trim()}
+                >
+                  {rejecting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Rejecting...
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4 mr-2" />
+                      Confirm Rejection
+                    </>
+                  )}
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

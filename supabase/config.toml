@@ -1,4 +1,4 @@
 project_id = "kmthjcwipphhziyicgzg"
 
 [functions.send-job-alert]
-verify_jwt = false
+verify_jwt = true

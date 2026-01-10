@@ -115,12 +115,21 @@ const AdminVerifications = () => {
 
   const sendVerificationEmail = async (email: string, name: string, status: "approved" | "rejected", reason?: string) => {
     try {
+      // Get current session for auth header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        console.error("No session found for sending email");
+        return;
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-verification-email`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ email, name, status, reason }),
         }

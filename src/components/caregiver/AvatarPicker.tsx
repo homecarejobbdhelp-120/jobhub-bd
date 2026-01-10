@@ -11,21 +11,23 @@ interface AvatarPickerProps {
   onSelect: (avatarUrl: string) => void;
 }
 
-// Default avatar URLs from Supabase storage (avatars bucket, root folder)
+// Default avatar URLs from Supabase storage (Avatars bucket)
+const BASE_URL = "https://lcjjjnrzlqiewuwxavkw.supabase.co/storage/v1/object/public/Avatars";
+
 const MALE_AVATARS = [
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/male-1.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/male-2.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/male-3.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/male-4.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/male-5.png",
+  `${BASE_URL}/male-1.png`,
+  `${BASE_URL}/male2.png`,
+  `${BASE_URL}/male3.png`,
+  `${BASE_URL}/male4.png`,
+  `${BASE_URL}/male-5.png`,
 ];
 
 const FEMALE_AVATARS = [
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/female-1.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/female-2.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/female-3.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/female-4.png",
-  "https://kmthjcwipphhziyicgzg.supabase.co/storage/v1/object/public/avatars/female-5.png",
+  `${BASE_URL}/female-1.png`,
+  `${BASE_URL}/female-2.png`,
+  `${BASE_URL}/female-3.png`,
+  `${BASE_URL}/female-4.png`,
+  `${BASE_URL}/female-5.png`,
 ];
 
 const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) => {
@@ -73,10 +75,10 @@ const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) =>
               type="button"
               onClick={() => handleSelect(url)}
               className={cn(
-                "relative rounded-full overflow-hidden border-2 transition-all",
+                "relative rounded-full overflow-hidden border-3 transition-all",
                 selected === url 
-                  ? "border-primary ring-2 ring-primary ring-offset-2" 
-                  : "border-transparent hover:border-primary/50"
+                  ? "border-green-500 ring-2 ring-green-500 ring-offset-2" 
+                  : "border-transparent hover:border-green-300"
               )}
             >
               <Avatar className="h-14 w-14">
@@ -84,8 +86,8 @@ const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) =>
                 <AvatarFallback>{index + 1}</AvatarFallback>
               </Avatar>
               {selected === url && (
-                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                  <Check className="h-6 w-6 text-primary" />
+                <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                  <Check className="h-6 w-6 text-green-600" />
                 </div>
               )}
             </button>

@@ -116,7 +116,26 @@ const Profile = () => {
         .single();
 
       if (profileError) throw profileError;
-      setProfile(profileData);
+      if (profileData) {
+        setProfile({
+          id: profileData.id || "",
+          name: profileData.name || "",
+          company_name: profileData.company_name,
+          avatar_url: profileData.avatar_url,
+          location: profileData.location,
+          verified: profileData.verified || false,
+          verified_percentage: profileData.verified_percentage || 0,
+          skills: profileData.skills,
+          shift_preferences: profileData.shift_preferences,
+          gender: profileData.gender,
+          age: profileData.age,
+          marital_status: profileData.marital_status,
+          cv_url: profileData.cv_url,
+          certificate_url: profileData.certificate_url,
+          expected_salary_min: (profileData as any).expected_salary_min || null,
+          expected_salary_max: (profileData as any).expected_salary_max || null,
+        });
+      }
 
       // Get the profile's role
       const { data: roleData } = await supabase

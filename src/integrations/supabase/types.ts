@@ -606,6 +606,8 @@ export type Database = {
           company_name: string | null
           created_at: string | null
           cv_url: string | null
+          expected_salary_max: number | null
+          expected_salary_min: number | null
           gender: string | null
           height_cm: number | null
           height_ft: number | null
@@ -628,6 +630,8 @@ export type Database = {
           company_name?: string | null
           created_at?: string | null
           cv_url?: string | null
+          expected_salary_max?: number | null
+          expected_salary_min?: number | null
           gender?: string | null
           height_cm?: number | null
           height_ft?: number | null
@@ -650,6 +654,8 @@ export type Database = {
           company_name?: string | null
           created_at?: string | null
           cv_url?: string | null
+          expected_salary_max?: number | null
+          expected_salary_min?: number | null
           gender?: string | null
           height_cm?: number | null
           height_ft?: number | null

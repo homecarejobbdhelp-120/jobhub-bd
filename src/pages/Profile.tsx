@@ -209,40 +209,24 @@ const Profile = () => {
       return;
     }
 
-    setMessageLoading(true);
-    try {
-      const { data: existingMessages } = await supabase
-        .from("messages")
-        .select("id")
-        .or(`and(sender_id.eq.${currentUserId},receiver_id.eq.${id}),and(sender_id.eq.${id},receiver_id.eq.${currentUserId})`)
-        .limit(1);
+    if (!profile) return;
 
-      if (!existingMessages || existingMessages.length === 0) {
-        await supabase
-          .from("messages")
-          .insert({
-            sender_id: currentUserId,
-            receiver_id: id,
-            text: "Hello! I'd like to connect with you.",
-          });
-        toast({ title: "Message sent", description: "Conversation started!" });
-      }
+    // Build query params with partner info
+    const partnerName = profile.company_name || profile.name;
+    const params = new URLSearchParams({
+      tab: "messages",
+      partnerId: id!,
+      partnerName: partnerName,
+    });
+    if (profile.company_name) {
+      params.set("partnerCompany", profile.company_name);
+    }
 
-      // Navigate based on current user's role
-      if (currentUserRole === "employer") {
-        navigate("/dashboard/company?tab=messages");
-      } else {
-        navigate("/dashboard/caregiver?tab=messages");
-      }
-    } catch (error) {
-      console.error("Error starting conversation:", error);
-      toast({
-        title: "Error",
-        description: "Failed to start conversation",
-        variant: "destructive",
-      });
-    } finally {
-      setMessageLoading(false);
+    // Navigate based on current user's role
+    if (currentUserRole === "employer") {
+      navigate(`/dashboard/company?${params.toString()}`);
+    } else {
+      navigate(`/dashboard/caregiver?${params.toString()}`);
     }
   };
 

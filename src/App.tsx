@@ -29,6 +29,7 @@ import AdminJobs from "./pages/admin/AdminJobs";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
 import CompanyProfile from "./pages/CompanyProfile";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/company-feed" element={<CompanyFeed />} />
           <Route path="/company-dashboard" element={<CompanyFeed />} />
           <Route path="/company/:id" element={<CompanyProfile />} />
+          <Route path="/profile/:id" element={<Profile />} />
           <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
           <Route path="/dashboard/caregiver" element={
             <ProtectedRoute allowedRoles={['caregiver','nurse']}>

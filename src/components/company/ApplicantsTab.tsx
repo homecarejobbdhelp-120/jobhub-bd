@@ -14,9 +14,11 @@ import {
   Star,
   Bookmark,
   User,
-  Clock
+  Clock,
+  Eye
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import CandidateCVModal from "./CandidateCVModal";
 
 interface ApplicantProfile {
   id: string;
@@ -31,6 +33,10 @@ interface ApplicantProfile {
   skills: string[] | null;
   expected_salary_min: number | null;
   expected_salary_max: number | null;
+  marital_status?: string | null;
+  shift_preferences?: string[] | null;
+  cv_url?: string | null;
+  certificate_url?: string | null;
 }
 
 interface Application {
@@ -57,6 +63,10 @@ const ApplicantsTab = () => {
   const [loading, setLoading] = useState(true);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [shortlisted, setShortlisted] = useState<Set<string>>(new Set());
+  
+  // Modal state
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [cvModalOpen, setCvModalOpen] = useState(false);
 
   useEffect(() => {
     fetchApplications();
@@ -81,7 +91,8 @@ const ApplicantsTab = () => {
           *,
           applicant:profiles!caregiver_id(
             id, name, email, phone, verified_percentage, avatar_url,
-            location, age, gender, skills, expected_salary_min, expected_salary_max
+            location, age, gender, skills, expected_salary_min, expected_salary_max,
+            marital_status, shift_preferences, cv_url, certificate_url
           ),
           jobs(title, employer_id)
         `)
@@ -150,8 +161,9 @@ const ApplicantsTab = () => {
     }
   };
 
-  const handleViewCV = (caregiverId: string) => {
-    navigate(`/profile/${caregiverId}`);
+  const handleViewCV = (application: Application) => {
+    setSelectedApplication(application);
+    setCvModalOpen(true);
   };
 
   const handleMessage = async (caregiverId: string, applicantName: string) => {
@@ -349,9 +361,9 @@ const ApplicantsTab = () => {
                     {/* Primary: View CV */}
                     <Button
                       className="bg-primary hover:bg-primary/90"
-                      onClick={() => handleViewCV(app.caregiver_id)}
+                      onClick={() => handleViewCV(app)}
                     >
-                      <FileText className="mr-2 h-4 w-4" />
+                      <Eye className="mr-2 h-4 w-4" />
                       View CV
                     </Button>
 
@@ -416,6 +428,26 @@ const ApplicantsTab = () => {
           })
         )}
       </div>
+
+      {/* CV Modal */}
+      <CandidateCVModal
+        open={cvModalOpen}
+        onOpenChange={setCvModalOpen}
+        applicant={selectedApplication?.applicant || null}
+        application={selectedApplication}
+        jobTitle={selectedApplication?.jobs?.title || "Job Position"}
+        onShortlist={() => {
+          if (selectedApplication) {
+            handleStatusChange(selectedApplication.id, "accepted", selectedApplication.caregiver_id);
+          }
+        }}
+        onReject={() => {
+          if (selectedApplication) {
+            handleStatusChange(selectedApplication.id, "rejected", selectedApplication.caregiver_id);
+          }
+        }}
+        isPending={selectedApplication?.status === "pending"}
+      />
     </div>
   );
 };

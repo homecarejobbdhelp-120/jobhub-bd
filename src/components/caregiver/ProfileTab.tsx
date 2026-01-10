@@ -212,11 +212,9 @@ const ProfileTab = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
-
-      setProfile(prev => ({ ...prev, [field]: publicUrl }));
+      // Store only the file path, not the public URL
+      // Signed URLs will be generated on-demand when viewing
+      setProfile(prev => ({ ...prev, [field]: fileName }));
 
       toast({
         title: "Success",
@@ -230,6 +228,46 @@ const ProfileTab = () => {
       });
     } finally {
       setUploading(false);
+    }
+  };
+
+  // Generate signed URL for viewing documents
+  const getSignedUrl = async (bucket: 'cvs' | 'certificates', filePath: string): Promise<string | null> => {
+    try {
+      // If the path is already a full URL (legacy data), return it
+      if (filePath.startsWith('http')) {
+        return filePath;
+      }
+      
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(filePath, 3600); // 1 hour expiry
+      
+      if (error) {
+        console.error('Error creating signed URL:', error);
+        return null;
+      }
+      
+      return data.signedUrl;
+    } catch (error) {
+      console.error('Error getting signed URL:', error);
+      return null;
+    }
+  };
+
+  // Handle opening CV/certificate with signed URL
+  const handleViewDocument = async (bucket: 'cvs' | 'certificates', filePath: string | null) => {
+    if (!filePath) return;
+    
+    const url = await getSignedUrl(bucket, filePath);
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to access document",
+        variant: "destructive",
+      });
     }
   };
 

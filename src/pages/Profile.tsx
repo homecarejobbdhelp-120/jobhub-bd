@@ -408,62 +408,78 @@ const Profile = () => {
               </CardDescription>
             )}
             
-            {/* Stats Row */}
+            {/* Stats Row - Different for Company vs Caregiver */}
             <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {followerCount} Followers
-              </Badge>
+              {/* Company Stats: Followers + Active Jobs */}
               {isCompany && (
-                <Badge variant="outline" className="flex items-center gap-1">
-                  <Briefcase className="h-3 w-3" />
-                  {jobs.length} Active Jobs
-                </Badge>
+                <>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    {followerCount} Followers
+                  </Badge>
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Briefcase className="h-3 w-3" />
+                    {jobs.length} Active Jobs
+                  </Badge>
+                </>
               )}
+              
+              {/* Caregiver Stats: Verification Badge (no followers) */}
+              {isCaregiver && (
+                <>
+                  {profile.verified ? (
+                    <Badge className="flex items-center gap-1 bg-green-600 text-white">
+                      <BadgeCheck className="h-3 w-3" />
+                      Verified Caregiver
+                    </Badge>
+                  ) : profile.verified_percentage > 0 ? (
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Shield className="h-3 w-3" />
+                      {profile.verified_percentage}% Verified
+                    </Badge>
+                  ) : null}
+                </>
+              )}
+              
+              {/* Rating - shown for all */}
               {averageRating !== null && (
                 <Badge variant="default" className="flex items-center gap-1 bg-amber-500">
                   <Star className="h-3 w-3" />
                   {averageRating} ({reviewCount})
                 </Badge>
               )}
-              {isCaregiver && profile.verified && (
-                <Badge className="flex items-center gap-1 bg-green-600 text-white">
-                  <BadgeCheck className="h-3 w-3" />
-                  Verified Caregiver
-                </Badge>
-              )}
-              {profile.verified_percentage > 0 && !profile.verified && (
-                <Badge variant="outline" className="flex items-center gap-1">
-                  <Shield className="h-3 w-3" />
-                  {profile.verified_percentage}% Verified
-                </Badge>
-              )}
             </div>
           </CardHeader>
+          
           <CardContent className="flex gap-3 justify-center pt-4">
-            <Button
-              variant={isFollowing ? "secondary" : "default"}
-              onClick={handleFollow}
-              disabled={followLoading || currentUserId === id}
-              className="flex-1 max-w-[140px]"
-            >
-              {isFollowing ? (
-                <>
-                  <UserCheck className="h-4 w-4 mr-2" />
-                  Following
-                </>
-              ) : (
-                <>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Follow
-                </>
-              )}
-            </Button>
+            {/* Follow Button - Only for Companies */}
+            {isCompany && (
+              <Button
+                variant={isFollowing ? "secondary" : "default"}
+                onClick={handleFollow}
+                disabled={followLoading || currentUserId === id}
+                className="flex-1 max-w-[140px]"
+              >
+                {isFollowing ? (
+                  <>
+                    <UserCheck className="h-4 w-4 mr-2" />
+                    Following
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Follow
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {/* Message Button - Always shown */}
             <Button
               variant="outline"
               onClick={handleMessage}
               disabled={messageLoading || currentUserId === id}
-              className="flex-1 max-w-[140px]"
+              className={isCaregiver ? "flex-1 max-w-[200px]" : "flex-1 max-w-[140px]"}
             >
               <MessageSquare className="h-4 w-4 mr-2" />
               Message

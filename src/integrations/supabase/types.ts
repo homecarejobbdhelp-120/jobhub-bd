@@ -360,6 +360,8 @@ export type Database = {
           created_at: string | null
           cv_url: string | null
           email: string
+          expected_salary_max: number | null
+          expected_salary_min: number | null
           face_scan_url: string | null
           gender: string | null
           height_cm: number | null
@@ -391,6 +393,8 @@ export type Database = {
           created_at?: string | null
           cv_url?: string | null
           email: string
+          expected_salary_max?: number | null
+          expected_salary_min?: number | null
           face_scan_url?: string | null
           gender?: string | null
           height_cm?: number | null
@@ -422,6 +426,8 @@ export type Database = {
           created_at?: string | null
           cv_url?: string | null
           email?: string
+          expected_salary_max?: number | null
+          expected_salary_min?: number | null
           face_scan_url?: string | null
           gender?: string | null
           height_cm?: number | null

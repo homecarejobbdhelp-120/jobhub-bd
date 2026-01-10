@@ -43,6 +43,8 @@ interface ProfileData {
   marital_status: string | null;
   cv_url: string | null;
   certificate_url: string | null;
+  expected_salary_min: number | null;
+  expected_salary_max: number | null;
 }
 
 interface Job {
@@ -488,6 +490,15 @@ const Profile = () => {
                       <Badge key={i} variant="secondary">{skill}</Badge>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {(profile.expected_salary_min || profile.expected_salary_max) && (
+                <div>
+                  <span className="text-sm text-muted-foreground block mb-2">Expected Salary</span>
+                  <Badge variant="default" className="bg-green-600 text-white">
+                    ৳{profile.expected_salary_min?.toLocaleString() || "0"} - ৳{profile.expected_salary_max?.toLocaleString() || "N/A"} /month
+                  </Badge>
                 </div>
               )}
 

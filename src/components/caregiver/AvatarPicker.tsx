@@ -75,16 +75,22 @@ const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) =>
               type="button"
               onClick={() => handleSelect(url)}
               className={cn(
-                "relative rounded-full overflow-hidden border-3 transition-all",
+                "relative rounded-full overflow-hidden border-2 transition-all",
                 selected === url 
                   ? "border-green-500 ring-2 ring-green-500 ring-offset-2" 
                   : "border-transparent hover:border-green-300"
               )}
             >
-              <Avatar className="h-14 w-14">
-                <AvatarImage src={url} alt={`Avatar ${index + 1}`} />
-                <AvatarFallback>{index + 1}</AvatarFallback>
-              </Avatar>
+              <div className="h-16 w-16 rounded-full overflow-hidden bg-muted">
+                <img 
+                  src={url} 
+                  alt={`Avatar ${index + 1}`}
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    console.error(`Failed to load avatar: ${url}`);
+                  }}
+                />
+              </div>
               {selected === url && (
                 <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
                   <Check className="h-6 w-6 text-green-600" />

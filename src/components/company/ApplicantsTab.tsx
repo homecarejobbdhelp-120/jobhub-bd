@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Check, X, Mail, Phone } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Check, X, Mail, Phone, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useSearchParams } from "react-router-dom";
 
 interface ApplicantProfile {
   id: string;
@@ -33,6 +33,7 @@ interface Application {
 }
 
 const ApplicantsTab = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const jobId = searchParams.get("jobId");
   const [applications, setApplications] = useState<Application[]>([]);
@@ -161,23 +162,20 @@ const ApplicantsTab = () => {
               <Card key={app.id} className="shadow-md">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        {app.applicant?.avatar_url ? (
-                          <img 
-                            src={app.applicant.avatar_url} 
-                            alt={applicantName}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <AvatarFallback className="bg-primary text-primary-foreground">
-                            {applicantInitial}
-                          </AvatarFallback>
-                        )}
+                    <div 
+                      className="flex items-center gap-3 cursor-pointer group"
+                      onClick={() => navigate(`/profile/${app.caregiver_id}`)}
+                    >
+                      <Avatar className="ring-2 ring-transparent group-hover:ring-primary transition-all">
+                        <AvatarImage src={app.applicant?.avatar_url || undefined} alt={applicantName} />
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {applicantInitial}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-base">
+                        <CardTitle className="text-base flex items-center gap-1 group-hover:text-primary transition-colors">
                           {applicantName}
+                          <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </CardTitle>
                         <CardDescription className="text-xs">
                           Applied for: {app.jobs?.title || "Job"}

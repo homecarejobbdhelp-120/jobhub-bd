@@ -36,6 +36,8 @@ interface Profile {
   skills: string[];
   cv_url: string | null;
   certificate_url: string | null;
+  expected_salary_min: number | null;
+  expected_salary_max: number | null;
 }
 
 const SHIFT_OPTIONS = [
@@ -80,6 +82,8 @@ const ProfileTab = () => {
     skills: [],
     cv_url: null,
     certificate_url: null,
+    expected_salary_min: null,
+    expected_salary_max: null,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -127,6 +131,8 @@ const ProfileTab = () => {
           skills: data.skills || [],
           cv_url: data.cv_url || null,
           certificate_url: data.certificate_url || null,
+          expected_salary_min: data.expected_salary_min || null,
+          expected_salary_max: data.expected_salary_max || null,
         });
       }
     } catch (error) {
@@ -164,6 +170,8 @@ const ProfileTab = () => {
           cv_url: profile.cv_url,
           certificate_url: profile.certificate_url,
           verified_percentage: completion.percentage,
+          expected_salary_min: profile.expected_salary_min,
+          expected_salary_max: profile.expected_salary_max,
         })
         .eq("id", user.id);
 
@@ -464,6 +472,42 @@ const ProfileTab = () => {
                 <SelectItem value="separated">Separated</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Expected Salary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Expected Salary</CardTitle>
+          <CardDescription>Set your preferred salary range (BDT/month)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="salary_min">Minimum</Label>
+              <Input
+                id="salary_min"
+                type="number"
+                min={0}
+                step={1000}
+                value={profile.expected_salary_min || ""}
+                onChange={(e) => setProfile({ ...profile, expected_salary_min: e.target.value ? parseInt(e.target.value) : null })}
+                placeholder="e.g., 15000"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="salary_max">Maximum</Label>
+              <Input
+                id="salary_max"
+                type="number"
+                min={0}
+                step={1000}
+                value={profile.expected_salary_max || ""}
+                onChange={(e) => setProfile({ ...profile, expected_salary_max: e.target.value ? parseInt(e.target.value) : null })}
+                placeholder="e.g., 25000"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

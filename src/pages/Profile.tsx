@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { 
   MapPin, 
@@ -22,7 +23,16 @@ import {
   User,
   Check,
   X,
-  BadgeCheck
+  BadgeCheck,
+  FileText,
+  Phone,
+  Mail,
+  Calendar,
+  Heart,
+  Ruler,
+  Weight,
+  GraduationCap,
+  Award
 } from "lucide-react";
 import RatingDisplay from "@/components/profile/RatingDisplay";
 import ReviewList from "@/components/profile/ReviewList";
@@ -45,6 +55,9 @@ interface ProfileData {
   certificate_url: string | null;
   expected_salary_min: number | null;
   expected_salary_max: number | null;
+  height_ft: number | null;
+  height_cm: number | null;
+  weight_kg: number | null;
 }
 
 interface Job {
@@ -94,11 +107,9 @@ const Profile = () => {
 
   const fetchProfileData = async () => {
     try {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUserId(user?.id || null);
 
-      // Get current user's role
       if (user) {
         const { data: roleData } = await supabase
           .from("user_roles")
@@ -108,7 +119,6 @@ const Profile = () => {
         setCurrentUserRole(roleData?.role || null);
       }
 
-      // Fetch profile from public_profiles view
       const { data: profileData, error: profileError } = await supabase
         .from("public_profiles")
         .select("*")
@@ -134,11 +144,13 @@ const Profile = () => {
           certificate_url: profileData.certificate_url ?? null,
           expected_salary_min: (profileData as any).expected_salary_min ?? null,
           expected_salary_max: (profileData as any).expected_salary_max ?? null,
+          height_ft: profileData.height_ft ?? null,
+          height_cm: profileData.height_cm ?? null,
+          weight_kg: profileData.weight_kg ?? null,
         };
         setProfile(mappedProfile);
       }
 
-      // Get the profile's role
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
@@ -146,7 +158,6 @@ const Profile = () => {
         .single();
       setUserRole(roleData?.role || null);
 
-      // If employer, fetch their active jobs
       if (roleData?.role === "employer") {
         const { data: jobsData } = await supabase
           .from("jobs")
@@ -157,14 +168,12 @@ const Profile = () => {
         setJobs(jobsData || []);
       }
 
-      // Fetch follower count
       const { count } = await supabase
         .from("follows")
         .select("*", { count: "exact", head: true })
         .eq("following_id", id);
       setFollowerCount(count || 0);
 
-      // Check if current user is following
       if (user) {
         const { data: followData } = await supabase
           .from("follows")
@@ -175,7 +184,6 @@ const Profile = () => {
         setIsFollowing(!!followData);
       }
 
-      // Fetch average rating
       const { data: reviewsData } = await supabase
         .from("reviews")
         .select("rating")
@@ -187,7 +195,6 @@ const Profile = () => {
         setReviewCount(reviewsData.length);
       }
 
-      // If current user is employer and viewing a caregiver, check for pending applications
       if (user && roleData?.role !== "employer") {
         const { data: currentUserRoleData } = await supabase
           .from("user_roles")
@@ -196,7 +203,6 @@ const Profile = () => {
           .single();
 
         if (currentUserRoleData?.role === "employer") {
-          // Get applications from this caregiver to any of the employer's jobs
           const { data: applicationsData } = await supabase
             .from("applications")
             .select(`
@@ -280,7 +286,6 @@ const Profile = () => {
 
     if (!profile) return;
 
-    // Build query params with partner info
     const partnerName = profile.company_name || profile.name;
     const params = new URLSearchParams({
       tab: "messages",
@@ -291,7 +296,6 @@ const Profile = () => {
       params.set("partnerCompany", profile.company_name);
     }
 
-    // Navigate based on current user's role
     if (currentUserRole === "employer") {
       navigate(`/dashboard/company?${params.toString()}`);
     } else {
@@ -314,7 +318,6 @@ const Profile = () => {
 
       if (error) throw error;
 
-      // If accepted, send a message
       if (newStatus === "accepted" && currentUserId) {
         await supabase
           .from("messages")
@@ -325,7 +328,6 @@ const Profile = () => {
           });
       }
 
-      // Remove from pending list
       setPendingApplications(prev => prev.filter(app => app.id !== applicationId));
 
       toast({
@@ -354,7 +356,7 @@ const Profile = () => {
         <div className="container mx-auto px-4 py-6 max-w-2xl">
           <Card>
             <CardHeader className="text-center">
-              <Skeleton className="h-20 w-20 rounded-full mx-auto" />
+              <Skeleton className="h-24 w-24 rounded-full mx-auto" />
               <Skeleton className="h-6 w-48 mx-auto mt-4" />
               <Skeleton className="h-4 w-32 mx-auto mt-2" />
             </CardHeader>
@@ -386,192 +388,290 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-6 max-w-2xl">
-        {/* Profile Header */}
-        <Card className="mb-6">
-          <CardHeader className="text-center pb-2">
-            <Avatar className="h-20 w-20 mx-auto mb-3">
-              <AvatarImage src={profile.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                {(profile.company_name || profile.name)?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <CardTitle className="text-xl flex items-center justify-center gap-2">
-              {isCompany ? profile.company_name || profile.name : profile.name}
-              {profile.verified && (
-                <Shield className="h-5 w-5 text-green-500" />
-              )}
-            </CardTitle>
-            {profile.location && (
-              <CardDescription className="flex items-center justify-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {profile.location}
-              </CardDescription>
-            )}
-            
-            {/* Stats Row - Different for Company vs Caregiver */}
-            <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
-              {/* Company Stats: Followers + Active Jobs */}
-              {isCompany && (
-                <>
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    {followerCount} Followers
-                  </Badge>
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Briefcase className="h-3 w-3" />
-                    {jobs.length} Active Jobs
-                  </Badge>
-                </>
-              )}
+        
+        {/* CV-Style Profile Header */}
+        <Card className="mb-6 overflow-hidden">
+          {/* Header Banner */}
+          <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-primary/5 h-20" />
+          
+          <div className="px-6 pb-6 -mt-12">
+            {/* Avatar */}
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+              <Avatar className="h-24 w-24 ring-4 ring-background shadow-lg">
+                <AvatarImage src={profile.avatar_url || undefined} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-3xl">
+                  {(profile.company_name || profile.name)?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               
-              {/* Caregiver Stats: Verification Badge (no followers) */}
-              {isCaregiver && (
-                <>
-                  {profile.verified ? (
-                    <Badge className="flex items-center gap-1 bg-green-600 text-white">
-                      <BadgeCheck className="h-3 w-3" />
-                      Verified Caregiver
+              <div className="flex-1 pt-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-bold">
+                    {isCompany ? profile.company_name || profile.name : profile.name}
+                  </h1>
+                  {profile.verified && (
+                    <Badge className="bg-green-600 text-white">
+                      <BadgeCheck className="h-3 w-3 mr-1" />
+                      Verified
                     </Badge>
-                  ) : profile.verified_percentage > 0 ? (
+                  )}
+                </div>
+                
+                {profile.location && (
+                  <p className="text-muted-foreground flex items-center gap-1 mt-1">
+                    <MapPin className="h-4 w-4" />
+                    {profile.location}
+                  </p>
+                )}
+                
+                {/* Quick Stats */}
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {isCompany && (
+                    <>
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        {followerCount} Followers
+                      </Badge>
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <Briefcase className="h-3 w-3" />
+                        {jobs.length} Active Jobs
+                      </Badge>
+                    </>
+                  )}
+                  
+                  {isCaregiver && !profile.verified && profile.verified_percentage > 0 && (
                     <Badge variant="outline" className="flex items-center gap-1">
                       <Shield className="h-3 w-3" />
                       {profile.verified_percentage}% Verified
                     </Badge>
-                  ) : null}
-                </>
+                  )}
+                  
+                  {averageRating !== null && (
+                    <Badge className="bg-amber-500 text-white flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-current" />
+                      {averageRating} ({reviewCount})
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 mt-6">
+              {isCompany && (
+                <Button
+                  variant={isFollowing ? "secondary" : "default"}
+                  onClick={handleFollow}
+                  disabled={followLoading || currentUserId === id}
+                  className="flex-1"
+                >
+                  {isFollowing ? (
+                    <>
+                      <UserCheck className="h-4 w-4 mr-2" />
+                      Following
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Follow
+                    </>
+                  )}
+                </Button>
               )}
               
-              {/* Rating - shown for all */}
-              {averageRating !== null && (
-                <Badge variant="default" className="flex items-center gap-1 bg-amber-500">
-                  <Star className="h-3 w-3" />
-                  {averageRating} ({reviewCount})
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          
-          <CardContent className="flex gap-3 justify-center pt-4">
-            {/* Follow Button - Only for Companies */}
-            {isCompany && (
               <Button
-                variant={isFollowing ? "secondary" : "default"}
-                onClick={handleFollow}
-                disabled={followLoading || currentUserId === id}
-                className="flex-1 max-w-[140px]"
+                variant="outline"
+                onClick={handleMessage}
+                disabled={messageLoading || currentUserId === id}
+                className={isCaregiver ? "flex-1" : "flex-1"}
               >
-                {isFollowing ? (
-                  <>
-                    <UserCheck className="h-4 w-4 mr-2" />
-                    Following
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Follow
-                  </>
-                )}
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Message
               </Button>
-            )}
-            
-            {/* Message Button - Always shown */}
-            <Button
-              variant="outline"
-              onClick={handleMessage}
-              disabled={messageLoading || currentUserId === id}
-              className={isCaregiver ? "flex-1 max-w-[200px]" : "flex-1 max-w-[140px]"}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Message
-            </Button>
-          </CardContent>
+            </div>
+          </div>
         </Card>
 
-        {/* Caregiver Details */}
+        {/* Caregiver CV Sections */}
         {isCaregiver && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <User className="h-5 w-5 text-primary" />
-                About
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                {profile.gender && (
-                  <div>
-                    <span className="text-muted-foreground">Gender:</span>
-                    <span className="ml-2 font-medium capitalize">{profile.gender}</span>
-                  </div>
-                )}
-                {profile.age && (
-                  <div>
-                    <span className="text-muted-foreground">Age:</span>
-                    <span className="ml-2 font-medium">{profile.age} years</span>
-                  </div>
-                )}
-                {profile.marital_status && (
-                  <div>
-                    <span className="text-muted-foreground">Status:</span>
-                    <span className="ml-2 font-medium capitalize">{profile.marital_status}</span>
-                  </div>
-                )}
-              </div>
+          <>
+            {/* Personal Information Section */}
+            <Card className="mb-4">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  Personal Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  {profile.gender && (
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Gender</p>
+                        <p className="font-medium capitalize">{profile.gender}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {profile.age && (
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Age</p>
+                        <p className="font-medium">{profile.age} years</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {profile.marital_status && (
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Heart className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Marital Status</p>
+                        <p className="font-medium capitalize">{profile.marital_status}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {profile.location && (
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Location</p>
+                        <p className="font-medium">{profile.location}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {(profile.height_ft || profile.height_cm) && (
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Ruler className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Height</p>
+                        <p className="font-medium">
+                          {profile.height_ft ? `${profile.height_ft} ft` : `${profile.height_cm} cm`}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {profile.weight_kg && (
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Weight className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Weight</p>
+                        <p className="font-medium">{profile.weight_kg} kg</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-              {profile.skills && profile.skills.length > 0 && (
-                <div>
-                  <span className="text-sm text-muted-foreground block mb-2">Skills</span>
+            {/* Skills & Expertise Section */}
+            {profile.skills && profile.skills.length > 0 && (
+              <Card className="mb-4">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <GraduationCap className="h-5 w-5 text-primary" />
+                    Skills & Expertise
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div className="flex flex-wrap gap-2">
                     {profile.skills.map((skill, i) => (
-                      <Badge key={i} variant="secondary">{skill}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {(profile.expected_salary_min || profile.expected_salary_max) && (
-                <div>
-                  <span className="text-sm text-muted-foreground block mb-2">Expected Salary</span>
-                  <Badge variant="default" className="bg-green-600 text-white">
-                    ৳{profile.expected_salary_min?.toLocaleString() || "0"} - ৳{profile.expected_salary_max?.toLocaleString() || "N/A"} /month
-                  </Badge>
-                </div>
-              )}
-
-              {profile.shift_preferences && profile.shift_preferences.length > 0 && (
-                <div>
-                  <span className="text-sm text-muted-foreground block mb-2">Shift Preferences</span>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.shift_preferences.map((pref, i) => (
-                      <Badge key={i} variant="outline" className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {pref}
+                      <Badge key={i} variant="secondary" className="py-1.5 px-3">
+                        {skill}
                       </Badge>
                     ))}
                   </div>
-                </div>
-              )}
+                </CardContent>
+              </Card>
+            )}
 
-              {(profile.cv_url || profile.certificate_url) && (
-                <div className="flex gap-2 pt-2">
-                  {profile.cv_url && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={profile.cv_url} target="_blank" rel="noopener noreferrer">
-                        View CV
-                      </a>
-                    </Button>
-                  )}
-                  {profile.certificate_url && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={profile.certificate_url} target="_blank" rel="noopener noreferrer">
-                        View Certificate
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            {/* Work Preferences Section */}
+            <Card className="mb-4">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Briefcase className="h-5 w-5 text-primary" />
+                  Work Preferences
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(profile.expected_salary_min || profile.expected_salary_max) && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Expected Salary</p>
+                    <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 px-4 py-2 rounded-lg">
+                      <span className="text-lg font-bold text-green-700 dark:text-green-400">
+                        ৳{profile.expected_salary_min?.toLocaleString() || "0"} - ৳{profile.expected_salary_max?.toLocaleString() || "Negotiable"}
+                      </span>
+                      <span className="text-sm text-green-600 dark:text-green-500">/month</span>
+                    </div>
+                  </div>
+                )}
+
+                {profile.shift_preferences && profile.shift_preferences.length > 0 && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Preferred Shifts</p>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.shift_preferences.map((pref, i) => (
+                        <Badge key={i} variant="outline" className="flex items-center gap-1 py-1.5">
+                          <Clock className="h-3 w-3" />
+                          {pref}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Documents Section */}
+            {(profile.cv_url || profile.certificate_url) && (
+              <Card className="mb-4">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    Documents
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3">
+                    {profile.cv_url && (
+                      <Button variant="outline" className="h-auto py-4 flex flex-col gap-2" asChild>
+                        <a href={profile.cv_url} target="_blank" rel="noopener noreferrer">
+                          <FileText className="h-6 w-6 text-primary" />
+                          <span className="text-sm">View CV</span>
+                        </a>
+                      </Button>
+                    )}
+                    {profile.certificate_url && (
+                      <Button variant="outline" className="h-auto py-4 flex flex-col gap-2" asChild>
+                        <a href={profile.certificate_url} target="_blank" rel="noopener noreferrer">
+                          <Award className="h-6 w-6 text-primary" />
+                          <span className="text-sm">Certificate</span>
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </>
         )}
 
         {/* Company Jobs */}

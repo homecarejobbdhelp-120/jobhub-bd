@@ -64,7 +64,13 @@ const CaregiverDashboard = () => {
       {/* Main Content */}
       <main className="px-3 py-3 max-w-lg mx-auto md:max-w-4xl md:px-4 md:py-6">
         {currentTab === "feed" && <JobFeed />}
-        {currentTab === "messages" && <MessagesTab />}
+        {currentTab === "messages" && (
+          <MessagesTab
+            initialPartnerId={searchParams.get("partnerId") || undefined}
+            initialPartnerName={searchParams.get("partnerName") || undefined}
+            initialPartnerCompany={searchParams.get("partnerCompany") || undefined}
+          />
+        )}
         {currentTab === "profile" && <ProfileTab />}
       </main>
 

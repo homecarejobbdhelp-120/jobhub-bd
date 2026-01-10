@@ -7,6 +7,7 @@ import PostJobTab from "@/components/company/PostJobTab";
 import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import ApplicantsTab from "@/components/company/ApplicantsTab";
 import CompanyFeedTab from "@/components/company/CompanyFeedTab";
+import MessagesTab from "@/components/caregiver/MessagesTab";
 import Navbar from "@/components/Navbar";
 import CompactHeader from "@/components/CompactHeader";
 
@@ -70,6 +71,13 @@ const CompanyDashboard = () => {
         {currentTab === "profile" && <CompanyProfileTab />}
         {currentTab === "applicants" && <ApplicantsTab />}
         {currentTab === "feed" && <CompanyFeedTab />}
+        {currentTab === "messages" && (
+          <MessagesTab
+            initialPartnerId={searchParams.get("partnerId") || undefined}
+            initialPartnerName={searchParams.get("partnerName") || undefined}
+            initialPartnerCompany={searchParams.get("partnerCompany") || undefined}
+          />
+        )}
       </main>
 
       {/* Mobile: Bottom Navigation */}

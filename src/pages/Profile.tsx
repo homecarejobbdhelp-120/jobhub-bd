@@ -117,24 +117,25 @@ const Profile = () => {
 
       if (profileError) throw profileError;
       if (profileData) {
-        setProfile({
-          id: profileData.id || "",
-          name: profileData.name || "",
-          company_name: profileData.company_name,
-          avatar_url: profileData.avatar_url,
-          location: profileData.location,
-          verified: profileData.verified || false,
-          verified_percentage: profileData.verified_percentage || 0,
-          skills: profileData.skills,
-          shift_preferences: profileData.shift_preferences,
-          gender: profileData.gender,
-          age: profileData.age,
-          marital_status: profileData.marital_status,
-          cv_url: profileData.cv_url,
-          certificate_url: profileData.certificate_url,
-          expected_salary_min: (profileData as any).expected_salary_min || null,
-          expected_salary_max: (profileData as any).expected_salary_max || null,
-        });
+        const mappedProfile: ProfileData = {
+          id: profileData.id ?? "",
+          name: profileData.name ?? "",
+          company_name: profileData.company_name ?? null,
+          avatar_url: profileData.avatar_url ?? null,
+          location: profileData.location ?? null,
+          verified: profileData.verified ?? false,
+          verified_percentage: profileData.verified_percentage ?? 0,
+          skills: profileData.skills ?? null,
+          shift_preferences: profileData.shift_preferences ?? null,
+          gender: profileData.gender ?? null,
+          age: profileData.age ?? null,
+          marital_status: profileData.marital_status ?? null,
+          cv_url: profileData.cv_url ?? null,
+          certificate_url: profileData.certificate_url ?? null,
+          expected_salary_min: (profileData as any).expected_salary_min ?? null,
+          expected_salary_max: (profileData as any).expected_salary_max ?? null,
+        };
+        setProfile(mappedProfile);
       }
 
       // Get the profile's role

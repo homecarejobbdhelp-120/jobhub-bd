@@ -16,9 +16,9 @@ const BASE_URL = "https://lcjjjnrzlqiewuwxavkw.supabase.co/storage/v1/object/pub
 // Exact filenames as specified
 const MALE_AVATARS = [
   `${BASE_URL}male-1.png`,
-  `${BASE_URL}male2.png`,
-  `${BASE_URL}male3.png`,
-  `${BASE_URL}male4.png`,
+  `${BASE_URL}male-2.png`,
+  `${BASE_URL}male-3.png`,
+  `${BASE_URL}male-4.png`,
   `${BASE_URL}male-5.png`,
 ];
 

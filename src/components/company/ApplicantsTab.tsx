@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,6 @@ interface Application {
 }
 
 const ApplicantsTab = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const jobId = searchParams.get("jobId");
   const [applications, setApplications] = useState<Application[]>([]);
@@ -162,9 +161,9 @@ const ApplicantsTab = () => {
               <Card key={app.id} className="shadow-md">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div 
+                    <Link
+                      to={`/profile/${app.caregiver_id}`}
                       className="flex items-center gap-3 cursor-pointer group"
-                      onClick={() => navigate(`/profile/${app.caregiver_id}`)}
                     >
                       <Avatar className="ring-2 ring-transparent group-hover:ring-primary transition-all">
                         <AvatarImage src={app.applicant?.avatar_url || undefined} alt={applicantName} />
@@ -173,7 +172,7 @@ const ApplicantsTab = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-base flex items-center gap-1 group-hover:text-primary transition-colors">
+                        <CardTitle className="text-base flex items-center gap-1 transition-colors group-hover:text-primary group-hover:underline">
                           {applicantName}
                           <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </CardTitle>
@@ -181,7 +180,7 @@ const ApplicantsTab = () => {
                           Applied for: {app.jobs?.title || "Job"}
                         </CardDescription>
                       </div>
-                    </div>
+                    </Link>
                     <Badge 
                       variant={
                         app.status === "accepted" ? "default" :

@@ -19,7 +19,10 @@ import {
   Star,
   Shield,
   Clock,
-  User
+  User,
+  Check,
+  X,
+  BadgeCheck
 } from "lucide-react";
 import RatingDisplay from "@/components/profile/RatingDisplay";
 import ReviewList from "@/components/profile/ReviewList";
@@ -53,6 +56,13 @@ interface Job {
   status: string;
 }
 
+interface PendingApplication {
+  id: string;
+  job_id: string;
+  job_title: string;
+  status: string;
+}
+
 const Profile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -71,6 +81,8 @@ const Profile = () => {
   const [averageRating, setAverageRating] = useState<number | null>(null);
   const [reviewCount, setReviewCount] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [pendingApplications, setPendingApplications] = useState<PendingApplication[]>([]);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -151,6 +163,41 @@ const Profile = () => {
         const avg = reviewsData.reduce((sum, r) => sum + r.rating, 0) / reviewsData.length;
         setAverageRating(Math.round(avg * 10) / 10);
         setReviewCount(reviewsData.length);
+      }
+
+      // If current user is employer and viewing a caregiver, check for pending applications
+      if (user && roleData?.role !== "employer") {
+        const { data: currentUserRoleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .single();
+
+        if (currentUserRoleData?.role === "employer") {
+          // Get applications from this caregiver to any of the employer's jobs
+          const { data: applicationsData } = await supabase
+            .from("applications")
+            .select(`
+              id,
+              job_id,
+              status,
+              jobs!inner(title, employer_id)
+            `)
+            .eq("caregiver_id", id)
+            .eq("jobs.employer_id", user.id)
+            .eq("status", "pending");
+
+          if (applicationsData) {
+            setPendingApplications(
+              applicationsData.map((app: any) => ({
+                id: app.id,
+                job_id: app.job_id,
+                job_title: app.jobs?.title || "Job",
+                status: app.status,
+              }))
+            );
+          }
+        }
       }
     } catch (error) {
       console.error("Error fetching profile data:", error);
@@ -235,8 +282,48 @@ const Profile = () => {
     fetchProfileData();
   };
 
+  const handleApplicationAction = async (applicationId: string, newStatus: "accepted" | "rejected") => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from("applications")
+        .update({ status: newStatus })
+        .eq("id", applicationId);
+
+      if (error) throw error;
+
+      // If accepted, send a message
+      if (newStatus === "accepted" && currentUserId) {
+        await supabase
+          .from("messages")
+          .insert({
+            sender_id: currentUserId,
+            receiver_id: id,
+            text: "Your application has been accepted! Let's discuss further.",
+          });
+      }
+
+      // Remove from pending list
+      setPendingApplications(prev => prev.filter(app => app.id !== applicationId));
+
+      toast({
+        title: "Success",
+        description: `Application ${newStatus}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update application",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const isCompany = userRole === "employer";
   const isCaregiver = userRole === "caregiver" || userRole === "nurse";
+  const isEmployerViewingCaregiver = currentUserRole === "employer" && isCaregiver;
 
   if (loading) {
     return (
@@ -317,7 +404,13 @@ const Profile = () => {
                   {averageRating} ({reviewCount})
                 </Badge>
               )}
-              {profile.verified_percentage > 0 && (
+              {isCaregiver && profile.verified && (
+                <Badge className="flex items-center gap-1 bg-green-600 text-white">
+                  <BadgeCheck className="h-3 w-3" />
+                  Verified Caregiver
+                </Badge>
+              )}
+              {profile.verified_percentage > 0 && !profile.verified && (
                 <Badge variant="outline" className="flex items-center gap-1">
                   <Shield className="h-3 w-3" />
                   {profile.verified_percentage}% Verified
@@ -514,6 +607,36 @@ const Profile = () => {
         {/* Reviews List */}
         <ReviewList reviewedId={id!} />
       </div>
+
+      {/* Sticky Action Bar for Employers viewing Caregivers with pending applications */}
+      {isEmployerViewingCaregiver && pendingApplications.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg p-4 z-50">
+          <div className="container mx-auto max-w-2xl">
+            <div className="mb-2 text-sm text-muted-foreground text-center">
+              Pending application for: <span className="font-medium text-foreground">{pendingApplications[0].job_title}</span>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                onClick={() => handleApplicationAction(pendingApplications[0].id, "accepted")}
+                disabled={actionLoading}
+              >
+                <Check className="mr-2 h-4 w-4" />
+                Accept Application
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => handleApplicationAction(pendingApplications[0].id, "rejected")}
+                disabled={actionLoading}
+              >
+                <X className="mr-2 h-4 w-4" />
+                Reject
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

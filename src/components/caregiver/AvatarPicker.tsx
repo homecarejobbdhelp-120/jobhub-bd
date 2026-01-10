@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Camera, Check } from "lucide-react";
+import { Camera, Check, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AvatarPickerProps {
@@ -12,27 +11,29 @@ interface AvatarPickerProps {
 }
 
 // Default avatar URLs from Supabase storage (Avatars bucket)
-const BASE_URL = "https://lcjjjnrzlqiewuwxavkw.supabase.co/storage/v1/object/public/Avatars";
+const BASE_URL = "https://lcjjjnrzlqiewuwxavkw.supabase.co/storage/v1/object/public/Avatars/";
 
+// Exact filenames as specified
 const MALE_AVATARS = [
-  `${BASE_URL}/male-1.png`,
-  `${BASE_URL}/male2.png`,
-  `${BASE_URL}/male3.png`,
-  `${BASE_URL}/male4.png`,
-  `${BASE_URL}/male-5.png`,
+  `${BASE_URL}male-1.png`,
+  `${BASE_URL}male2.png`,
+  `${BASE_URL}male3.png`,
+  `${BASE_URL}male4.png`,
+  `${BASE_URL}male-5.png`,
 ];
 
 const FEMALE_AVATARS = [
-  `${BASE_URL}/female-1.png`,
-  `${BASE_URL}/female-2.png`,
-  `${BASE_URL}/female-3.png`,
-  `${BASE_URL}/female-4.png`,
-  `${BASE_URL}/female-5.png`,
+  `${BASE_URL}female-1.png`,
+  `${BASE_URL}female-2.png`,
+  `${BASE_URL}female-3.png`,
+  `${BASE_URL}female-4.png`,
+  `${BASE_URL}female-5.png`,
 ];
 
 const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(currentAvatar);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   const avatars = gender === "female" ? FEMALE_AVATARS : MALE_AVATARS;
 
@@ -40,6 +41,11 @@ const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) =>
     setSelected(url);
     onSelect(url);
     setOpen(false);
+  };
+
+  const handleImageError = (url: string) => {
+    console.error(`Failed to load avatar: ${url}`);
+    setFailedImages(prev => new Set(prev).add(url));
   };
 
   return (
@@ -71,7 +77,7 @@ const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) =>
         <div className="grid grid-cols-5 gap-3 py-4">
           {avatars.map((url, index) => (
             <button
-              key={index}
+              key={url}
               type="button"
               onClick={() => handleSelect(url)}
               className={cn(
@@ -81,15 +87,17 @@ const AvatarPicker = ({ gender, currentAvatar, onSelect }: AvatarPickerProps) =>
                   : "border-transparent hover:border-green-300"
               )}
             >
-              <div className="h-16 w-16 rounded-full overflow-hidden bg-muted">
-                <img 
-                  src={url} 
-                  alt={`Avatar ${index + 1}`}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    console.error(`Failed to load avatar: ${url}`);
-                  }}
-                />
+              <div className="h-16 w-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                {failedImages.has(url) ? (
+                  <User className="h-8 w-8 text-muted-foreground" />
+                ) : (
+                  <img 
+                    src={url} 
+                    alt="Avatar option"
+                    className="h-full w-full object-cover"
+                    onError={() => handleImageError(url)}
+                  />
+                )}
               </div>
               {selected === url && (
                 <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">

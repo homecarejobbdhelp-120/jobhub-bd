@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
-
+import { X } from "lucide-react";
 type UserRole = "caregiver" | "employer";
 
 const Auth = () => {
@@ -136,7 +136,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar /><div className="absolute top-5 right-5 z-50">
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={() => navigate("/")}
+      >
+        <X className="h-6 w-6" />
+      </Button>
+    </div>
       
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">

@@ -136,7 +136,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar /><div className="absolute top-5 right-5 z-50">
+      <Navbar /><div className="absolute top-20 right-5 z-50">
       <Button 
         variant="ghost" 
         size="icon" 

@@ -102,7 +102,7 @@ const JobCard = ({
         {/* Actions row */}
         <div className="flex gap-2">
           <Button 
-            onClick={() => onViewDetails(id)} 
+           onClick={() => navigate("/auth")} 
             variant="outline" 
             size="sm"
             className={`text-xs h-8 ${hideApply ? "w-full" : "flex-1"}`}
@@ -111,7 +111,7 @@ const JobCard = ({
           </Button>
           {!hideApply && (
             <Button 
-              onClick={() => onApply(id)} 
+              onClick={() => navigate("/auth")} 
               size="sm"
               className="flex-1 text-xs h-8"
             >

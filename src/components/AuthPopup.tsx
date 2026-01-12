@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, LogIn, Loader2 } from "lucide-react";
+import { UserPlus, LogIn, Loader2,X } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "@/hooks/use-toast";
 
@@ -208,7 +208,18 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
       onOpenChange(isOpen);
       if (!isOpen) resetForm();
     }}>
-      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[440px] p-6 sm:p-8 rounded-xl shadow-lg bg-background z-[100] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[440px] p-6 sm:p-8 rounded-xl shadow-lg bg-background z-[100] max-h-[90vh] overflow-y-auto"> 
+      {/* Close Button */}
+        <div className="absolute right-4 top-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() => onOpenChange(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-center text-xl sm:text-2xl font-bold">
             {mode === "login" ? "Welcome Back" : "Create Account"}

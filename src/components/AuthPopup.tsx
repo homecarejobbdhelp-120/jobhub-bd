@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, LogIn, Loader2,X } from "lucide-react";
+import { UserPlus, LogIn, Loader2, X } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "@/hooks/use-toast";
 
@@ -29,62 +29,66 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
   const [loading, setLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string>("");
   const turnstileRef = useRef<HTMLDivElement>(null);
-  const turnstileWidgetId = useRef<string | null>(null);
   const navigate = useNavigate();
 
-  // Load Turnstile widget
   useEffect(() => {
-    if (!open) return;
+    setMode(defaultMode);
+  }, [defaultMode, open]);
 
-    const loadTurnstile = () => {
-      if (window.turnstile && turnstileRef.current) {
-        turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
-          sitekey: "0x4AAAAAAB6---qkWG8NYhRuG",
-          callback: (token: string) => setTurnstileToken(token),
-        }) as any;
+  // Cleanup turnstile on unmount or close
+  useEffect(() => {
+    if (!open && window.turnstile) {
+      try {
+        window.turnstile.remove();
+      } catch (e) {
+        console.error("Error removing turnstile:", e);
       }
-    };
-
-    if (window.turnstile) {
-      loadTurnstile();
-    } else {
-      const script = document.createElement("script");
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-      script.async = true;
-      script.defer = true;
-      script.onload = loadTurnstile;
-      document.body.appendChild(script);
     }
-  }, [open, mode]);
+  }, [open]);
 
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  // Render Turnstile
+  useEffect(() => {
+    if (open && turnstileRef.current && !turnstileToken) {
+      // Clear previous instance if any
+      if (turnstileRef.current.innerHTML !== "") {
+        turnstileRef.current.innerHTML = "";
+      }
+
+      const widgetId = window.turnstile.render(turnstileRef.current, {
+        sitekey: "0x4AAAAAAAHzIOyU0PjK9jWd", 
+        callback: (token: string) => {
+          setTurnstileToken(token);
+        },
+        "expired-callback": () => {
+          setTurnstileToken("");
+        },
+      });
+
+      return () => {
+        if (window.turnstile) {
+          try {
+            window.turnstile.remove(widgetId);
+          } catch (e) {
+             // ignore cleanup errors
+          }
+        }
+      };
+    }
+  }, [open, mode]); 
 
   const resetForm = () => {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
     setFullName("");
+    setLoading(false);
     setTurnstileToken("");
-    if (window.turnstile) {
-      window.turnstile.reset();
-    }
+    if (window.turnstile) window.turnstile.reset();
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isValidEmail(email)) {
-      toast({ title: "Error", description: "Please enter a valid email address", variant: "destructive" });
-      return;
-    }
-
-    if (!password) {
-      toast({ title: "Error", description: "Please enter your password", variant: "destructive" });
-      return;
-    }
-
     if (!turnstileToken) {
       toast({ title: "Error", description: "Please complete the security check", variant: "destructive" });
       return;
@@ -92,37 +96,24 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      if (data.user) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", data.user.id)
-          .single();
-
-        toast({ title: "Success", description: "Logged in successfully!" });
-        onOpenChange(false);
-        resetForm();
-
-        if (roleData?.role === "employer") {
-          navigate("/company-feed");
-        } else if (roleData?.role === "caregiver" || roleData?.role === "nurse") {
-          navigate("/feed");
-        } else {
-          navigate("/dashboard");
-        }
-      }
+      toast({
+        title: "Success",
+        description: "Logged in successfully",
+      });
+      onOpenChange(false);
+      navigate("/caregiver-dashboard");
     } catch (error: any) {
-      toast({ 
-        title: "Error", 
-        description: error.message || "Failed to login", 
-        variant: "destructive" 
+      toast({
+        title: "Error",
+        description: error.message || "Failed to login",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -134,16 +125,6 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!fullName.trim()) {
-      toast({ title: "Error", description: "Please enter your full name", variant: "destructive" });
-      return;
-    }
-
-    if (!isValidEmail(email)) {
-      toast({ title: "Error", description: "Please enter a valid email address", variant: "destructive" });
-      return;
-    }
 
     if (password.length < 6) {
       toast({ title: "Error", description: "Password must be at least 6 characters", variant: "destructive" });
@@ -163,7 +144,7 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
     setLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/`;
-      
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -178,17 +159,16 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
 
       if (error) throw error;
 
-      toast({ 
-        title: "Success", 
-        description: "Account created successfully! Please check your email to verify your account." 
+      toast({
+        title: "Success",
+        description: "Please check your email to verify your account",
       });
       onOpenChange(false);
-      resetForm();
     } catch (error: any) {
-      toast({ 
-        title: "Error", 
-        description: error.message || "Failed to create account", 
-        variant: "destructive" 
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create account",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -208,8 +188,9 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
       onOpenChange(isOpen);
       if (!isOpen) resetForm();
     }}>
-      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[440px] p-6 sm:p-8 rounded-xl shadow-lg bg-background z-[100] max-h-[90vh] overflow-y-auto"> 
-      {/* Close Button */}
+      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[440px] p-6 sm:p-8 rounded-xl shadow-lg bg-background z-[100] max-h-[90vh] overflow-y-auto">
+        
+        {/* Close Button */}
         <div className="absolute right-4 top-4">
           <Button
             variant="ghost"
@@ -220,13 +201,14 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
             <X className="h-4 w-4" />
           </Button>
         </div>
+
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-center text-xl sm:text-2xl font-bold">
             {mode === "login" ? "Welcome Back" : "Create Account"}
           </DialogTitle>
           <DialogDescription className="text-center text-sm sm:text-base">
-            {mode === "login" 
-              ? "Please login to continue" 
+            {mode === "login"
+              ? "Please login to continue"
               : "Sign up to get started"}
           </DialogDescription>
         </DialogHeader>
@@ -270,6 +252,7 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
               required
+              minLength={6}
             />
           </div>
 
@@ -284,21 +267,22 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
                 required
+                minLength={6}
               />
             </div>
           )}
 
-          <div ref={turnstileRef} className="flex justify-center" />
+          <div ref={turnstileRef} className="flex justify-center my-4" />
 
-          <Button 
+          <Button
             type="submit"
-            className="w-full h-11 sm:h-12 bg-primary text-primary-foreground hover:bg-primary/90 text-base font-semibold"
+            className="w-full h-11 sm:h-12 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors rounded-lg font-medium text-base"
             disabled={loading}
           >
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                {mode === "login" ? "Logging in..." : "Creating account..."}
+                {mode === "login" ? "Logging in..." : "Creating Account..."}
               </>
             ) : (
               <>
@@ -313,19 +297,19 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
                     Sign Up
                   </>
                 )}
-             </> 
-           )}
+              </>
+            )}
           </Button>
 
           <div className="text-center pt-2">
             <button
               type="button"
               onClick={handleModeToggle}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors font-medium hover:underline"
               disabled={loading}
             >
-              {mode === "login" 
-                ? "Don't have an account? Sign up" 
+              {mode === "login"
+                ? "Don't have an account? Sign up"
                 : "Already have an account? Login"}
             </button>
           </div>

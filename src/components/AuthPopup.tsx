@@ -313,7 +313,7 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
                     Sign Up
                   </>
                 )}
-              </>
+             </> 
             )}
           </Button>
 

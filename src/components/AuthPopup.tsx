@@ -314,7 +314,7 @@ const AuthPopup = ({ open, onOpenChange, defaultMode = "login" }: AuthPopupProps
                   </>
                 )}
              </> 
-          )}
+           )}
           </Button>
 
           <div className="text-center pt-2">

@@ -1,10 +1,9 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { Menu, Share2, Bell, User as UserIcon, LogOut, Settings, Briefcase, Home, MessageSquare, PlusCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Menu, Bell, User as UserIcon, LogOut, Briefcase, Home, PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   DropdownMenu,
@@ -18,12 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import WelcomePopup from "./WelcomePopup";
 import ShareModal from "./ShareModal";
 import AuthPopup from "./AuthPopup";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 interface Notification {
   id: string;
@@ -34,25 +28,11 @@ interface Notification {
   job_id: string | null;
 }
 
-interface Profile {
-  id: string;
-  name: string;
-  email: string;
-  avatar_url: string | null;
-  notifications_enabled: boolean;
-  push_notifications_enabled: boolean;
-}
-
-type UserRole = "admin" | "employer" | "caregiver" | "nurse" | null;
-
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [userRole, setUserRole] = useState<UserRole>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -61,15 +41,11 @@ const Navbar = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
-  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
+  // Fetch Role
   const fetchUserRole = async (userId: string) => {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
-    if (data) setUserRole(data.role as UserRole);
+    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).single();
+    if (data) setUserRole(data.role);
   };
 
   useEffect(() => {
@@ -79,8 +55,6 @@ const Navbar = () => {
         fetchProfile(session.user.id);
         fetchNotifications(session.user.id);
         fetchUserRole(session.user.id);
-        
-        // Check if we should show welcome popup
         const shouldShowWelcome = localStorage.getItem("showWelcomePopup");
         if (shouldShowWelcome === "true") {
           setShowWelcome(true);
@@ -102,69 +76,24 @@ const Navbar = () => {
         setUserRole(null);
       }
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
     if (data) setProfile(data);
   };
 
   const fetchNotifications = async (userId: string) => {
-    const { data } = await supabase
-      .from("notifications")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(5);
-    
+    const { data } = await supabase.from("notifications").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(5);
     if (data) {
       setNotifications(data);
       setUnreadCount(data.filter(n => !n.read).length);
     }
   };
 
-  // Realtime subscription for notifications
   useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel('notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          setNotifications(prev => [payload.new as Notification, ...prev.slice(0, 4)]);
-          setUnreadCount(prev => prev + 1);
-          
-          // Show toast notification
-          toast({
-            title: "New Notification",
-            description: (payload.new as Notification).title,
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, toast]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -174,278 +103,114 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const markNotificationAsRead = async (notificationId: string) => {
-    await supabase
-      .from("notifications")
-      .update({ read: true })
-      .eq("id", notificationId);
-    
-    setNotifications(prev =>
-      prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-    );
-    setUnreadCount(prev => Math.max(0, prev - 1));
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-  const handleNotificationClick = (notification: Notification) => {
-    markNotificationAsRead(notification.id);
-    if (notification.job_id) {
-      // Navigate to jobs page with specific job ID
-      navigate(`/jobs?job=${notification.job_id}`);
-    }
-    setNotificationsOpen(false);
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setMobileMenuOpen(false);
-  };
-
-  const isActiveRoute = (path: string) => location.pathname === path;
-
-  const handleProtectedNavigation = async (path: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setPendingAction(path);
-      setAuthMode("login");
-      setShowAuthPopup(true);
-      setMobileMenuOpen(false); // Close mobile menu when showing auth popup
-    } else {
-      navigate(path);
-    }
-  };
-
-  // Redirect after successful login
-  useEffect(() => {
-    if (user && pendingAction) {
-      navigate(pendingAction);
-      setPendingAction(null);
-      setShowAuthPopup(false);
-    }
-  }, [user, pendingAction, navigate]);
-
+  // FIXED NAVBAR DESIGN
   return (
-    <nav className={`bg-white border-b sticky top-0 z-50 transition-all duration-300 ${
-      isScrolled ? "shadow-lg" : "shadow-sm"
-    }`}>
-      <div className="container mx-auto px-3 md:px-4 h-12 md:h-14">
-        <div className="flex justify-between items-center h-full">
-          {/* Logo Section - Updated with new logo */}
-          <motion.button 
-            onClick={scrollToTop}
-            className="flex items-center gap-2 focus:outline-none group"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <img 
-              src="/logo-new.png" 
-              alt="HomeCare Job BD" 
-              className="h-12 w-auto rounded-md shadow-sm transition-transform duration-300 group-hover:scale-105" 
-            />
-            <span className="text-lg md:text-xl font-bold text-secondary">
-              HomeCare <span className="text-primary">Job BD</span>
+    <nav className={`bg-[#0f172a] border-b border-slate-800 sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "shadow-lg" : "shadow-sm"}`}>
+      <div className="container mx-auto px-4 h-16 flex justify-between items-center">
+        
+        {/* LOGO & TITLE SECTION */}
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => { navigate("/"); scrollToTop(); }}>
+          {/* Logo Image */}
+          <img 
+            src="/logo-new.png" 
+            alt="Logo" 
+            className="h-10 w-auto rounded-md border border-slate-600 shadow-sm"
+          />
+          
+          {/* Title - Fixed for Mobile (No Wrapping) */}
+          <div className="flex flex-col">
+            <span className="text-base md:text-xl font-bold text-white whitespace-nowrap leading-none">
+              HomeCare <span className="text-emerald-500">Job BD</span>
             </span>
-          </motion.button>
-
-          {/* Right Side Navigation */}
-          <div className="flex items-center gap-2">
-            {!user && (
-              /* Guest User: Separate "Sign in" and "Create" links */
-              <div className="flex items-center gap-1 text-xs md:text-sm font-medium">
-                <Link 
-                  to="/login"
-                  className="text-secondary hover:text-primary transition-colors whitespace-nowrap"
-                >
-                  Sign in
-                </Link>
-                <span className="text-muted-foreground">or</span>
-                <Link 
-                  to="/signup"
-                  className="text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
-                >
-                  Create
-                </Link>
-              </div>
-            )}
-
-            {/* Hamburger Menu - Always visible */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 w-8 p-0 text-secondary hover:text-primary hover:bg-primary/10 relative"
-                >
-                  <Menu className="h-5 w-5" />
-                  {user && unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-destructive" />
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-white z-50">
-                {user ? (
-                  <>
-                    <DropdownMenuLabel className="flex items-center gap-2">
-                      <UserIcon className="h-4 w-4" />
-                      {profile?.name || user.email?.split('@')[0]}
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItem onClick={() => navigate("/")}>
-                      <Home className="mr-2 h-4 w-4" />
-                      Home
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/jobs")}>
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      Browse Jobs
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowShareModal(true)}>
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share Website
-                    </DropdownMenuItem>
-                    
-                    {/* Notifications */}
-                    <DropdownMenuItem onClick={() => setNotificationsOpen(true)}>
-                      <Bell className="mr-2 h-4 w-4" />
-                      Notifications
-                      {unreadCount > 0 && (
-                        <Badge variant="destructive" className="ml-auto h-5 min-w-5 flex items-center justify-center text-xs px-1.5">
-                          {unreadCount}
-                        </Badge>
-                      )}
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    {/* Role-specific navigation */}
-                    {(userRole === "caregiver" || userRole === "nurse") && (
-                      <>
-                        <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=feed")}>
-                          <Home className="mr-2 h-4 w-4" />
-                          Job Feed
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=messages")}>
-                          <MessageSquare className="mr-2 h-4 w-4" />
-                          Messages
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/dashboard/caregiver?tab=profile")}>
-                          <UserIcon className="mr-2 h-4 w-4" />
-                          My Profile
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    
-                    {userRole === "employer" && (
-                      <>
-                        <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=jobs")}>
-                          <Briefcase className="mr-2 h-4 w-4" />
-                          My Jobs
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=post")}>
-                          <PlusCircle className="mr-2 h-4 w-4" />
-                          Post a Job
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=profile")}>
-                          <UserIcon className="mr-2 h-4 w-4" />
-                          Company Profile
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    
-                    {userRole === "admin" && (
-                      <DropdownMenuItem onClick={() => navigate("/admin")}>
-                        <Briefcase className="mr-2 h-4 w-4" />
-                        Admin Dashboard
-                      </DropdownMenuItem>
-                    )}
-                    
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate("/settings")}>
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <>
-                    <DropdownMenuItem onClick={() => navigate("/")}>
-                      <Home className="mr-2 h-4 w-4" />
-                      Home
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/jobs")}>
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      Browse Jobs
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowShareModal(true)}>
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share Website
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate("/login")}>
-                      Login
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/signup")}>
-                      Sign Up
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <span className="hidden md:block text-[10px] text-slate-400 font-medium tracking-wider">
+              TRUSTED CARE PLATFORM
+            </span>
           </div>
+        </div>
+
+        {/* RIGHT SIDE MENU */}
+        <div className="flex items-center gap-3">
+          {!user && (
+            <div className="hidden md:flex items-center gap-2">
+              <Link to="/login" className="text-slate-300 hover:text-white font-medium text-sm px-3 py-2 rounded-md hover:bg-slate-800 transition-colors">Sign in</Link>
+              <Link to="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm px-4 py-2 rounded-full shadow-lg shadow-emerald-900/20 transition-all">Create Account</Link>
+            </div>
+          )}
+
+          {/* Mobile Menu / Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-slate-800 rounded-full relative h-10 w-10">
+                <Menu className="h-6 w-6" />
+                {unreadCount > 0 && <span className="absolute top-1 right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-[#0f172a]" />}
+              </Button>
+            </DropdownMenuTrigger>
+            
+            <DropdownMenuContent align="end" className="w-64 mt-2 bg-white border-slate-200 shadow-xl rounded-xl p-2">
+              {!user ? (
+                <>
+                  <DropdownMenuItem onClick={() => navigate("/")} className="font-medium cursor-pointer"><Home className="mr-2 h-4 w-4" /> Home</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/jobs")} className="font-medium cursor-pointer"><Briefcase className="mr-2 h-4 w-4" /> Browse Jobs</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/login")} className="cursor-pointer text-slate-700">Log In</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/signup")} className="cursor-pointer text-emerald-600 font-bold">Create Account</DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuLabel className="flex items-center gap-3 p-2 bg-slate-50 rounded-lg mb-1">
+                    <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
+                       {profile?.name?.[0] || "U"}
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-800 truncate max-w-[120px]">{profile?.name || "User"}</p>
+                      <p className="text-xs text-slate-500 font-normal">My Account</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  
+                  <DropdownMenuItem onClick={() => navigate("/")}><Home className="mr-2 h-4 w-4 text-slate-500" /> Home</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/jobs")}><Briefcase className="mr-2 h-4 w-4 text-slate-500" /> Jobs</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setNotificationsOpen(true)}>
+                    <Bell className="mr-2 h-4 w-4 text-slate-500" /> Notifications 
+                    {unreadCount > 0 && <Badge variant="destructive" className="ml-auto h-5 px-1">{unreadCount}</Badge>}
+                  </DropdownMenuItem>
+
+                  {userRole === "employer" && (
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/company?tab=post")} className="text-emerald-600 font-medium">
+                      <PlusCircle className="mr-2 h-4 w-4" /> Post a Job
+                    </DropdownMenuItem>
+                  )}
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" /> Logout
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      {/* Welcome Popup */}
-      {showWelcome && profile && (
-        <WelcomePopup
-          userName={profile.name || user?.email || ""}
-          onClose={() => setShowWelcome(false)}
-        />
-      )}
-
-      {/* Share Modal */}
+      {/* Popups */}
+      {showWelcome && profile && <WelcomePopup userName={profile.name} onClose={() => setShowWelcome(false)} />}
       <ShareModal open={showShareModal} onOpenChange={setShowShareModal} />
-
-      {/* Auth Popup Modal */}
-      <AuthPopup 
-        open={showAuthPopup} 
-        onOpenChange={setShowAuthPopup}
-        defaultMode={authMode}
-      />
-
-      {/* Notifications Sheet */}
+      <AuthPopup open={showAuthPopup} onOpenChange={setShowAuthPopup} defaultMode={authMode} />
+      
+      {/* Notifications Side Drawer */}
       <Sheet open={notificationsOpen} onOpenChange={setNotificationsOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              Notifications
-            </SheetTitle>
-          </SheetHeader>
-          <div className="mt-4 space-y-3">
-            {notifications.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No notifications yet</p>
-            ) : (
-              notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                    notification.read 
-                      ? "bg-background hover:bg-muted/50" 
-                      : "bg-primary/5 border-primary/20 hover:bg-primary/10"
-                  }`}
-                >
-                  <p className="font-medium text-sm">{notification.title}</p>
-                  <p className="text-muted-foreground text-xs mt-1">{notification.message}</p>
-                  <p className="text-muted-foreground text-xs mt-2">
-                    {new Date(notification.created_at).toLocaleDateString()}
-                  </p>
+        <SheetContent>
+          <SheetHeader><SheetTitle>Notifications</SheetTitle></SheetHeader>
+          <div className="mt-4 space-y-2">
+            {notifications.length === 0 ? <p className="text-center text-slate-500 py-4">No new notifications</p> : 
+              notifications.map((n) => (
+                <div key={n.id} className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                  <p className="text-sm font-medium">{n.title}</p>
+                  <p className="text-xs text-slate-500 mt-1">{n.message}</p>
                 </div>
               ))
-            )}
+            }
           </div>
         </SheetContent>
       </Sheet>

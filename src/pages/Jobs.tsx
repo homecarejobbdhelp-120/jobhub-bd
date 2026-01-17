@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Search, MapPin, Clock, DollarSign, Star, Filter } from "lucide-react";
+import { Search, MapPin, Clock, DollarSign, Star, Filter, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer"; // Footer import যোগ করা হয়েছে
 
 const Jobs = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -20,262 +21,212 @@ const Jobs = () => {
   const [salaryRange, setSalaryRange] = useState([0, 100000]);
   const [sortBy, setSortBy] = useState("newest");
 
-  // Mock jobs data - will be replaced with real data
+  // Mock jobs data
   const jobs = [
     {
       id: "1",
       title: "Full-Time Elder Care Assistant",
-      description: "Looking for experienced caregiver for elderly patient with mobility issues. Responsibilities include daily care, medication management, and companionship.",
-      location: "Dhaka, Gulshan",
+      description: "Looking for experienced caregiver for elderly patient with mobility issues. Responsibilities include daily care, medication management.",
+      location: "Gulshan 2, Dhaka",
       salary: 25000,
       salary_negotiable: true,
-      job_type: "full-time",
-      shift_type: "8am-8pm",
+      job_type: "Full-Time",
+      shift_type: "Day (8am-8pm)",
       duty_time: "12 hours",
       status: "open",
       featured: true,
       employer: { name: "Care Home Services", verified: true },
-      created_at: "2025-01-10",
-      applications_count: 5
+      created_at: "2 Days ago",
+      applications_count: 12
     },
     {
       id: "2",
       title: "Night Shift Care Specialist",
-      description: "Need professional caregiver for night shift assistance with elderly patient requiring overnight monitoring.",
-      location: "Dhaka, Dhanmondi",
+      description: "Need professional caregiver for night shift assistance. Must have Nursing Diploma and 1 year experience.",
+      location: "Dhanmondi 32, Dhaka",
       salary: 30000,
       salary_negotiable: false,
-      job_type: "full-time",
-      shift_type: "8pm-8am",
+      job_type: "Contract",
+      shift_type: "Night (8pm-8am)",
       duty_time: "12 hours",
       status: "open",
       featured: true,
       employer: { name: "Comfort Care Ltd", verified: true },
-      created_at: "2025-01-09",
+      created_at: "5 Hours ago",
       applications_count: 8
     },
     {
       id: "3",
-      title: "Part-Time Weekend Caregiver",
-      description: "Weekend assistance needed for patient with special needs. Must be compassionate and patient.",
-      location: "Chittagong",
-      salary: 15000,
+      title: "Patient Care Attendant",
+      description: "Urgent requirement for stroke patient care. Feeding, cleaning and physiotherapy assistance needed.",
+      location: "Uttara Sector 7",
+      salary: 18000,
       salary_negotiable: true,
-      job_type: "part-time",
-      shift_type: "10hr",
+      job_type: "Part-Time",
+      shift_type: "10 Hours",
       duty_time: "10 hours",
       status: "open",
       featured: false,
-      employer: { name: "Family First Care", verified: false },
-      created_at: "2025-01-08",
+      employer: { name: "Mr. Rahman", verified: false },
+      created_at: "1 Day ago",
       applications_count: 3
     }
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Global Navbar */}
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-8">
+      {/* Page Header */}
+      <div className="bg-[#0f172a] text-white py-12">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Find Your Dream Care Job</h1>
+          <p className="text-slate-400 max-w-2xl mx-auto">Browse thousands of verified caregiver and nursing jobs from trusted employers across Bangladesh.</p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          
           {/* Filters Sidebar */}
-          <aside className="lg:col-span-1">
-            <Card className="sticky top-24">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Filter className="h-5 w-5 mr-2" />
-                  Filters
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Search */}
+          <aside className="lg:col-span-1 space-y-6">
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-24">
+              <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                <Filter className="h-5 w-5 text-emerald-600" />
+                <h3 className="font-bold text-slate-800">Filters</h3>
+              </div>
+
+              <div className="space-y-6">
                 <div>
-                  <Label>Keyword</Label>
-                  <div className="relative mt-2">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Job title..."
-                      value={searchKeyword}
-                      onChange={(e) => setSearchKeyword(e.target.value)}
-                      className="pl-9"
-                    />
+                  <Label className="text-slate-600 mb-2 block">Search</Label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Input placeholder="Job title..." className="pl-9 bg-slate-50" value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} />
                   </div>
                 </div>
 
-                {/* Location */}
                 <div>
-                  <Label>Location</Label>
-                  <div className="relative mt-2">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="City or area..."
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="pl-9"
-                    />
+                  <Label className="text-slate-600 mb-2 block">Location</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Input placeholder="City..." className="pl-9 bg-slate-50" value={location} onChange={(e) => setLocation(e.target.value)} />
                   </div>
                 </div>
 
-                {/* Job Type */}
                 <div>
-                  <Label>Job Type</Label>
+                  <Label className="text-slate-600 mb-2 block">Job Type</Label>
                   <Select value={jobType} onValueChange={setJobType}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
+                    <SelectTrigger className="bg-slate-50"><SelectValue placeholder="All Types" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Types</SelectItem>
                       <SelectItem value="full-time">Full-Time</SelectItem>
                       <SelectItem value="part-time">Part-Time</SelectItem>
-                      <SelectItem value="live-in">Live-In</SelectItem>
-                      <SelectItem value="temporary">Temporary</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Shift Type */}
                 <div>
-                  <Label>Shift Type</Label>
-                  <Select value={shiftType} onValueChange={setShiftType}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Select shift" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Shifts</SelectItem>
-                      <SelectItem value="8am-8pm">Day (8am-8pm)</SelectItem>
-                      <SelectItem value="8pm-8am">Night (8pm-8am)</SelectItem>
-                      <SelectItem value="24hr">24 Hour</SelectItem>
-                      <SelectItem value="10hr">10 Hour</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Salary Range */}
-                <div>
-                  <Label>Salary Range (৳)</Label>
-                  <div className="mt-4 mb-2">
-                    <Slider
-                      value={salaryRange}
-                      onValueChange={setSalaryRange}
-                      max={100000}
-                      step={5000}
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex justify-between text-sm text-muted-foreground">
+                  <Label className="text-slate-600 mb-2 block">Salary Range (৳)</Label>
+                  <Slider value={salaryRange} onValueChange={setSalaryRange} max={100000} step={1000} className="my-4" />
+                  <div className="flex justify-between text-xs font-medium text-emerald-600">
                     <span>৳{salaryRange[0].toLocaleString()}</span>
                     <span>৳{salaryRange[1].toLocaleString()}</span>
                   </div>
                 </div>
 
-                {/* Verified Only */}
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="verified"
-                    checked={verifiedOnly}
-                    onCheckedChange={(checked) => setVerifiedOnly(checked as boolean)}
-                  />
-                  <Label htmlFor="verified" className="cursor-pointer">
-                    Verified employers only
-                  </Label>
+                <div className="flex items-center space-x-2 pt-2">
+                  <Checkbox id="verified" checked={verifiedOnly} onCheckedChange={(c) => setVerifiedOnly(c as boolean)} />
+                  <Label htmlFor="verified" className="cursor-pointer text-sm font-medium">Verified Employers Only</Label>
                 </div>
 
-                <Button className="w-full">Apply Filters</Button>
-              </CardContent>
-            </Card>
+                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 mt-4">Apply Filters</Button>
+              </div>
+            </div>
           </aside>
 
           {/* Jobs List */}
           <main className="lg:col-span-3">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
-                {jobs.length} Jobs Found
-              </h2>
+            <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-800">Showing <span className="text-emerald-600">{jobs.length}</span> Jobs</h2>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
+                <SelectTrigger className="w-[160px] border-none shadow-none bg-slate-50"><SelectValue placeholder="Sort by" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="newest">Newest First</SelectItem>
                   <SelectItem value="salary-high">Highest Salary</SelectItem>
-                  <SelectItem value="salary-low">Lowest Salary</SelectItem>
-                  <SelectItem value="most-applied">Most Applied</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-4">
               {jobs.map((job) => (
-                <Card key={job.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {job.featured && (
-                            <Badge variant="secondary">Featured</Badge>
-                          )}
-                          {job.employer.verified && (
-                            <Badge variant="default" className="bg-accent">
-                              <Star className="h-3 w-3 mr-1" />
-                              Verified
-                            </Badge>
-                          )}
-                          <Badge variant="outline">{job.job_type}</Badge>
-                        </div>
-                        <CardTitle className="text-2xl mb-2">{job.title}</CardTitle>
-                        <CardDescription className="text-base">
-                          {job.employer.name}
-                        </CardDescription>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-primary">
-                          ৳{job.salary.toLocaleString()}
-                        </div>
-                        {job.salary_negotiable && (
-                          <div className="text-sm text-muted-foreground">Negotiable</div>
+                <div key={job.id} className="group relative bg-white rounded-xl border border-slate-200 p-6 transition-all duration-300 hover:shadow-md hover:border-emerald-500/50 hover:-translate-y-1">
+                  
+                  {job.featured && (
+                    <div className="absolute top-0 right-0 bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                      FEATURED
+                    </div>
+                  )}
+
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* Job Icon/Logo */}
+                    <div className="hidden md:flex h-16 w-16 rounded-lg bg-slate-50 border border-slate-100 items-center justify-center shrink-0 group-hover:bg-emerald-50 transition-colors">
+                      <Briefcase className="h-8 w-8 text-slate-400 group-hover:text-emerald-600" />
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {job.employer.verified && (
+                          <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200">
+                            <Star className="h-3 w-3 mr-1 fill-blue-700" /> Verified
+                          </Badge>
                         )}
+                        <Badge variant="outline" className="text-slate-500 border-slate-300">{job.job_type}</Badge>
+                        <span className="text-xs text-slate-400 flex items-center ml-auto md:ml-2">
+                          <Clock className="h-3 w-3 mr-1" /> {job.created_at}
+                        </span>
+                      </div>
+
+                      <h3 className="text-xl font-bold text-slate-800 mb-1 group-hover:text-emerald-600 transition-colors">
+                        {job.title}
+                      </h3>
+                      <p className="text-slate-500 font-medium text-sm mb-3">{job.employer.name}</p>
+                      
+                      <p className="text-slate-600 text-sm leading-relaxed mb-4 line-clamp-2">
+                        {job.description}
+                      </p>
+
+                      <div className="grid grid-cols-2 md:flex md:items-center gap-4 text-sm text-slate-500 border-t border-slate-100 pt-4 mt-auto">
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-1.5 text-slate-400" /> {job.location}
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1.5 text-slate-400" /> {job.shift_type}
+                        </div>
+                        <div className="flex items-center font-bold text-emerald-600 md:ml-auto">
+                          <DollarSign className="h-4 w-4" /> 
+                          <span className="text-lg">৳{job.salary.toLocaleString()}</span>
+                          {job.salary_negotiable && <span className="text-xs font-normal text-slate-400 ml-1">(Neg.)</span>}
+                        </div>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground mb-4 line-clamp-2">
-                      {job.description}
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                      <div className="flex items-center text-sm">
-                        <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                        {job.location}
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                        {job.shift_type}
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <DollarSign className="h-4 w-4 mr-2 text-muted-foreground" />
-                        {job.duty_time}
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {job.applications_count} applications
-                      </span>
-                      <div className="flex gap-2">
-                        <Link to={`/jobs/${job.id}`}>
-                          <Button variant="outline">View Details</Button>
-                        </Link>
-                        <Link to={`/jobs/${job.id}/apply`}>
-                          <Button>Apply Now</Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  </div>
+
+                  <div className="mt-6 flex gap-3 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Link to={`/jobs/${job.id}`} className="flex-1">
+                       <Button variant="outline" className="w-full border-slate-200 hover:bg-slate-50 hover:text-emerald-600">View Details</Button>
+                    </Link>
+                    <Link to={`/jobs/${job.id}/apply`} className="flex-1">
+                       <Button className="w-full bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20">Apply Now</Button>
+                    </Link>
+                  </div>
+                </div>
               ))}
             </div>
           </main>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

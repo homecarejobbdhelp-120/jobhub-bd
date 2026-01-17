@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { Menu, X, Share2, Bell, User as UserIcon, LogOut, Settings, Briefcase, ExternalLink, Home, MessageSquare, PlusCircle } from "lucide-react";
-import logo from "@/assets/homecarejobbd.png";
+import { Menu, Share2, Bell, User as UserIcon, LogOut, Settings, Briefcase, Home, MessageSquare, PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -230,14 +229,18 @@ const Navbar = () => {
     }`}>
       <div className="container mx-auto px-3 md:px-4 h-12 md:h-14">
         <div className="flex justify-between items-center h-full">
-          {/* Logo Section - Bdjobs Style */}
+          {/* Logo Section - Updated with new logo */}
           <motion.button 
             onClick={scrollToTop}
             className="flex items-center gap-2 focus:outline-none group"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <img src={logo} alt="HomeCare Job BD" className="h-10 md:h-12 transition-transform duration-300 group-hover:scale-105" />
+            <img 
+              src="/logo-new.png" 
+              alt="HomeCare Job BD" 
+              className="h-12 w-auto rounded-md shadow-sm transition-transform duration-300 group-hover:scale-105" 
+            />
             <span className="text-lg md:text-xl font-bold text-secondary">
               HomeCare <span className="text-primary">Job BD</span>
             </span>

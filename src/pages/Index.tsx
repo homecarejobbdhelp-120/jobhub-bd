@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { Search, MapPin, ArrowRight, Briefcase } from "lucide-react";
+import { Search, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 // ✨ ভাষা ইম্পোর্ট
@@ -30,6 +29,10 @@ const Index = () => {
     { id: "4", title: "Hospital Duty Nurse", company: "Apex Health Care", location: "Mirpur 10, Dhaka", salary: "35,000", type: "Full-Time", verified: true }
   ];
 
+  const handleSearch = () => {
+    navigate(`/jobs?search=${keyword}&location=${location}`);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans overflow-x-hidden">
       <Navbar />
@@ -37,11 +40,15 @@ const Index = () => {
       {/* HERO SECTION */}
       <div className="bg-[#1e40af] pt-16 pb-28 px-4 rounded-b-[3rem] shadow-xl relative text-center">
         <div className="max-w-4xl mx-auto z-10 relative">
-          <h1 className="text-3xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
-            {t('hero_title_1')} <span className="text-emerald-400">{t('hero_title_highlight')}</span> <br className="hidden md:block"/> 
+          
+          {/* ✨ FIXED HEADING FOR BANGLA FONT */}
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-normal md:leading-tight tracking-tight">
+            {t('hero_title_1')} <span className="text-emerald-400 inline-block px-1">{t('hero_title_highlight')}</span> 
+            <br className="hidden md:block"/> 
             {t('hero_title_2')}
           </h1>
-          <p className="text-blue-100 text-base md:text-xl mb-12 max-w-2xl mx-auto px-4">
+
+          <p className="text-blue-100 text-base md:text-xl mb-12 max-w-2xl mx-auto px-4 leading-relaxed">
             {t('hero_subtitle')}
           </p>
 
@@ -65,11 +72,11 @@ const Index = () => {
                 <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
                 <Input placeholder={t('search_placeholder')} className="pl-12 h-12 border-none bg-slate-50 text-slate-700" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
               </div>
-              <div className="relative flex-1">
+              <div className="relative flex-1 border-t md:border-t-0 md:border-l border-slate-100">
                 <MapPin className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
                 <Input placeholder={t('location_placeholder')} className="pl-12 h-12 border-none bg-slate-50 text-slate-700" value={location} onChange={(e) => setLocation(e.target.value)} />
               </div>
-              <Button onClick={() => navigate(`/jobs?search=${keyword}`)} className="h-12 px-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold">
+              <Button onClick={handleSearch} className="h-12 px-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold">
                 {t('btn_search')}
               </Button>
             </div>

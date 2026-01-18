@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Clock, Send, Building2 } from "lucide-react";
+import { MapPin, Clock, Send, Building2, Eye } from "lucide-react";
 
 interface JobCardProps {
   id: string;
@@ -18,8 +18,8 @@ interface JobCardProps {
   company_name?: string;
   employer_id?: string;
   avatar_url?: string | null;
-  onViewDetails: (id: string) => void;
-  onApply: (id: string) => void;
+  onViewDetails?: (id: string) => void; // Made optional to prevent crash
+  onApply?: (id: string) => void;      // Made optional
 }
 
 const JobCard = ({
@@ -43,83 +43,95 @@ const JobCard = ({
   const handleCompanyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (employer_id) {
-      navigate(`/profile/${employer_id}`);
+      navigate(`/company/${employer_id}`); // Fixed route to match App.tsx
     }
   };
 
   return (
-    <Card className={`hover:shadow-md transition-shadow ${featured ? "border-primary border" : "border-border"}`}>
-      <CardContent className="p-3">
-        {/* Header row */}
-        <div className="flex items-start justify-between gap-2 mb-2">
-          {employer_id && (
-            <Avatar 
-              className="h-10 w-10 cursor-pointer ring-2 ring-transparent hover:ring-primary transition-all flex-shrink-0"
-              onClick={handleCompanyClick}
-            >
-              <AvatarImage src={avatar_url || undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary">
-                <Building2 className="h-5 w-5" />
+    <Card className={`hover:shadow-lg transition-shadow bg-white rounded-2xl overflow-hidden border ${featured ? "border-emerald-500/30 shadow-emerald-50" : "border-slate-100"}`}>
+      <CardContent className="p-5">
+        
+        {/* Header: Logo + Title */}
+        <div className="flex items-start gap-4 mb-3">
+          <div onClick={handleCompanyClick} className="cursor-pointer shrink-0">
+             <Avatar className="h-12 w-12 rounded-xl ring-1 ring-slate-100">
+              <AvatarImage src={avatar_url || undefined} className="object-cover"/>
+              <AvatarFallback className="bg-emerald-50 text-emerald-600 rounded-xl">
+                <Building2 className="h-6 w-6" />
               </AvatarFallback>
             </Avatar>
-          )}
-          <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-sm text-foreground truncate">{title}</h3>
-            {company_name && (
-              <span 
-                className="text-xs text-muted-foreground hover:text-primary cursor-pointer transition-colors"
-                onClick={handleCompanyClick}
-              >
-                {company_name}
-              </span>
-            )}
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-              <MapPin className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate">{location}</span>
-            </div>
           </div>
+          
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-slate-800 text-base leading-tight truncate">{title}</h3>
+            <p 
+              onClick={handleCompanyClick} 
+              className="text-sm text-slate-500 mt-1 hover:text-emerald-600 cursor-pointer font-medium truncate"
+            >
+              {company_name || "Unknown Company"}
+            </p>
+          </div>
+
           {featured && (
-            <Badge variant="default" className="text-xs px-1.5 py-0.5 h-5 flex-shrink-0">
+            <Badge className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-none px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider shrink-0">
               Featured
             </Badge>
           )}
         </div>
 
-        {/* Info row */}
-        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
-          <span className="font-medium text-primary">
-            {salary_negotiable ? "Negotiable" : `৳${salary.toLocaleString()}`}
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {shift_type}
-          </span>
-          <Badge variant="outline" className="text-xs px-1.5 py-0 h-5">
-            {job_type}
-          </Badge>
+        {/* Info Row */}
+        <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-slate-500 mb-5 pl-16 md:pl-0">
+           <div className="flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 text-slate-400" />
+              {location}
+           </div>
+           <div className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-slate-400" />
+              {shift_type}
+           </div>
+           <Badge variant="outline" className="text-[10px] text-slate-500 border-slate-200 bg-slate-50">
+             {job_type}
+           </Badge>
         </div>
 
-        {/* Actions row */}
-        <div className="flex gap-2">
-          <Button 
-           onClick={() => navigate("/auth")} 
-            variant="outline" 
-            size="sm"
-            className={`text-xs h-8 ${hideApply ? "w-full" : "flex-1"}`}
-          >
-            View Details
-          </Button>
-          {!hideApply && (
-            <Button 
-              onClick={() => navigate("/auth")} 
-              size="sm"
-              className="flex-1 text-xs h-8"
-            >
-              <Send className="mr-1 h-3 w-3" />
-              Apply
-            </Button>
-          )}
+        {/* Action Buttons (UI/UX Fixed) */}
+        <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-50">
+           <div className="text-emerald-600 font-black text-lg">
+             {salary_negotiable ? "Negotiable" : `৳${salary.toLocaleString()}`}
+           </div>
+
+           <div className="flex gap-2">
+             {/* View Details Button */}
+             <Button 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if(onViewDetails) onViewDetails(id);
+                    else navigate(`/jobs/${id}`); // Fallback
+                }}
+                variant="ghost" 
+                size="sm" 
+                className="text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 h-9 px-3 rounded-xl font-bold"
+             >
+                <Eye className="h-4 w-4 mr-1 md:mr-2" /> 
+                <span className="hidden md:inline">View</span>
+             </Button>
+
+             {/* Apply Button */}
+             {!hideApply && (
+                <Button 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if(onApply) onApply(id);
+                    }}
+                    size="sm" 
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white h-9 px-4 rounded-xl font-bold shadow-md shadow-emerald-100"
+                >
+                    Apply Now <Send className="ml-2 h-3 w-3" />
+                </Button>
+             )}
+           </div>
         </div>
+
       </CardContent>
     </Card>
   );

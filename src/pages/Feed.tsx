@@ -1,69 +1,64 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
+import Navbar from "@/components/Navbar";
+import JobCard from "@/components/JobCard"; // ✨ Smart JobCard
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Home, User, Settings, LogOut } from "lucide-react";
+import { Search, Filter, Briefcase } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 
 const Feed = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null);
   const [jobs, setJobs] = useState<any[]>([]);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    checkUserAndFetchData();
+    fetchData();
   }, []);
 
-  const checkUserAndFetchData = async () => {
+  const fetchData = async () => {
     try {
+      setLoading(true);
+      
+      // ১. ইউজার এবং রোল চেক করা (Login না থাকলেও ফিড দেখা যাবে)
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
-        navigate("/login");
-        return;
+      if (user) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .single();
+        
+        if (roleData) setUserRole(roleData.role);
       }
 
-      // Fetch user profile
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      // Get user role
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
-
-      const userRole = roleData?.role;
-      if (userRole !== "caregiver" && userRole !== "nurse") {
-        navigate("/company-feed");
-        return;
-      }
-
-      setProfile(profileData);
-
-      // Fetch jobs
+      // ২. জব ফেচ করা (কোম্পানির নাম ও লোগো সহ)
       const { data: jobsData, error: jobsError } = await supabase
         .from("jobs")
-        .select("*, profiles(name, company_name)")
+        .select(`
+          *,
+          profiles:employer_id (
+            name,
+            company_name,
+            avatar_url
+          )
+        `)
         .eq("status", "open")
         .order("created_at", { ascending: false });
 
       if (jobsError) throw jobsError;
       setJobs(jobsData || []);
+
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error fetching feed:", error);
       toast({
         title: "Error",
-        description: "Failed to load data",
+        description: "জব লোড করা সম্ভব হয়নি। ইন্টারনেট কানেকশন চেক করুন।",
         variant: "destructive",
       });
     } finally {
@@ -71,107 +66,90 @@ const Feed = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
-
-  const verificationPercentage = profile?.verified_percentage || 0;
+  // সার্চ ফিল্টার লজিক
+  const filteredJobs = jobs.filter(job => 
+    job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">HomeCare Job BD</h1>
-            <div className="flex items-center gap-4">
-              <Link to="/feed">
-                <Button variant="ghost" size="sm">
-                  <Home className="h-4 w-4 mr-2" />
-                  Home
-                </Button>
-              </Link>
-              <Link to="/profile">
-                <Button variant="ghost" size="sm">
-                  <User className="h-4 w-4 mr-2" />
-                  Profile
-                </Button>
-              </Link>
-              <Link to="/settings">
-                <Button variant="ghost" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </Link>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-slate-50 font-sans pb-20">
+      <Navbar /> {/* ✨ Professional Navbar */}
+
+      {/* ✨ STICKY SEARCH HEADER */}
+      <div className="bg-white sticky top-16 z-30 px-4 py-3 shadow-sm border-b border-slate-100">
+        <div className="max-w-2xl mx-auto flex gap-2">
+           <div className="relative flex-1">
+              <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
+              <Input 
+                placeholder="কাজের ধরণ বা এলাকা দিয়ে খুঁজুন..." 
+                className="pl-12 h-12 bg-slate-50 border-none rounded-xl text-base focus-visible:ring-1 focus-visible:ring-emerald-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+           </div>
+           <Button variant="outline" className="h-12 w-12 p-0 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-emerald-600">
+             <Filter className="h-5 w-5" />
+           </Button>
         </div>
-      </nav>
+      </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Verification Banner */}
-        {verificationPercentage < 50 && (
-          <Alert className="mb-6 border-orange-200 bg-orange-50">
-            <AlertCircle className="h-4 w-4 text-orange-600" />
-            <AlertDescription className="text-orange-800">
-              Please complete your profile verification (NID/license, location, etc.) to apply for jobs. 
-              Current verification: {verificationPercentage}%
-            </AlertDescription>
-          </Alert>
-        )}
+      {/* MAIN CONTENT AREA */}
+      <div className="container mx-auto px-4 mt-6 max-w-2xl">
+        
+        {/* Header Title */}
+        <div className="flex items-center gap-2 mb-6 px-1">
+          <div className="p-2 bg-emerald-100 rounded-lg">
+             <Briefcase className="h-5 w-5 text-emerald-600" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">
+            {searchTerm ? `সার্চ ফলাফল: ${filteredJobs.length} টি` : "নতুন জবের তালিকা"}
+          </h2>
+        </div>
 
-        {/* Jobs List */}
+        {/* JOBS LIST */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold mb-6">Available Jobs</h2>
-          
-          {jobs.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">No jobs available at the moment.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            jobs.map((job) => (
-              <Card key={job.id} className="shadow-md">
-                <CardHeader>
-                  <CardTitle>{job.title}</CardTitle>
-                  <CardDescription>
-                    {job.profiles?.company_name || job.profiles?.name} • {job.location}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {job.description?.substring(0, 150)}...
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">
-                      <span className="font-semibold">Salary:</span>{" "}
-                      {job.salary_negotiable ? "Negotiable" : `BDT ${job.salary}`}
-                    </div>
-                    <Button 
-                      disabled={verificationPercentage < 50}
-                      className="bg-primary hover:bg-primary/90"
-                    >
-                      Apply Now
-                    </Button>
+          {loading ? (
+            // Loading Skeleton
+            [1, 2, 3].map((n) => (
+              <div key={n} className="bg-white p-4 rounded-2xl space-y-3">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-12 w-12 rounded-xl" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-48" />
+                    <Skeleton className="h-3 w-32" />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                <Skeleton className="h-20 w-full rounded-xl" />
+              </div>
             ))
+          ) : filteredJobs.length > 0 ? (
+            filteredJobs.map((job) => (
+              <JobCard 
+                key={job.id}
+                id={job.id}
+                title={job.title}
+                location={job.location}
+                salary={job.salary}
+                salary_negotiable={job.salary_negotiable}
+                job_type={job.job_type}
+                shift_type={job.shift_type}
+                featured={job.is_featured}
+                company_name={job.profiles?.company_name || job.profiles?.name} // Handle generic name if company name missing
+                employer_id={job.employer_id}
+                avatar_url={job.profiles?.avatar_url}
+                userRole={userRole} // ✨ Passing User Role for logic
+                onApply={() => console.log("Applied")} // JobCard handles the logic, this is callback
+              />
+            ))
+          ) : (
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+               <div className="mx-auto h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                  <Search className="h-8 w-8 text-slate-300" />
+               </div>
+               <h3 className="text-lg font-bold text-slate-700">কোনো জব পাওয়া যায়নি</h3>
+               <p className="text-slate-400">অন্য কোনো কি-ওয়ার্ড দিয়ে চেষ্টা করুন</p>
+            </div>
           )}
         </div>
       </div>

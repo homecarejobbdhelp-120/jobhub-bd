@@ -13,15 +13,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ShareModal from "./ShareModal";
+// ✨ STEP 3: ইম্পোর্ট (Import Language Hook)
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // ✨ STEP 3: হুক ব্যবহার (Use the Hook)
+  const { language, setLanguage, t } = useLanguage(); 
+  
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [isEnglish, setIsEnglish] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -66,7 +71,7 @@ const Navbar = () => {
     <nav className="bg-white border-b border-slate-100 sticky top-0 z-50 shadow-sm h-16 flex items-center">
       <div className="container mx-auto px-4 flex justify-between items-center w-full">
         
-        {/* LOGO SECTION - Moved Left */}
+        {/* LOGO (Left Side) */}
         <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => navigate("/")}>
           <div className="h-8 w-8 bg-emerald-50 rounded-lg flex items-center justify-center p-1">
              <img src="/logo-new.png" alt="Logo" className="h-full w-full object-contain" />
@@ -79,15 +84,20 @@ const Navbar = () => {
         {/* RIGHT ACTIONS */}
         <div className="flex items-center gap-3">
           
-          {/* LOGIN/SIGNUP - Hidden on Mobile, Visible on Tablet/Desktop */}
+          {/* LOGIN/SIGNUP (Desktop Only) */}
           {!user && (
             <div className="hidden md:flex items-center gap-2">
-              <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-emerald-600 px-3 py-2">Login</Link>
-              <Link to="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-5 py-2 rounded-full shadow-lg shadow-emerald-100 active:scale-95 transition-transform">Sign Up</Link>
+              {/* এখানে t() ব্যবহার করা হয়েছে যাতে ভাষা পাল্টালে লেখা পাল্টে যায় */}
+              <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-emerald-600 px-3 py-2">
+                {t('nav_login')}
+              </Link>
+              <Link to="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-5 py-2 rounded-full shadow-lg shadow-emerald-100 active:scale-95 transition-transform">
+                {t('nav_signup')}
+              </Link>
             </div>
           )}
 
-          {/* HAMBURGER MENU - Always Visible */}
+          {/* HAMBURGER MENU */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="text-slate-800 hover:bg-slate-50 rounded-full h-10 w-10">
@@ -99,39 +109,51 @@ const Navbar = () => {
               
               {!user ? (
                 <>
-                  {/* MOBILE LOGIN BUTTONS (Inside Menu) */}
+                  {/* Visitor Menu Items */}
                   <div className="p-2 grid grid-cols-2 gap-2 mb-2 md:hidden">
-                     <Button onClick={() => navigate("/login")} variant="outline" className="rounded-xl font-bold border-slate-200">Login</Button>
-                     <Button onClick={() => navigate("/signup")} className="rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700">Sign Up</Button>
+                     <Button onClick={() => navigate("/login")} variant="outline" className="rounded-xl font-bold border-slate-200">{t('nav_login')}</Button>
+                     <Button onClick={() => navigate("/signup")} className="rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700">{t('nav_signup')}</Button>
                   </div>
 
                   <DropdownMenuItem onClick={() => navigate("/")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <Home className="mr-3 h-5 w-5 text-slate-400" /> Home
+                    <Home className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_home')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/training")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <GraduationCap className="mr-3 h-5 w-5 text-slate-400" /> Training
+                    <GraduationCap className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_training')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/contact")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <Phone className="mr-3 h-5 w-5 text-slate-400" /> Contact Us
+                    <Phone className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_contact')}
                   </DropdownMenuItem>
                   
                   <DropdownMenuSeparator className="bg-slate-100 my-2" />
                   
-                  {/* LANGUAGE TOGGLE */}
+                  {/* ✨ VISITOR LANGUAGE TOGGLE */}
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl mx-1">
                     <div className="flex items-center gap-2">
                       <Globe className="h-4 w-4 text-slate-400" />
-                      <span className="text-xs font-black text-slate-600 uppercase">Language</span>
+                      <span className="text-xs font-black text-slate-600 uppercase">{t('nav_language')}</span>
                     </div>
                     <div className="flex bg-white p-1 rounded-full border border-slate-200">
-                      <button className={`px-3 py-1 text-[10px] rounded-full font-bold transition-all ${!isEnglish ? 'bg-emerald-600 text-white shadow' : 'text-slate-400'}`} onClick={() => setIsEnglish(false)}>BN</button>
-                      <button className={`px-3 py-1 text-[10px] rounded-full font-bold transition-all ${isEnglish ? 'bg-emerald-600 text-white shadow' : 'text-slate-400'}`} onClick={() => setIsEnglish(true)}>EN</button>
+                      {/* বাংলা বাটন: যদি ভাষা bn হয়, তবে সবুজ হবে */}
+                      <button 
+                        className={`px-3 py-1 text-[10px] rounded-full font-bold transition-all ${language === 'bn' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400'}`} 
+                        onClick={() => setLanguage('bn')}
+                      >
+                        BN
+                      </button>
+                      {/* ইংরেজি বাটন */}
+                      <button 
+                        className={`px-3 py-1 text-[10px] rounded-full font-bold transition-all ${language === 'en' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400'}`} 
+                        onClick={() => setLanguage('en')}
+                      >
+                        EN
+                      </button>
                     </div>
                   </div>
                 </>
               ) : (
                 <>
-                  {/* USER PROFILE HEADER */}
+                  {/* Logged In User Header */}
                   <DropdownMenuLabel className="p-4 bg-slate-50 rounded-2xl mb-2 flex items-center gap-3 mx-1">
                     <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-lg border-2 border-white shadow-sm">
                        {profile?.name?.[0] || "U"}
@@ -142,46 +164,65 @@ const Navbar = () => {
                     </div>
                   </DropdownMenuLabel>
                   
-                  {/* ROLE BASED MENU */}
+                  {/* Role Based Menu Items */}
                   {(userRole === 'caregiver' || userRole === 'nurse') ? (
                     <>
-                       {/* Caregivers don't need Home, they need Feed */}
                       <DropdownMenuItem onClick={() => navigate("/feed")} className={`py-3 px-4 rounded-xl font-medium cursor-pointer ${isActive('/feed') ? 'text-emerald-600 bg-emerald-50 font-bold' : ''}`}>
-                        <Rss className="mr-3 h-5 w-5" /> Job Feed
+                        <Rss className="mr-3 h-5 w-5" /> {t('nav_feed')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)} className={`py-3 px-4 rounded-xl font-medium cursor-pointer ${isActive(`/profile/${user.id}`) ? 'text-emerald-600 bg-emerald-50 font-bold' : ''}`}>
-                         <UserIcon className="mr-3 h-5 w-5" /> My Profile
+                         <UserIcon className="mr-3 h-5 w-5" /> {t('nav_profile')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/training")} className={`py-3 px-4 rounded-xl font-medium cursor-pointer ${isActive('/training') ? 'text-emerald-600 bg-emerald-50 font-bold' : ''}`}>
-                        <GraduationCap className="mr-3 h-5 w-5" /> Training
+                        <GraduationCap className="mr-3 h-5 w-5" /> {t('nav_training')}
                       </DropdownMenuItem>
                     </>
                   ) : (
                     <DropdownMenuItem onClick={() => navigate("/")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                      <Home className="mr-3 h-5 w-5" /> Home
+                      <Home className="mr-3 h-5 w-5" /> {t('nav_home')}
                     </DropdownMenuItem>
                   )}
 
                   {userRole === 'employer' && (
                     <DropdownMenuItem onClick={() => navigate("/dashboard/company")} className="py-3 px-4 rounded-xl font-bold text-emerald-600 cursor-pointer bg-emerald-50/50 mb-1">
-                      <LayoutDashboard className="mr-3 h-5 w-5" /> Dashboard
+                      <LayoutDashboard className="mr-3 h-5 w-5" /> {t('nav_dashboard')}
                     </DropdownMenuItem>
                   )}
 
+                   {/* ✨ AUTH LANGUAGE TOGGLE */}
+                   <div className="flex items-center justify-between p-3 bg-emerald-50/50 rounded-2xl mx-1 my-2 border border-emerald-100">
+                    <div className="flex items-center gap-2 pl-1">
+                      <Globe className="h-4 w-4 text-emerald-600" />
+                      <span className="text-xs font-black text-emerald-900 uppercase tracking-tighter">{t('nav_language')}</span>
+                    </div>
+                    <div className="flex bg-white p-1 rounded-full border border-emerald-100 shadow-inner">
+                      <button 
+                        className={`px-4 py-1.5 text-[10px] rounded-full font-black transition-all duration-300 ${language === 'bn' ? 'bg-emerald-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-emerald-600'}`} 
+                        onClick={() => setLanguage('bn')}
+                      >
+                        বাংলা
+                      </button>
+                      <button 
+                        className={`px-4 py-1.5 text-[10px] rounded-full font-black transition-all duration-300 ${language === 'en' ? 'bg-emerald-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-emerald-600'}`} 
+                        onClick={() => setLanguage('en')}
+                      >
+                        EN
+                      </button>
+                    </div>
+                  </div>
+
                   <DropdownMenuItem onClick={() => navigate("/settings")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <Settings className="mr-3 h-5 w-5 text-slate-400" /> Settings
+                    <Settings className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_settings')}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator className="bg-slate-100 my-2" />
                   
-                  {/* APP SHARE */}
                   <DropdownMenuItem onClick={() => setShowShareModal(true)} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <Share2 className="mr-3 h-5 w-5 text-slate-400" /> Share App
+                    <Share2 className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_share')}
                   </DropdownMenuItem>
                   
-                  {/* LOGOUT */}
                   <DropdownMenuItem onClick={handleSignOut} className="py-3 px-4 rounded-xl font-bold text-red-500 cursor-pointer hover:bg-red-50 mt-1">
-                    <LogOut className="mr-3 h-5 w-5" /> Logout
+                    <LogOut className="mr-3 h-5 w-5" /> {t('nav_logout')}
                   </DropdownMenuItem>
                 </>
               )}

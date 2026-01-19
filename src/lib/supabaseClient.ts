@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
-// ✅ সঠিক প্রজেক্ট URL
-const supabaseUrl = 'https://lcjjjnrzlqiewuwxavkw.supabase.co'
+// ✅ সঠিক URL (২টি 'j' - আপনার ড্যাশবোর্ড স্ক্রিনশট থেকে প্রমাণিত)
+const supabaseUrl = 'https://lcjjnrzlqiewuwxavkw.supabase.co'
 
-// ✅ আপনার দেওয়া সঠিক Anon Key (এটি ছাড়া ডাটা সেভ হবে না)
+// ✅ আপনার 'anon' key (এটি ঠিক আছে)
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjampqbnJ6bHFpZXd1d3hhdmt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxOTYxNjksImV4cCI6MjA3NTc3MjE2OX0.rj6tGiXU37a_rnBpqYR9FCjDubb3nOHDcpTSLCSaZaU'
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {

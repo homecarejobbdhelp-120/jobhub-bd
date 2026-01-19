@@ -11,11 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { MapPin, Download, Edit2, Save, Upload, ShieldCheck, Briefcase, User, FileText, BadgeCheck, Heart, Activity, AlertTriangle } from "lucide-react";
+import { MapPin, Download, Edit2, Save, Upload, ShieldCheck, Briefcase, User, FileText, BadgeCheck, Heart, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// ✅ আপনার সঠিক প্রজেক্ট URL (স্ক্রিনশট অনুযায়ী)
-const PROJECT_URL = "https://lcjjjnrzlqiewuwravkw.supabase.co"; 
+// ✅ আপনার সঠিক প্রজেক্ট URL (৩টি 'j' সহ এবং সঠিক 'x' সহ)
+const PROJECT_URL = "https://lcjjjnrzlqiewuwxavkw.supabase.co"; 
 
 const CARE_SKILLS = [
   "BP Check", "Diabetes/Insulin", "NG Tube", "Catheter Care", 
@@ -55,7 +55,6 @@ const Profile = () => {
     role: "",
     cv_url: "",
     certificate_url: "",
-    // ✨ New Fields (Lifestyle)
     smoking_status: "Non-Smoker",
     religion_practice: "Yes", 
     declaration: false
@@ -172,7 +171,7 @@ const Profile = () => {
     }
   };
 
-  // Generate Supabase Avatar URLs
+  // ✅ সঠিক অ্যাভাটার URL (সঠিক ID দিয়ে)
   const getAvatars = (gender: string) => {
     return Array.from({ length: 5 }, (_, i) => 
       `${PROJECT_URL}/storage/v1/object/public/Avatars/${gender}-${i + 1}.png`
@@ -180,7 +179,7 @@ const Profile = () => {
   };
 
   const currentAvatars = getAvatars(formData.gender);
-  const showBlueBadge = formData.verified && completion === 100;
+  const showBlueBadge = formData.verified && completion >= 90;
 
   if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
@@ -194,11 +193,11 @@ const Profile = () => {
             <div className="relative inline-block mb-4">
                 <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-white/30 rounded-full shadow-2xl bg-white">
                     <AvatarImage src={formData.avatar_url} className="object-cover" />
-                    <AvatarFallback className="text-4xl font-bold text-blue-800">{formData.name?.[0]}</AvatarFallback>
+                    <AvatarFallback className="text-4xl font-bold text-blue-800 uppercase">{formData.name?.[0]}</AvatarFallback>
                 </Avatar>
                 
                 {showBlueBadge && (
-                    <div className="absolute bottom-2 right-2 bg-blue-500 text-white p-1.5 rounded-full border-2 border-white shadow-sm" title="Top Rated Caregiver">
+                    <div className="absolute bottom-2 right-2 bg-blue-500 text-white p-1.5 rounded-full border-2 border-white shadow-sm" title="Verified Professional">
                         <BadgeCheck className="h-6 w-6 fill-blue-500 text-white" />
                     </div>
                 )}
@@ -206,7 +205,7 @@ const Profile = () => {
 
             {isEditing ? (
                  <div className="max-w-xs mx-auto space-y-2 mb-4">
-                    <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="bg-white/10 text-white border-white/30 text-center" placeholder="Full Name"/>
+                    <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="bg-white/10 text-white border-white/30 text-center font-bold" placeholder="Full Name"/>
                  </div>
             ) : (
                 <>
@@ -214,18 +213,17 @@ const Profile = () => {
                         {formData.name} 
                         <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full text-white font-normal">{completion}%</span>
                     </h1>
-                    <p className="text-blue-200 text-lg font-medium mb-1 capitalize">{formData.role}</p>
+                    <p className="text-blue-200 text-lg font-medium mb-1 capitalize">Professional Caregiver</p>
                     <p className="text-blue-300 text-sm flex items-center justify-center gap-1">
                         <MapPin className="h-3 w-3"/> {formData.current_address || "Location N/A"}
                     </p>
                 </>
             )}
 
-            {/* Action Buttons */}
             <div className="mt-6 flex justify-center gap-4">
                 {isOwner ? (
                     !isEditing && (
-                        <Button onClick={() => setIsEditing(true)} className="bg-white text-blue-900 hover:bg-blue-50 font-bold px-6 shadow-lg rounded-full">
+                        <Button onClick={() => setIsEditing(true)} className="bg-white text-blue-900 hover:bg-blue-50 font-bold px-6 shadow-lg rounded-full border border-blue-100">
                             <Edit2 className="mr-2 h-4 w-4"/> Edit Profile
                         </Button>
                     )
@@ -246,7 +244,7 @@ const Profile = () => {
             <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><FileText className="h-5 w-5 text-blue-600"/> Career Summary</CardTitle></CardHeader>
             <CardContent className="pt-4">
                 {isEditing ? (
-                    <Textarea value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} placeholder="Write about yourself..." className="min-h-[100px] bg-slate-50"/>
+                    <Textarea value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} placeholder="Write a short summary..." className="min-h-[100px] bg-slate-50"/>
                 ) : (
                     <p className="text-slate-600 leading-relaxed">{formData.bio || "No summary added."}</p>
                 )}
@@ -258,16 +256,16 @@ const Profile = () => {
             <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><User className="h-5 w-5 text-blue-600"/> Personal & Physical Info</CardTitle></CardHeader>
             <CardContent className="pt-4 space-y-4">
                 {isEditing && (
-                    <div className="mb-6 p-4 bg-slate-50 rounded-xl">
-                        <Label className="mb-2 block font-bold">Choose Avatar</Label>
-                        <RadioGroup defaultValue={formData.gender} onValueChange={(val) => setFormData({...formData, gender: val})} className="flex gap-4 mb-3">
-                            <div className="flex items-center space-x-2"><RadioGroupItem value="male" id="m"/><Label htmlFor="m">Male</Label></div>
-                            <div className="flex items-center space-x-2"><RadioGroupItem value="female" id="f"/><Label htmlFor="f">Female</Label></div>
-                        </RadioGroup>
+                    <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <Label className="mb-2 block font-bold text-slate-700">Choose Avatar</Label>
+                        <div className="flex gap-4 mb-3">
+                            <div onClick={() => setFormData({...formData, gender: 'male'})} className={`cursor-pointer px-4 py-2 rounded-lg border font-bold text-sm ${formData.gender === 'male' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-slate-200'}`}>Male</div>
+                            <div onClick={() => setFormData({...formData, gender: 'female'})} className={`cursor-pointer px-4 py-2 rounded-lg border font-bold text-sm ${formData.gender === 'female' ? 'bg-pink-600 text-white border-pink-600' : 'bg-white border-slate-200'}`}>Female</div>
+                        </div>
                         <div className="flex gap-3 overflow-x-auto py-2">
                             {currentAvatars.map((img, i) => (
                                 <img key={i} src={img} onClick={() => setFormData({...formData, avatar_url: img})}
-                                    className={`h-14 w-14 rounded-full border-2 cursor-pointer ${formData.avatar_url === img ? 'border-emerald-500 scale-110' : 'border-transparent'}`}
+                                    className={`h-14 w-14 rounded-full border-2 cursor-pointer transition-all ${formData.avatar_url === img ? 'border-emerald-500 scale-110 shadow-md' : 'border-transparent'}`}
                                 />
                             ))}
                         </div>
@@ -307,7 +305,7 @@ const Profile = () => {
             </CardContent>
         </Card>
 
-        {/* 3. HABITS & LIFESTYLE (New Section) */}
+        {/* 3. HABITS & LIFESTYLE */}
         <Card className="shadow-lg border-slate-100">
              <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Heart className="h-5 w-5 text-rose-500"/> Habits & Lifestyle</CardTitle></CardHeader>
              <CardContent className="pt-4 space-y-4">
@@ -399,7 +397,7 @@ const Profile = () => {
                         />
                         <div className="grid gap-1.5 leading-none">
                             <Label htmlFor="terms" className="text-sm font-bold text-blue-900 leading-tight">
-                                I hereby declare that all the information provided above is true and I have no addiction to drugs.
+                                I hereby declare that all information is true and I have no addiction to drugs.
                             </Label>
                             <p className="text-xs text-blue-600">
                                 আমি ঘোষণা করছি যে উপরের সব তথ্য সত্য এবং আমার কোনো মাদকাসক্তি নেই।
@@ -411,13 +409,13 @@ const Profile = () => {
             </Card>
         )}
 
-        {/* 6. FIXED SAVE BUTTON (Only in Edit Mode) */}
+        {/* 6. FIXED SAVE BUTTON */}
         {isEditing && (
             <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4 z-50 flex justify-center shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
                  <div className="container max-w-2xl flex gap-3">
                     <Button onClick={() => setIsEditing(false)} variant="outline" className="flex-1 rounded-xl h-12 font-bold border-slate-300">Cancel</Button>
                     <Button onClick={handleSave} disabled={saving} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 rounded-xl shadow-lg">
-                        {saving ? "Saving..." : <><AlertTriangle className="mr-2 h-5 w-5"/> Save Profile</>}
+                        {saving ? "Saving..." : "Save Changes"}
                     </Button>
                  </div>
             </div>

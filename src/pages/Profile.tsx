@@ -9,10 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Download, Edit2, Save, Upload, ShieldCheck, Briefcase, User, FileText, BadgeCheck, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { MapPin, Download, Edit2, Save, Upload, ShieldCheck, Briefcase, User, FileText, BadgeCheck, Heart, Activity, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// আপনার সুপাবেজ প্রজেক্টের URL
+// ✅ আপনার সঠিক প্রজেক্ট URL (স্ক্রিনশট অনুযায়ী)
 const PROJECT_URL = "https://lcjjjnrzlqiewuwravkw.supabase.co"; 
 
 const CARE_SKILLS = [
@@ -52,7 +54,11 @@ const Profile = () => {
     verification_status: "",
     role: "",
     cv_url: "",
-    certificate_url: ""
+    certificate_url: "",
+    // ✨ New Fields (Lifestyle)
+    smoking_status: "Non-Smoker",
+    religion_practice: "Yes", 
+    declaration: false
   });
 
   // Files
@@ -68,16 +74,16 @@ const Profile = () => {
   useEffect(() => {
     let score = 0;
     if (formData.name) score += 10;
-    if (formData.phone) score += 10;
+    if (formData.phone) score += 5;
     if (formData.bio) score += 10;
     if (formData.skills.length > 0) score += 10;
-    if (formData.current_address) score += 10;
-    if (formData.permanent_address) score += 10;
-    if (formData.expected_salary) score += 10;
+    if (formData.current_address) score += 5;
+    if (formData.height && formData.weight) score += 10; 
+    if (formData.expected_salary) score += 5;
     if (formData.cv_url) score += 10;
     if (formData.nid_number) score += 10;
-    if (formData.verified) score += 10;
-    setCompletion(score);
+    if (formData.verified) score += 25;
+    setCompletion(Math.min(score, 100));
   }, [formData]);
 
   const fetchData = async () => {
@@ -106,7 +112,10 @@ const Profile = () => {
         verification_status: data.verification_status || "unverified",
         role: data.role || "caregiver",
         cv_url: data.cv_url || "",
-        certificate_url: data.certificate_url || ""
+        certificate_url: data.certificate_url || "",
+        smoking_status: data.smoking_status || "Non-Smoker",
+        religion_practice: data.religion_practice || "Yes",
+        declaration: data.declaration || false
       });
     }
     setLoading(false);
@@ -115,6 +124,11 @@ const Profile = () => {
   const isOwner = currentUser?.id === id;
 
   const handleSave = async () => {
+    if (!formData.declaration) {
+        toast({ title: "Declaration Required", description: "You must confirm that all information is true.", variant: "destructive" });
+        return;
+    }
+
     setSaving(true);
     try {
       let updates: any = { ...formData };
@@ -239,17 +253,17 @@ const Profile = () => {
             </CardContent>
         </Card>
 
-        {/* 2. PERSONAL INFO */}
+        {/* 2. PERSONAL INFO & PHYSICAL STATS */}
         <Card className="shadow-lg border-slate-100">
-            <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><User className="h-5 w-5 text-blue-600"/> Personal Information</CardTitle></CardHeader>
+            <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><User className="h-5 w-5 text-blue-600"/> Personal & Physical Info</CardTitle></CardHeader>
             <CardContent className="pt-4 space-y-4">
                 {isEditing && (
                     <div className="mb-6 p-4 bg-slate-50 rounded-xl">
                         <Label className="mb-2 block font-bold">Choose Avatar</Label>
-                        <div className="flex gap-4 mb-3">
-                            <div onClick={() => setFormData({...formData, gender: 'male'})} className={`cursor-pointer px-4 py-2 rounded-lg border font-bold ${formData.gender === 'male' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-slate-200'}`}>Male</div>
-                            <div onClick={() => setFormData({...formData, gender: 'female'})} className={`cursor-pointer px-4 py-2 rounded-lg border font-bold ${formData.gender === 'female' ? 'bg-pink-600 text-white border-pink-600' : 'bg-white border-slate-200'}`}>Female</div>
-                        </div>
+                        <RadioGroup defaultValue={formData.gender} onValueChange={(val) => setFormData({...formData, gender: val})} className="flex gap-4 mb-3">
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="male" id="m"/><Label htmlFor="m">Male</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="female" id="f"/><Label htmlFor="f">Female</Label></div>
+                        </RadioGroup>
                         <div className="flex gap-3 overflow-x-auto py-2">
                             {currentAvatars.map((img, i) => (
                                 <img key={i} src={img} onClick={() => setFormData({...formData, avatar_url: img})}
@@ -260,29 +274,73 @@ const Profile = () => {
                     </div>
                 )}
                 
+                {/* Physical Stats */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <Label className="text-xs text-slate-400 font-bold uppercase">Height</Label>
+                        {isEditing ? <Input value={formData.height} onChange={e => setFormData({...formData, height: e.target.value})} placeholder="5' 8''" /> : <p className="font-bold text-slate-700">{formData.height || "N/A"}</p>}
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs text-slate-400 font-bold uppercase">Weight</Label>
+                        {isEditing ? <Input value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="65 kg" /> : <p className="font-bold text-slate-700">{formData.weight || "N/A"}</p>}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                    <div className="space-y-1"><Label className="text-xs text-slate-400 font-bold uppercase">Age</Label>{isEditing ? <Input value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.age} Years</p>}</div>
+                    <div className="space-y-1"><Label className="text-xs text-slate-400 font-bold uppercase">Phone</Label>{isEditing ? <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.phone}</p>}</div>
+                </div>
+
                 {/* Addresses */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 pt-2">
                     <div className="space-y-1">
                         <Label className="text-xs text-slate-400 font-bold uppercase">Current Address</Label>
                         {isEditing ? <Input value={formData.current_address} onChange={e => setFormData({...formData, current_address: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.current_address}</p>}
                     </div>
-                    <div className="space-y-1">
-                        <Label className="text-xs text-slate-400 font-bold uppercase">Permanent Address</Label>
-                        {isEditing ? <Input value={formData.permanent_address} onChange={e => setFormData({...formData, permanent_address: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.permanent_address}</p>}
-                    </div>
-                </div>
-
-                {/* Vitals */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1"><Label className="text-xs text-slate-400 font-bold uppercase">Age</Label>{isEditing ? <Input value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.age} Years</p>}</div>
-                    <div className="space-y-1"><Label className="text-xs text-slate-400 font-bold uppercase">Phone</Label>{isEditing ? <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.phone}</p>}</div>
+                    {isEditing && (
+                         <div className="space-y-1">
+                            <Label className="text-xs text-slate-400 font-bold uppercase">Permanent Address</Label>
+                            <Input value={formData.permanent_address} onChange={e => setFormData({...formData, permanent_address: e.target.value})} />
+                         </div>
+                    )}
                 </div>
             </CardContent>
         </Card>
 
-        {/* 3. SKILLS */}
+        {/* 3. HABITS & LIFESTYLE (New Section) */}
         <Card className="shadow-lg border-slate-100">
-            <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Briefcase className="h-5 w-5 text-blue-600"/> Medical Skills</CardTitle></CardHeader>
+             <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Heart className="h-5 w-5 text-rose-500"/> Habits & Lifestyle</CardTitle></CardHeader>
+             <CardContent className="pt-4 space-y-4">
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label className="text-xs text-slate-400 font-bold uppercase">Smoker?</Label>
+                        {isEditing ? (
+                             <Select onValueChange={(val) => setFormData({...formData, smoking_status: val})} defaultValue={formData.smoking_status}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent><SelectItem value="Non-Smoker">Non-Smoker 🚭</SelectItem><SelectItem value="Smoker">Smoker</SelectItem></SelectContent>
+                             </Select>
+                        ) : (
+                            <Badge variant="outline" className={formData.smoking_status === 'Non-Smoker' ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-50"}>{formData.smoking_status}</Badge>
+                        )}
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-xs text-slate-400 font-bold uppercase">Religious/Namaji?</Label>
+                        {isEditing ? (
+                             <Select onValueChange={(val) => setFormData({...formData, religion_practice: val})} defaultValue={formData.religion_practice}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent><SelectItem value="Yes">Yes (Regular) 🕌</SelectItem><SelectItem value="Sometimes">Sometimes</SelectItem><SelectItem value="No">No</SelectItem></SelectContent>
+                             </Select>
+                        ) : (
+                            <Badge variant="outline" className={formData.religion_practice === 'Yes' ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-slate-50"}>{formData.religion_practice === 'Yes' ? "Regular Practice" : formData.religion_practice}</Badge>
+                        )}
+                    </div>
+                </div>
+             </CardContent>
+        </Card>
+
+        {/* 4. MEDICAL SKILLS */}
+        <Card className="shadow-lg border-slate-100">
+            <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Activity className="h-5 w-5 text-blue-600"/> Medical Skills</CardTitle></CardHeader>
             <CardContent className="pt-4">
                 <div className="flex flex-wrap gap-2">
                     {isEditing ? CARE_SKILLS.map(skill => (
@@ -300,19 +358,17 @@ const Profile = () => {
             </CardContent>
         </Card>
 
-        {/* 4. DOCUMENTS & VERIFICATION */}
+        {/* 5. DOCUMENTS & VERIFICATION */}
         {isOwner && isEditing && (
-            <Card className="shadow-lg border-slate-100">
-                <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Upload className="h-5 w-5 text-blue-600"/> Documents & NID</CardTitle></CardHeader>
+            <Card className="shadow-lg border-slate-100 mb-24">
+                <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Upload className="h-5 w-5 text-blue-600"/> Documents & Declaration</CardTitle></CardHeader>
                 <CardContent className="pt-4 space-y-6">
                     
-                    {/* CV Upload */}
                     <div className="space-y-2">
                         <Label>Upload CV (PDF) *Required</Label>
                         <Input type="file" accept=".pdf" onChange={e => setCvFile(e.target.files?.[0] || null)} />
                     </div>
 
-                    {/* Certificate Upload */}
                     <div className="space-y-2">
                         <Label>Certificate (Optional)</Label>
                         <Input type="file" accept="image/*,.pdf" onChange={e => setCertFile(e.target.files?.[0] || null)} />
@@ -331,17 +387,37 @@ const Profile = () => {
                             </div>
                         </div>
                     )}
+
+                    {/* DECLARATION CHECKBOX */}
+                    <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100 mt-4">
+                        <input 
+                            type="checkbox" 
+                            id="terms" 
+                            className="w-5 h-5 mt-1 accent-emerald-600"
+                            checked={formData.declaration} 
+                            onChange={(e) => setFormData({...formData, declaration: e.target.checked})} 
+                        />
+                        <div className="grid gap-1.5 leading-none">
+                            <Label htmlFor="terms" className="text-sm font-bold text-blue-900 leading-tight">
+                                I hereby declare that all the information provided above is true and I have no addiction to drugs.
+                            </Label>
+                            <p className="text-xs text-blue-600">
+                                আমি ঘোষণা করছি যে উপরের সব তথ্য সত্য এবং আমার কোনো মাদকাসক্তি নেই।
+                            </p>
+                        </div>
+                    </div>
+
                 </CardContent>
             </Card>
         )}
 
-        {/* 5. FIXED SAVE BUTTON (Only in Edit Mode) */}
+        {/* 6. FIXED SAVE BUTTON (Only in Edit Mode) */}
         {isEditing && (
             <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4 z-50 flex justify-center shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
                  <div className="container max-w-2xl flex gap-3">
                     <Button onClick={() => setIsEditing(false)} variant="outline" className="flex-1 rounded-xl h-12 font-bold border-slate-300">Cancel</Button>
                     <Button onClick={handleSave} disabled={saving} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 rounded-xl shadow-lg">
-                        {saving ? "Saving..." : "Save Changes"}
+                        {saving ? "Saving..." : <><AlertTriangle className="mr-2 h-5 w-5"/> Save Profile</>}
                     </Button>
                  </div>
             </div>

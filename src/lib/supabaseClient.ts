@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 // ✅ আপনার লাইভ ড্যাশবোর্ড অনুযায়ী সঠিক URL (২টি 'j')
-const supabaseUrl = 'https://lcjjnrzlqiewuwxavkw.supabase.co'
+const supabaseUrl = 'https://lcjjjnrzlqiewuwxavkw.supabase.co'
 
 // ⚠️ এখানে আপনার Supabase Dashboard > Settings > API থেকে কপি করা 'anon' key বসান
 // (দয়া করে আপনার নোটপ্যাডে বা আগে থেকে কপি করা পুরানো কি বসাবেন না, নতুন করে কপি করুন)

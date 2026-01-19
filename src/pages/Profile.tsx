@@ -9,12 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { MapPin, Download, Edit2, Save, Upload, ShieldCheck, Briefcase, User, FileText, BadgeCheck, Heart, Activity } from "lucide-react";
+import { MapPin, Download, Edit2, Save, Upload, Activity, FileText, User, Heart, BadgeCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// ✅ আপনার সঠিক প্রজেক্ট URL (৩টি 'j' সহ এবং সঠিক 'x' সহ)
+// ✅ আপনার সঠিক প্রজেক্ট URL (৩টি 'j' এবং 'x' সহ)
 const PROJECT_URL = "https://lcjjjnrzlqiewuwxavkw.supabase.co"; 
 
 const CARE_SKILLS = [
@@ -124,7 +122,7 @@ const Profile = () => {
 
   const handleSave = async () => {
     if (!formData.declaration) {
-        toast({ title: "Declaration Required", description: "You must confirm that all information is true.", variant: "destructive" });
+        toast({ title: "Declaration Required", description: "Please check the declaration box.", variant: "destructive" });
         return;
     }
 
@@ -138,14 +136,12 @@ const Profile = () => {
         const { data } = await supabase.storage.from('verification_docs').upload(cvName, cvFile);
         if (data) updates.cv_url = data.path;
       }
-
       // Upload Certificate
       if (certFile) {
         const certName = `${id}_cert_${Date.now()}`;
         const { data } = await supabase.storage.from('verification_docs').upload(certName, certFile);
         if (data) updates.certificate_url = data.path;
       }
-
       // Upload NID
       if (nidFront && nidBack && formData.nid_number) {
           const fName = `${id}_front_${Date.now()}`;
@@ -171,7 +167,6 @@ const Profile = () => {
     }
   };
 
-  // ✅ সঠিক অ্যাভাটার URL (সঠিক ID দিয়ে)
   const getAvatars = (gender: string) => {
     return Array.from({ length: 5 }, (_, i) => 
       `${PROJECT_URL}/storage/v1/object/public/Avatars/${gender}-${i + 1}.png`
@@ -195,9 +190,8 @@ const Profile = () => {
                     <AvatarImage src={formData.avatar_url} className="object-cover" />
                     <AvatarFallback className="text-4xl font-bold text-blue-800 uppercase">{formData.name?.[0]}</AvatarFallback>
                 </Avatar>
-                
                 {showBlueBadge && (
-                    <div className="absolute bottom-2 right-2 bg-blue-500 text-white p-1.5 rounded-full border-2 border-white shadow-sm" title="Verified Professional">
+                    <div className="absolute bottom-2 right-2 bg-blue-500 text-white p-1.5 rounded-full border-2 border-white shadow-sm">
                         <BadgeCheck className="h-6 w-6 fill-blue-500 text-white" />
                     </div>
                 )}
@@ -251,7 +245,7 @@ const Profile = () => {
             </CardContent>
         </Card>
 
-        {/* 2. PERSONAL INFO & PHYSICAL STATS */}
+        {/* 2. PERSONAL INFO */}
         <Card className="shadow-lg border-slate-100">
             <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><User className="h-5 w-5 text-blue-600"/> Personal & Physical Info</CardTitle></CardHeader>
             <CardContent className="pt-4 space-y-4">
@@ -259,84 +253,69 @@ const Profile = () => {
                     <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <Label className="mb-2 block font-bold text-slate-700">Choose Avatar</Label>
                         <div className="flex gap-4 mb-3">
-                            <div onClick={() => setFormData({...formData, gender: 'male'})} className={`cursor-pointer px-4 py-2 rounded-lg border font-bold text-sm ${formData.gender === 'male' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-slate-200'}`}>Male</div>
-                            <div onClick={() => setFormData({...formData, gender: 'female'})} className={`cursor-pointer px-4 py-2 rounded-lg border font-bold text-sm ${formData.gender === 'female' ? 'bg-pink-600 text-white border-pink-600' : 'bg-white border-slate-200'}`}>Female</div>
+                            <label className="flex items-center gap-2 cursor-pointer border p-2 rounded-lg">
+                                <input type="radio" name="gender" checked={formData.gender === 'male'} onChange={() => setFormData({...formData, gender: 'male'})} /> Male
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer border p-2 rounded-lg">
+                                <input type="radio" name="gender" checked={formData.gender === 'female'} onChange={() => setFormData({...formData, gender: 'female'})} /> Female
+                            </label>
                         </div>
                         <div className="flex gap-3 overflow-x-auto py-2">
                             {currentAvatars.map((img, i) => (
                                 <img key={i} src={img} onClick={() => setFormData({...formData, avatar_url: img})}
-                                    className={`h-14 w-14 rounded-full border-2 cursor-pointer transition-all ${formData.avatar_url === img ? 'border-emerald-500 scale-110 shadow-md' : 'border-transparent'}`}
+                                    className={`h-14 w-14 rounded-full border-2 cursor-pointer ${formData.avatar_url === img ? 'border-emerald-500 scale-110' : 'border-transparent'}`}
                                 />
                             ))}
                         </div>
                     </div>
                 )}
                 
-                {/* Physical Stats */}
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                        <Label className="text-xs text-slate-400 font-bold uppercase">Height</Label>
-                        {isEditing ? <Input value={formData.height} onChange={e => setFormData({...formData, height: e.target.value})} placeholder="5' 8''" /> : <p className="font-bold text-slate-700">{formData.height || "N/A"}</p>}
-                    </div>
-                    <div className="space-y-1">
-                        <Label className="text-xs text-slate-400 font-bold uppercase">Weight</Label>
-                        {isEditing ? <Input value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="65 kg" /> : <p className="font-bold text-slate-700">{formData.weight || "N/A"}</p>}
-                    </div>
+                    <div className="space-y-1"><Label>Height</Label>{isEditing ? <Input value={formData.height} onChange={e => setFormData({...formData, height: e.target.value})} placeholder="5' 8''" /> : <p className="font-bold">{formData.height || "N/A"}</p>}</div>
+                    <div className="space-y-1"><Label>Weight</Label>{isEditing ? <Input value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="65 kg" /> : <p className="font-bold">{formData.weight || "N/A"}</p>}</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 pt-2">
-                    <div className="space-y-1"><Label className="text-xs text-slate-400 font-bold uppercase">Age</Label>{isEditing ? <Input value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.age} Years</p>}</div>
-                    <div className="space-y-1"><Label className="text-xs text-slate-400 font-bold uppercase">Phone</Label>{isEditing ? <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.phone}</p>}</div>
+                    <div className="space-y-1"><Label>Age</Label>{isEditing ? <Input value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} /> : <p className="font-bold">{formData.age} Years</p>}</div>
+                    <div className="space-y-1"><Label>Phone</Label>{isEditing ? <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} /> : <p className="font-bold">{formData.phone}</p>}</div>
                 </div>
 
-                {/* Addresses */}
                 <div className="grid grid-cols-1 gap-4 pt-2">
-                    <div className="space-y-1">
-                        <Label className="text-xs text-slate-400 font-bold uppercase">Current Address</Label>
-                        {isEditing ? <Input value={formData.current_address} onChange={e => setFormData({...formData, current_address: e.target.value})} /> : <p className="font-bold text-slate-700">{formData.current_address}</p>}
-                    </div>
-                    {isEditing && (
-                         <div className="space-y-1">
-                            <Label className="text-xs text-slate-400 font-bold uppercase">Permanent Address</Label>
-                            <Input value={formData.permanent_address} onChange={e => setFormData({...formData, permanent_address: e.target.value})} />
-                         </div>
-                    )}
+                    <div className="space-y-1"><Label>Current Address</Label>{isEditing ? <Input value={formData.current_address} onChange={e => setFormData({...formData, current_address: e.target.value})} /> : <p className="font-bold">{formData.current_address}</p>}</div>
+                    {isEditing && <div className="space-y-1"><Label>Permanent Address</Label><Input value={formData.permanent_address} onChange={e => setFormData({...formData, permanent_address: e.target.value})} /></div>}
                 </div>
             </CardContent>
         </Card>
 
-        {/* 3. HABITS & LIFESTYLE */}
+        {/* 3. HABITS */}
         <Card className="shadow-lg border-slate-100">
              <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Heart className="h-5 w-5 text-rose-500"/> Habits & Lifestyle</CardTitle></CardHeader>
              <CardContent className="pt-4 space-y-4">
                 <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <Label className="text-xs text-slate-400 font-bold uppercase">Smoker?</Label>
+                        <Label>Smoker?</Label>
                         {isEditing ? (
-                             <Select onValueChange={(val) => setFormData({...formData, smoking_status: val})} defaultValue={formData.smoking_status}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent><SelectItem value="Non-Smoker">Non-Smoker 🚭</SelectItem><SelectItem value="Smoker">Smoker</SelectItem></SelectContent>
-                             </Select>
-                        ) : (
-                            <Badge variant="outline" className={formData.smoking_status === 'Non-Smoker' ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-50"}>{formData.smoking_status}</Badge>
-                        )}
+                             <select className="w-full border rounded-md p-2" value={formData.smoking_status} onChange={(e) => setFormData({...formData, smoking_status: e.target.value})}>
+                                <option value="Non-Smoker">Non-Smoker 🚭</option>
+                                <option value="Smoker">Smoker</option>
+                             </select>
+                        ) : <Badge variant="outline">{formData.smoking_status}</Badge>}
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-xs text-slate-400 font-bold uppercase">Religious/Namaji?</Label>
+                        <Label>Religious/Namaji?</Label>
                         {isEditing ? (
-                             <Select onValueChange={(val) => setFormData({...formData, religion_practice: val})} defaultValue={formData.religion_practice}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent><SelectItem value="Yes">Yes (Regular) 🕌</SelectItem><SelectItem value="Sometimes">Sometimes</SelectItem><SelectItem value="No">No</SelectItem></SelectContent>
-                             </Select>
-                        ) : (
-                            <Badge variant="outline" className={formData.religion_practice === 'Yes' ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-slate-50"}>{formData.religion_practice === 'Yes' ? "Regular Practice" : formData.religion_practice}</Badge>
-                        )}
+                             <select className="w-full border rounded-md p-2" value={formData.religion_practice} onChange={(e) => setFormData({...formData, religion_practice: e.target.value})}>
+                                <option value="Yes">Yes (Regular) 🕌</option>
+                                <option value="Sometimes">Sometimes</option>
+                                <option value="No">No</option>
+                             </select>
+                        ) : <Badge variant="outline">{formData.religion_practice}</Badge>}
                     </div>
                 </div>
              </CardContent>
         </Card>
 
-        {/* 4. MEDICAL SKILLS */}
+        {/* 4. SKILLS */}
         <Card className="shadow-lg border-slate-100">
             <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Activity className="h-5 w-5 text-blue-600"/> Medical Skills</CardTitle></CardHeader>
             <CardContent className="pt-4">
@@ -356,27 +335,16 @@ const Profile = () => {
             </CardContent>
         </Card>
 
-        {/* 5. DOCUMENTS & VERIFICATION */}
+        {/* 5. DOCUMENTS */}
         {isOwner && isEditing && (
             <Card className="shadow-lg border-slate-100 mb-24">
                 <CardHeader className="pb-2 border-b border-slate-50"><CardTitle className="text-slate-800 flex items-center gap-2"><Upload className="h-5 w-5 text-blue-600"/> Documents & Declaration</CardTitle></CardHeader>
                 <CardContent className="pt-4 space-y-6">
+                    <div className="space-y-2"><Label>Upload CV (PDF) *Required</Label><Input type="file" accept=".pdf" onChange={e => setCvFile(e.target.files?.[0] || null)} /></div>
+                    <div className="space-y-2"><Label>Certificate (Optional)</Label><Input type="file" accept="image/*,.pdf" onChange={e => setCertFile(e.target.files?.[0] || null)} /></div>
                     
-                    <div className="space-y-2">
-                        <Label>Upload CV (PDF) *Required</Label>
-                        <Input type="file" accept=".pdf" onChange={e => setCvFile(e.target.files?.[0] || null)} />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>Certificate (Optional)</Label>
-                        <Input type="file" accept="image/*,.pdf" onChange={e => setCertFile(e.target.files?.[0] || null)} />
-                    </div>
-
-                    <div className="h-px bg-slate-200 my-4"></div>
-
-                    {/* NID Verification */}
                     {!formData.verified && (
-                        <div className="space-y-4">
+                        <div className="space-y-4 border-t pt-4">
                             <Label className="text-orange-600 font-bold">NID Verification</Label>
                             <Input value={formData.nid_number} onChange={e => setFormData({...formData, nid_number: e.target.value})} placeholder="NID Number" />
                             <div className="grid grid-cols-2 gap-4">
@@ -386,41 +354,28 @@ const Profile = () => {
                         </div>
                     )}
 
-                    {/* DECLARATION CHECKBOX */}
                     <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100 mt-4">
-                        <input 
-                            type="checkbox" 
-                            id="terms" 
-                            className="w-5 h-5 mt-1 accent-emerald-600"
-                            checked={formData.declaration} 
-                            onChange={(e) => setFormData({...formData, declaration: e.target.checked})} 
-                        />
-                        <div className="grid gap-1.5 leading-none">
-                            <Label htmlFor="terms" className="text-sm font-bold text-blue-900 leading-tight">
-                                I hereby declare that all information is true and I have no addiction to drugs.
-                            </Label>
-                            <p className="text-xs text-blue-600">
-                                আমি ঘোষণা করছি যে উপরের সব তথ্য সত্য এবং আমার কোনো মাদকাসক্তি নেই।
-                            </p>
+                        <input type="checkbox" className="w-5 h-5 mt-1" checked={formData.declaration} onChange={(e) => setFormData({...formData, declaration: e.target.checked})} />
+                        <div>
+                            <Label className="text-sm font-bold text-blue-900">I hereby declare that all information is true.</Label>
+                            <p className="text-xs text-blue-600">আমি ঘোষণা করছি যে উপরের সব তথ্য সত্য।</p>
                         </div>
                     </div>
-
                 </CardContent>
             </Card>
         )}
 
-        {/* 6. FIXED SAVE BUTTON */}
+        {/* 6. SAVE BUTTON */}
         {isEditing && (
-            <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4 z-50 flex justify-center shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+            <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4 z-50 flex justify-center shadow-lg">
                  <div className="container max-w-2xl flex gap-3">
-                    <Button onClick={() => setIsEditing(false)} variant="outline" className="flex-1 rounded-xl h-12 font-bold border-slate-300">Cancel</Button>
-                    <Button onClick={handleSave} disabled={saving} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 rounded-xl shadow-lg">
+                    <Button onClick={() => setIsEditing(false)} variant="outline" className="flex-1">Cancel</Button>
+                    <Button onClick={handleSave} disabled={saving} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
                         {saving ? "Saving..." : "Save Changes"}
                     </Button>
                  </div>
             </div>
         )}
-
       </div>
     </div>
   );

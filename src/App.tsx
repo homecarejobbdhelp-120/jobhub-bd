@@ -31,14 +31,16 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import CompanyProfile from "./pages/CompanyProfile";
 import Profile from "./pages/Profile";
 import Training from "./pages/Training";
-// ✨ STEP 2: Import Language Provider
 import { LanguageProvider } from "@/contexts/LanguageContext";
+
+// ✅ নতুন ইম্পোর্ট
+import CaregiverProfile from "./pages/CaregiverProfile";
+import CaregiverApplications from "./pages/CaregiverApplications";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    {/* ✨ STEP 2: Wrap the app with LanguageProvider */}
     <LanguageProvider>
       <TooltipProvider>
         <Toaster />
@@ -47,9 +49,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/jobs" element={<Jobs />} />
-            
             <Route path="/training" element={<Training />} />
-            
             <Route path="/auth" element={<Auth />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -63,7 +63,16 @@ const App = () => (
             <Route path="/company-feed" element={<CompanyFeed />} />
             <Route path="/company-dashboard" element={<CompanyFeed />} />
             <Route path="/company/:id" element={<CompanyProfile />} />
+            
+            {/* ✅ পাবলিক প্রোফাইল (মানুষ যা দেখবে) */}
             <Route path="/profile/:id" element={<Profile />} />
+
+            {/* ✅ প্রাইভেট প্রোফাইল (যেখানে এডিট করবেন) - এটা আপনার মিসিং ছিল */}
+            <Route path="/profile" element={<CaregiverProfile />} />
+            
+            {/* ✅ অ্যাপ্লিকেশন পেজ - এটাও মিসিং ছিল */}
+            <Route path="/applications" element={<CaregiverApplications />} />
+
             <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
             
             <Route path="/dashboard/caregiver" element={
@@ -94,7 +103,6 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

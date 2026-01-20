@@ -10,7 +10,7 @@ const GeneralDashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
-  const [userRole, setUserRole] = useState(""); // ✅ রোল রাখার জন্য স্টেট যোগ করলাম
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -21,7 +21,6 @@ const GeneralDashboard = () => {
         return;
       }
 
-      // ✅ ডাটাবেস থেকে name এর পাশাপাশি 'role' টাও নিয়ে আসছি
       const { data: profile } = await supabase
         .from("profiles")
         .select("name, role")
@@ -30,7 +29,7 @@ const GeneralDashboard = () => {
 
       if (profile) {
         setUserName(profile.name);
-        setUserRole(profile.role); // ✅ রোল সেট করছি
+        setUserRole(profile.role);
       }
 
       setLoading(false);
@@ -52,12 +51,32 @@ const GeneralDashboard = () => {
     );
   }
 
+  // ✅ রোল অনুযায়ী সুন্দর ব্যাজ দেখানোর লজিক
+  const getRoleBadge = () => {
+    if (userRole === 'nurse') {
+      return <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-pink-100 text-pink-800 border border-pink-200">🩺 Registered Nurse</span>;
+    }
+    if (userRole === 'caregiver') {
+      return <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 border border-green-200">🏠 Professional Caregiver</span>;
+    }
+    if (userRole === 'employer') {
+      return <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200">🏢 Company Profile</span>;
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Welcome, {userName || "User"}!</h1>
+          
+          {/* ✅ এখানে রোল দেখাবে */}
+          <div className="mb-3">
+            {getRoleBadge()}
+          </div>
+
           <p className="text-muted-foreground">
             {userRole === 'employer' 
               ? "Manage your jobs and applications" 
@@ -65,7 +84,7 @@ const GeneralDashboard = () => {
           </p>
         </div>
 
-        {/* ✅ লজিক: যদি Employer হয়, তবে এই কার্ডগুলো দেখাবে */}
+        {/* Employer Section */}
         {userRole === 'employer' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/post-job")}>
@@ -100,7 +119,7 @@ const GeneralDashboard = () => {
           </div>
         )}
 
-        {/* ✅ লজিক: যদি Caregiver বা Nurse হয়, তবে এই কার্ডগুলো দেখাবে */}
+        {/* Caregiver/Nurse Section */}
         {(userRole === 'caregiver' || userRole === 'nurse') && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/jobs")}>
@@ -123,6 +142,7 @@ const GeneralDashboard = () => {
               </CardContent>
             </Card>
 
+            {/* ✅ এখানে লিংক ঠিক করা হয়েছে: /profile */}
             <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/profile")}>
               <CardHeader className="flex flex-row items-center space-x-4">
                 <User className="h-8 w-8 text-primary" />
@@ -133,6 +153,7 @@ const GeneralDashboard = () => {
               </CardContent>
             </Card>
             
+             {/* ✅ এখানে লিংক ঠিক করা হয়েছে: /applications */}
              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/applications")}>
               <CardHeader className="flex flex-row items-center space-x-4">
                 <FileText className="h-8 w-8 text-primary" />

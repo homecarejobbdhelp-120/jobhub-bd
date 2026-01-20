@@ -1,134 +1,81 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Building2, Briefcase, Flag } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-
-interface Stats {
-  totalCaregivers: number;
-  totalCompanies: number;
-  activeJobs: number;
-  totalReports: number;
-}
+import Navbar from "@/components/Navbar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Briefcase, FileCheck, ShieldAlert } from "lucide-react";
 
 const AdminOverview = () => {
-  const [stats, setStats] = useState<Stats>({
-    totalCaregivers: 0,
-    totalCompanies: 0,
-    activeJobs: 0,
-    totalReports: 0,
+  const [stats, setStats] = useState({ 
+    caregivers: 0, 
+    companies: 0, 
+    activeJobs: 0, 
+    pendingVerifications: 0 
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // Fetch caregiver count
-        const { count: caregiverCount } = await supabase
-          .from("user_roles")
-          .select("*", { count: "exact", head: true })
-          .in("role", ["caregiver", "nurse"]);
-
-        // Fetch employer count
-        const { count: companyCount } = await supabase
-          .from("user_roles")
-          .select("*", { count: "exact", head: true })
-          .eq("role", "employer");
-
-        // Fetch active jobs count
-        const { count: jobsCount } = await supabase
-          .from("jobs")
-          .select("*", { count: "exact", head: true })
-          .eq("status", "open");
-
-        // Fetch reports count
-        const { count: reportsCount } = await supabase
-          .from("reports")
-          .select("*", { count: "exact", head: true });
-
-        setStats({
-          totalCaregivers: caregiverCount || 0,
-          totalCompanies: companyCount || 0,
-          activeJobs: jobsCount || 0,
-          totalReports: reportsCount || 0,
-        });
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
   }, []);
 
+  const fetchStats = async () => {
+    // 1. Count Caregivers & Nurses (from profiles table)
+    const { count: caregiverCount } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .in("role", ["caregiver", "nurse"]);
+
+    // 2. Count Companies
+    const { count: companyCount } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "employer");
+
+    // 3. Count Active Jobs
+    const { count: jobCount } = await supabase
+      .from("jobs")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "open");
+
+    // 4. Count Unverified Users (Pending Verifications)
+    const { count: verifyCount } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("verified", false)
+      .in("role", ["caregiver", "nurse"]); // Only verify caregivers
+
+    setStats({ 
+      caregivers: caregiverCount || 0, 
+      companies: companyCount || 0, 
+      activeJobs: jobCount || 0, 
+      pendingVerifications: verifyCount || 0 
+    });
+  };
+
   const statCards = [
-    {
-      title: "Total Caregivers",
-      value: stats.totalCaregivers,
-      icon: Users,
-      color: "text-blue-600",
-      bg: "bg-blue-100",
-    },
-    {
-      title: "Total Companies",
-      value: stats.totalCompanies,
-      icon: Building2,
-      color: "text-green-600",
-      bg: "bg-green-100",
-    },
-    {
-      title: "Active Jobs",
-      value: stats.activeJobs,
-      icon: Briefcase,
-      color: "text-purple-600",
-      bg: "bg-purple-100",
-    },
-    {
-      title: "Total Reports",
-      value: stats.totalReports,
-      icon: Flag,
-      color: "text-red-600",
-      bg: "bg-red-100",
-    },
+    { title: "Total Caregivers", value: stats.caregivers, icon: Users, color: "text-blue-600", bg: "bg-blue-100" },
+    { title: "Total Companies", value: stats.companies, icon: Briefcase, color: "text-green-600", bg: "bg-green-100" },
+    { title: "Active Jobs", value: stats.activeJobs, icon: FileCheck, color: "text-purple-600", bg: "bg-purple-100" },
+    { title: "Pending Verifications", value: stats.pendingVerifications, icon: ShieldAlert, color: "text-red-600", bg: "bg-red-100" },
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Dashboard Overview</h1>
-        <p className="text-muted-foreground">Welcome to the admin panel</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bg}`}>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {loading ? "..." : stat.value}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-muted-foreground">
-          <p>• Manage users in the <strong>Users</strong> tab</p>
-          <p>• Moderate job posts in the <strong>Jobs</strong> tab</p>
-          <p>• Review reports in the <strong>Reports</strong> tab</p>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
+        <h1 className="text-3xl font-bold mb-6">System Dashboard</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {statCards.map((stat, index) => (
+            <Card key={index}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg ${stat.bg}`}><stat.icon className={`w-5 h-5 ${stat.color}`} /></div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </main>
     </div>
   );
 };

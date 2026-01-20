@@ -4,14 +4,37 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { User, MapPin, Phone } from "lucide-react";
+import { Loader2, CheckCircle, User, Activity, ShieldCheck } from "lucide-react";
+
+// ✅ আপনার সুপাবেজ থেকে নেওয়া আসল অবতার লিংক
+const AVATARS = {
+  male: [
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/male-1.png",
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/male-2.png",
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/male-3.png",
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/male-4.png",
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/male-5.png",
+  ],
+  female: [
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/female-1.png",
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/female-2.png",
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/female-3.png",
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/female-4.png",
+    "https://mnkaokfilxfisizotink.supabase.co/storage/v1/object/public/avatars-public/female-5.png",
+  ]
+};
 
 const CaregiverProfile = () => {
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [avatarGender, setAvatarGender] = useState<'male' | 'female'>('male');
 
   useEffect(() => {
     getProfile();
@@ -22,75 +45,68 @@ const CaregiverProfile = () => {
     if (user) {
       const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
       setProfile(data);
+      if (data.gender === 'Female') setAvatarGender('female');
     }
     setLoading(false);
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        name: profile.name,
-        phone: profile.phone,
-        location: profile.location,
-        role: profile.role // রোল আপডেট হবে
-      })
-      .eq('id', profile.id);
+  const handleFileUpload = async (event: any, column: string) => {
+    try {
+      setSaving(true);
+      const file = event.target.files[0];
+      if (!file) return;
 
-    if (error) toast.error("Update failed");
-    else toast.success("Profile updated!");
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profile.id}/${Math.random()}.${fileExt}`;
+      
+      const { error } = await supabase.storage.from('verification_docs').upload(fileName, file);
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage.from('verification_docs').getPublicUrl(fileName);
+      
+      await supabase.from('profiles').update({ [column]: publicUrl }).eq('id', profile.id);
+      setProfile({ ...profile, [column]: publicUrl });
+      toast.success("ফাইল আপলোড সফল হয়েছে!");
+    } catch (error) {
+      toast.error("আপলোড ব্যর্থ হয়েছে");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  const handleSave = async () => {
+    setSaving(true);
+    const { error } = await supabase.from('profiles').update(profile).eq('id', profile.id);
+    if (error) toast.error("সেভ করা যায়নি!");
+    else toast.success("প্রোফাইল আপডেট হয়েছে!");
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <Navbar />
-      <main className="container mx-auto px-4 py-8 max-w-md">
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5 text-green-600"/> Edit Profile
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleUpdate} className="space-y-4">
-                    <div>
-                        <Label>Name</Label>
-                        <Input value={profile?.name || ''} onChange={e => setProfile({...profile, name: e.target.value})} />
-                    </div>
-                    <div>
-                        <Label>Designation (Your Role)</Label>
-                        <Select 
-                          value={profile?.role === 'employer' ? 'caregiver' : profile?.role} 
-                          onValueChange={(val) => setProfile({...profile, role: val})}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="caregiver">Caregiver (কেয়ারগিভার)</SelectItem>
-                            <SelectItem value="nurse">Nurse (নার্স)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-gray-500">This helps companies identify you.</p>
-                    </div>
-                    <div>
-                        <Label>Phone</Label>
-                        <Input value={profile?.phone || ''} onChange={e => setProfile({...profile, phone: e.target.value})} />
-                    </div>
-                    <div>
-                        <Label>Location</Label>
-                        <Input value={profile?.location || ''} onChange={e => setProfile({...profile, location: e.target.value})} />
-                    </div>
-                    <Button type="submit" className="w-full bg-green-600">Save Changes</Button>
-                </form>
-            </CardContent>
-        </Card>
-      </main>
-    </div>
-  );
-};
+      
+      {/* Header Banner */}
+      <div className="bg-blue-600 pt-8 pb-16 px-4">
+        <div className="container mx-auto max-w-2xl text-white">
+            <h1 className="text-2xl font-bold">Edit Profile</h1>
+            <p className="opacity-90">Complete your profile to get better jobs</p>
+        </div>
+      </div>
 
-export default CaregiverProfile;
+      <main className="container mx-auto px-4 -mt-10 max-w-2xl">
+        <Tabs defaultValue="details" className="w-full">
+          
+          <TabsList className="grid w-full grid-cols-3 mb-4 h-12 shadow-md bg-white rounded-xl">
+            <TabsTrigger value="details" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600">Details</TabsTrigger>
+            <TabsTrigger value="physical" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600">Physical Info</TabsTrigger>
+            <TabsTrigger value="verification" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600">Verification</TabsTrigger>
+          </TabsList>
+
+          {/* === TAB 1: BASIC DETAILS === */}
+          <TabsContent value="details" className="space-y-4">
+            <Card>
+                <CardHeader>
+                    <CardTitle className

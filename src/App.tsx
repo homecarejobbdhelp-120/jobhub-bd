@@ -8,8 +8,9 @@ import Jobs from "./pages/Jobs";
 import Training from "./pages/Training";
 import PostJob from "./pages/PostJob";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup"; // ✅ নতুন: Signup ইমপোর্ট করা হলো
 import Profile from "./pages/Profile";
-// নতুন পেজ ইমপোর্ট
+// সাপোর্ট পেজ ইমপোর্ট
 import About from "./pages/About";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
@@ -29,9 +30,10 @@ const App = () => (
           <Route path="/training" element={<Training />} />
           <Route path="/post-job" element={<PostJob />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} /> {/* ✅ নতুন: Signup রাউট যোগ করা হলো */}
           <Route path="/profile" element={<Profile />} />
           
-          {/* নতুন সাপোর্ট রাউটস */}
+          {/* সাপোর্ট রাউটস */}
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />

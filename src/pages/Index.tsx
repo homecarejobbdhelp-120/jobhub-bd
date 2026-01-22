@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer"; // ফুটার ইমপোর্ট করা হলো
+import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
 import { Button } from "@/components/ui/button";
 import { Briefcase, Users, Star } from "lucide-react";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+    // ✅ ফিক্স: ব্যাকগ্রাউন্ড কালার 'bg-white' করা হয়েছে
+    <div className="min-h-screen bg-white flex flex-col font-sans">
       <Navbar />
 
       {/* === HERO SECTION === */}
@@ -136,7 +137,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* === FOOTER যোগ করা হয়েছে === */}
       <Footer />
     </div>
   );

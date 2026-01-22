@@ -11,12 +11,10 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    // ইউজার সেশন চেক করা
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setUser(session.user);
-        // রোল চেক করা (অপশনাল, যদি আপনার রোল সিস্টেমে থাকে)
         const { data } = await supabase
           .from("user_roles")
           .select("role")
@@ -33,7 +31,6 @@ const Navbar = () => {
     window.location.href = "/login";
   };
 
-  // ড্যাশবোর্ড লিংক নির্ধারণ
   const getDashboardLink = () => {
     if (role === "employer" || role === "company") return "/dashboard/company";
     return "/dashboard/caregiver";
@@ -43,16 +40,14 @@ const Navbar = () => {
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         
-        {/* ✅ লোগো সেকশন (আপডেট করা হয়েছে) */}
+        {/* লোগো সেকশন */}
         <Link to="/" className="flex items-center gap-2 group">
-          {/* ১. এখানে আপনার টেক্সট ছাড়া লোগোটি বসান (public ফোল্ডারে logo.png নামে রাখবেন) */}
+          {/* ফাইলের নাম এখানে app-logo.png দেওয়া হয়েছে */}
           <img 
-            src="/logo.png" 
+            src="/app-logo.png" 
             alt="HomeCare JobBD" 
             className="h-10 w-10 transition-transform group-hover:scale-105" 
           />
-          
-          {/* ২. টেক্সট কোড দিয়ে লেখা (যাতে ফাটবে না) */}
           <div className="flex flex-col leading-none">
             <span className="text-xl font-extrabold text-blue-900 tracking-tight">
               HomeCare <span className="text-green-600">JobBD</span>

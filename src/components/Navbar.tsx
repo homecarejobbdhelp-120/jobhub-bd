@@ -1,236 +1,132 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, User, LogOut, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
-import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { Menu, User as UserIcon, Share2, Phone, Globe, GraduationCap, Home, LogOut, Briefcase, Settings, LayoutDashboard, Rss } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import ShareModal from "./ShareModal";
-// ✨ STEP 3: ইম্পোর্ট (Import Language Hook)
-import { useLanguage } from "@/contexts/LanguageContext";
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // ✨ STEP 3: হুক ব্যবহার (Use the Hook)
-  const { language, setLanguage, t } = useLanguage(); 
-  
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [showShareModal, setShowShareModal] = useState(false);
-
-  const isActive = (path: string) => location.pathname === path;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-        fetchUserRole(session.user.id);
-      }
     });
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-        fetchUserRole(session.user.id);
-      } else {
-        setProfile(null);
-        setUserRole(null);
-      }
     });
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
-    if (data) setProfile(data);
-  };
-
-  const fetchUserRole = async (userId: string) => {
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).single();
-    if (data) setUserRole(data.role);
-  };
-
-  const handleSignOut = async () => {
+  const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/");
+    navigate("/login");
   };
 
   return (
-    <nav className="bg-white border-b border-slate-100 sticky top-0 z-50 shadow-sm h-16 flex items-center">
-      <div className="container mx-auto px-4 flex justify-between items-center w-full">
-        
-        {/* LOGO (Left Side) */}
-        <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => navigate("/")}>
-          <div className="h-8 w-8 bg-emerald-50 rounded-lg flex items-center justify-center p-1">
-             <img src="/logo-new.png" alt="Logo" className="h-full w-full object-contain" />
-          </div>
-          <span className="text-lg md:text-xl font-black text-slate-800 leading-none tracking-tight">
-            HomeCare <span className="text-emerald-600">Job BD</span>
-          </span>
-        </div>
-
-        {/* RIGHT ACTIONS */}
-        <div className="flex items-center gap-3">
+    <nav className="bg-white shadow-sm sticky top-0 z-50 w-full border-b border-gray-100 font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 md:h-20 items-center">
           
-          {/* LOGIN/SIGNUP (Desktop Only) */}
-          {!user && (
-            <div className="hidden md:flex items-center gap-2">
-              {/* এখানে t() ব্যবহার করা হয়েছে যাতে ভাষা পাল্টালে লেখা পাল্টে যায় */}
-              <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-emerald-600 px-3 py-2">
-                {t('nav_login')}
-              </Link>
-              <Link to="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-5 py-2 rounded-full shadow-lg shadow-emerald-100 active:scale-95 transition-transform">
-                {t('nav_signup')}
-              </Link>
-            </div>
-          )}
+          {/* === LEFT: LOGO === */}
+          <div className="flex items-center flex-shrink-0">
+            <Link to="/" className="flex items-center gap-2 md:gap-3 group">
+              <div className="bg-blue-50 p-1.5 md:p-2 rounded-xl group-hover:bg-blue-100 transition-colors">
+                 <Stethoscope className="h-6 w-6 md:h-8 md:w-8 text-blue-900" />
+              </div>
+              <div className="flex flex-col justify-center">
+                <div className="flex items-center text-lg md:text-2xl font-extrabold tracking-tight leading-none">
+                  <span className="text-blue-900">HomeCare</span>
+                  <span className="text-green-600 ml-1">Job BD</span>
+                </div>
+                <span className="text-[8px] md:text-[10px] font-semibold text-gray-500 tracking-[0.1em] md:tracking-[0.2em] uppercase mt-0.5 hidden sm:block">
+                  Trusted Medical Jobs
+                </span>
+              </div>
+            </Link>
+          </div>
 
-          {/* HAMBURGER MENU */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-slate-800 hover:bg-slate-50 rounded-full h-10 w-10">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </DropdownMenuTrigger>
+          {/* === RIGHT: ACTIONS (MOBILE & DESKTOP) === */}
+          <div className="flex items-center gap-3">
             
-            <DropdownMenuContent align="end" className="w-72 mt-3 p-2 rounded-[1.5rem] shadow-2xl border-slate-100 animate-in slide-in-from-top-2">
-              
-              {!user ? (
-                <>
-                  {/* Visitor Menu Items */}
-                  <div className="p-2 grid grid-cols-2 gap-2 mb-2 md:hidden">
-                     <Button onClick={() => navigate("/login")} variant="outline" className="rounded-xl font-bold border-slate-200">{t('nav_login')}</Button>
-                     <Button onClick={() => navigate("/signup")} className="rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700">{t('nav_signup')}</Button>
-                  </div>
+            {/* 1. Mobile Sign In / Create Account (Like BDJobs) */}
+            {/* এটি শুধু মোবাইলে দেখাবে, মেনুর বাম পাশে */}
+            <div className="md:hidden flex items-center gap-1 mr-1">
+                {!user ? (
+                    <div className="flex flex-col items-end leading-tight">
+                        <Link to="/login" className="text-[11px] font-bold text-blue-700 hover:underline">
+                            Sign in
+                        </Link>
+                        <div className="flex items-center gap-1">
+                            <span className="text-[9px] text-gray-400">or</span>
+                            <Link to="/login" className="text-[11px] font-bold text-green-600 hover:underline">
+                                Create Account
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    // লগইন করা থাকলে প্রোফাইল আইকন দেখাবে
+                    <Link to="/profile" className="bg-blue-50 p-1.5 rounded-full text-blue-900">
+                        <User className="w-5 h-5" />
+                    </Link>
+                )}
+            </div>
 
-                  <DropdownMenuItem onClick={() => navigate("/")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <Home className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_home')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/training")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <GraduationCap className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_training')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/contact")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <Phone className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_contact')}
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuSeparator className="bg-slate-100 my-2" />
-                  
-                  {/* ✨ VISITOR LANGUAGE TOGGLE */}
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl mx-1">
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-slate-400" />
-                      <span className="text-xs font-black text-slate-600 uppercase">{t('nav_language')}</span>
-                    </div>
-                    <div className="flex bg-white p-1 rounded-full border border-slate-200">
-                      {/* বাংলা বাটন: যদি ভাষা bn হয়, তবে সবুজ হবে */}
-                      <button 
-                        className={`px-3 py-1 text-[10px] rounded-full font-bold transition-all ${language === 'bn' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400'}`} 
-                        onClick={() => setLanguage('bn')}
-                      >
-                        BN
-                      </button>
-                      {/* ইংরেজি বাটন */}
-                      <button 
-                        className={`px-3 py-1 text-[10px] rounded-full font-bold transition-all ${language === 'en' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400'}`} 
-                        onClick={() => setLanguage('en')}
-                      >
-                        EN
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Logged In User Header */}
-                  <DropdownMenuLabel className="p-4 bg-slate-50 rounded-2xl mb-2 flex items-center gap-3 mx-1">
-                    <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-lg border-2 border-white shadow-sm">
-                       {profile?.name?.[0] || "U"}
-                    </div>
-                    <div className="overflow-hidden">
-                      <p className="font-bold text-slate-800 truncate text-sm">{profile?.name || "User"}</p>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{userRole}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  
-                  {/* Role Based Menu Items */}
-                  {(userRole === 'caregiver' || userRole === 'nurse') ? (
-                    <>
-                      <DropdownMenuItem onClick={() => navigate("/feed")} className={`py-3 px-4 rounded-xl font-medium cursor-pointer ${isActive('/feed') ? 'text-emerald-600 bg-emerald-50 font-bold' : ''}`}>
-                        <Rss className="mr-3 h-5 w-5" /> {t('nav_feed')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)} className={`py-3 px-4 rounded-xl font-medium cursor-pointer ${isActive(`/profile/${user.id}`) ? 'text-emerald-600 bg-emerald-50 font-bold' : ''}`}>
-                         <UserIcon className="mr-3 h-5 w-5" /> {t('nav_profile')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/training")} className={`py-3 px-4 rounded-xl font-medium cursor-pointer ${isActive('/training') ? 'text-emerald-600 bg-emerald-50 font-bold' : ''}`}>
-                        <GraduationCap className="mr-3 h-5 w-5" /> {t('nav_training')}
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuItem onClick={() => navigate("/")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                      <Home className="mr-3 h-5 w-5" /> {t('nav_home')}
-                    </DropdownMenuItem>
-                  )}
+            {/* 2. Desktop Menu (Hidden on Mobile) */}
+            <div className="hidden md:flex items-center space-x-8">
+                <Link to="/" className="text-gray-600 hover:text-blue-900 font-semibold transition text-sm uppercase tracking-wide">Home</Link>
+                <Link to="/jobs" className="text-gray-600 hover:text-blue-900 font-semibold transition text-sm uppercase tracking-wide">Jobs</Link>
+                <Link to="/training" className="text-gray-600 hover:text-blue-900 font-semibold transition text-sm uppercase tracking-wide">Training</Link>
+                
+                {user ? (
+                <div className="flex items-center gap-4 ml-4 pl-4 border-l border-gray-200">
+                    <Link to="/profile">
+                    <Button variant="outline" className="flex items-center gap-2 border-blue-200 text-blue-900 hover:bg-blue-50 rounded-full px-4">
+                        <User className="w-4 h-4" /> Profile
+                    </Button>
+                    </Link>
+                    <Button onClick={handleLogout} variant="ghost" className="text-red-500 hover:bg-red-50 hover:text-red-700 rounded-full px-3">
+                    <LogOut className="w-4 h-4" />
+                    </Button>
+                </div>
+                ) : (
+                <Link to="/login">
+                    <Button className="bg-blue-900 hover:bg-blue-800 text-white font-bold px-8 py-2 rounded-full shadow-lg transition-all">
+                    Login / Join
+                    </Button>
+                </Link>
+                )}
+            </div>
 
-                  {userRole === 'employer' && (
-                    <DropdownMenuItem onClick={() => navigate("/dashboard/company")} className="py-3 px-4 rounded-xl font-bold text-emerald-600 cursor-pointer bg-emerald-50/50 mb-1">
-                      <LayoutDashboard className="mr-3 h-5 w-5" /> {t('nav_dashboard')}
-                    </DropdownMenuItem>
-                  )}
+            {/* 3. Mobile Hamburger Menu Button */}
+            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-gray-700 hover:text-blue-900 p-2 rounded-md hover:bg-gray-100 transition border border-gray-200">
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
 
-                   {/* ✨ AUTH LANGUAGE TOGGLE */}
-                   <div className="flex items-center justify-between p-3 bg-emerald-50/50 rounded-2xl mx-1 my-2 border border-emerald-100">
-                    <div className="flex items-center gap-2 pl-1">
-                      <Globe className="h-4 w-4 text-emerald-600" />
-                      <span className="text-xs font-black text-emerald-900 uppercase tracking-tighter">{t('nav_language')}</span>
-                    </div>
-                    <div className="flex bg-white p-1 rounded-full border border-emerald-100 shadow-inner">
-                      <button 
-                        className={`px-4 py-1.5 text-[10px] rounded-full font-black transition-all duration-300 ${language === 'bn' ? 'bg-emerald-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-emerald-600'}`} 
-                        onClick={() => setLanguage('bn')}
-                      >
-                        বাংলা
-                      </button>
-                      <button 
-                        className={`px-4 py-1.5 text-[10px] rounded-full font-black transition-all duration-300 ${language === 'en' ? 'bg-emerald-600 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-emerald-600'}`} 
-                        onClick={() => setLanguage('en')}
-                      >
-                        EN
-                      </button>
-                    </div>
-                  </div>
-
-                  <DropdownMenuItem onClick={() => navigate("/settings")} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <Settings className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_settings')}
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator className="bg-slate-100 my-2" />
-                  
-                  <DropdownMenuItem onClick={() => setShowShareModal(true)} className="py-3 px-4 rounded-xl font-medium cursor-pointer">
-                    <Share2 className="mr-3 h-5 w-5 text-slate-400" /> {t('nav_share')}
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem onClick={handleSignOut} className="py-3 px-4 rounded-xl font-bold text-red-500 cursor-pointer hover:bg-red-50 mt-1">
-                    <LogOut className="mr-3 h-5 w-5" /> {t('nav_logout')}
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
-      <ShareModal open={showShareModal} onOpenChange={setShowShareModal} />
+
+      {/* Mobile Menu Dropdown (When Hamburger is clicked) */}
+      {isOpen && (
+        <div className="md:hidden bg-white border-t border-gray-100 shadow-xl absolute w-full animate-in slide-in-from-top-5 z-50">
+          <div className="px-4 pt-2 pb-6 space-y-2">
+            <Link to="/" className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-900 border-b border-gray-50" onClick={() => setIsOpen(false)}>Home</Link>
+            <Link to="/jobs" className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-900 border-b border-gray-50" onClick={() => setIsOpen(false)}>All Jobs</Link>
+            <Link to="/training" className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-900 border-b border-gray-50" onClick={() => setIsOpen(false)}>Training</Link>
+            <Link to="/post-job" className="block px-4 py-3 rounded-lg text-base font-bold text-green-700 bg-green-50 mt-2" onClick={() => setIsOpen(false)}>+ Post a Job</Link>
+            
+            {user && (
+              <div className="mt-2 pt-2">
+                <button onClick={() => { handleLogout(); setIsOpen(false); }} className="flex items-center gap-2 w-full text-left px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50">
+                  <LogOut className="w-4 h-4"/> Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react"; // X আইকন ইমপোর্ট
 
 const Signup = () => {
   const [role, setRole] = useState<"caregiver" | "company">("caregiver");
@@ -39,14 +40,13 @@ const Signup = () => {
     }
 
     try {
-      // 1. Sign up user with metadata (Name & Role)
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
             full_name: formData.fullName,
-            role: role, // 'caregiver' or 'company'
+            role: role,
           },
         },
       });
@@ -57,8 +57,6 @@ const Signup = () => {
         title: "Account Created!",
         description: "Please check your email to verify your account.",
       });
-      
-      // একাউন্ট খোলার পর লগইন পেজে পাঠাবো
       navigate("/login");
 
     } catch (error: any) {
@@ -77,8 +75,17 @@ const Signup = () => {
       <Navbar />
       
       <div className="flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
+        {/* Card এ relative ক্লাস দেওয়া হয়েছে যাতে X বাটন পজিশন করা যায় */}
+        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl relative">
           
+          {/* ✅ ফিক্স: Close Button (X) */}
+          <button 
+            onClick={() => navigate("/")} 
+            className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors bg-gray-100 hover:bg-red-50 p-1 rounded-full"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           <div className="text-center">
             <h2 className="mt-2 text-3xl font-extrabold text-blue-900">
               Create an Account
@@ -88,9 +95,8 @@ const Signup = () => {
             </p>
           </div>
 
-          {/* === Role Slider / Toggle === */}
+          {/* Role Slider */}
           <div className="bg-gray-100 p-1 rounded-lg flex relative">
-            {/* Slider Animation Background */}
             <div 
               className={`absolute top-1 bottom-1 w-[48%] bg-white rounded-md shadow-sm transition-all duration-300 ease-in-out ${
                 role === "company" ? "translate-x-[104%]" : "translate-x-0"
@@ -115,11 +121,8 @@ const Signup = () => {
             </button>
           </div>
 
-          {/* === Signup Form === */}
           <form className="mt-8 space-y-6" onSubmit={handleSignup}>
             <div className="space-y-4">
-              
-              {/* Name Field */}
               <div>
                 <Label htmlFor="fullName" className="text-gray-700">
                   {role === "company" ? "Company Name" : "Full Name"}
@@ -136,7 +139,6 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Email Field */}
               <div>
                 <Label htmlFor="email" className="text-gray-700">Email Address</Label>
                 <Input
@@ -151,7 +153,6 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Password Field */}
               <div>
                 <Label htmlFor="password" className="text-gray-700">Password</Label>
                 <Input
@@ -166,7 +167,6 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Confirm Password Field */}
               <div>
                 <Label htmlFor="confirmPassword" className="text-gray-700">Confirm Password</Label>
                 <Input
@@ -180,7 +180,6 @@ const Signup = () => {
                   className="mt-1"
                 />
               </div>
-
             </div>
 
             <Button

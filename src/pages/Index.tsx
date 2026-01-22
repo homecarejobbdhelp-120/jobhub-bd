@@ -21,7 +21,9 @@ const Index = () => {
           </p>
 
           <div className="flex flex-col items-center gap-6 mb-16">
-            <Link to="/login">
+            
+            {/* ✅ ফিক্স: লিংক এখন /signup এ নিয়ে যাবে */}
+            <Link to="/signup">
               <Button className="w-full sm:w-auto h-14 px-10 text-lg font-bold bg-green-500 hover:bg-green-600 text-white shadow-xl rounded-full transition-all hover:scale-105 border-2 border-green-400">
                 Get a HomeCare Job Today
               </Button>
@@ -70,7 +72,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Recent Opportunities Title */}
       <div className="container mx-auto px-4 mt-16 mb-6 flex justify-between items-end">
         <div>
            <h2 className="text-2xl md:text-3xl font-bold text-blue-900">Recent Opportunities</h2>
@@ -81,63 +82,14 @@ const Index = () => {
         </Link>
       </div>
 
-      {/* Job Cards Section (Updated with Professional Data) */}
       <div className="container mx-auto px-4 pb-20">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <JobCard
-            title="Senior Caregiver Needed"
-            company="Care Home BD"
-            location="Gulshan, Dhaka"
-            salary="25,000"
-            type="Full-time"
-            posted="2h ago"
-            description="Urgent requirement for an experienced caregiver for an elderly patient. Must know pressure check and medicine management."
-          />
-          <JobCard
-            title="Night Shift Care Specialist"
-            company="Comfort Care Ltd"
-            location="Dhanmondi, Dhaka"
-            salary="30,000"
-            type="Contract"
-            posted="5h ago"
-            description="Looking for a certified nurse for night shift duty. Patient is recovering from surgery. Safe environment provided."
-          />
-          <JobCard
-            title="Patient Care Attendant"
-            company="Private Employer"
-            location="Uttara, Dhaka"
-            salary="18,000"
-            type="Part-time"
-            posted="1d ago"
-            description="Need a female attendant for daytime support. 8 hours duty. Food and transport allowance included."
-          />
-           <JobCard
-            title="Baby Sitter / Nanny"
-            company="HomeAid Service"
-            location="Banani, Dhaka"
-            salary="15,000"
-            type="Full-time"
-            posted="2d ago"
-            description="Experienced nanny needed for a 2-year-old child. Must be caring, polite, and maintain hygiene."
-          />
-           <JobCard
-            title="Elderly Companion"
-            company="Family Support"
-            location="Mirpur, Dhaka"
-            salary="14,000"
-            type="Part-time"
-            posted="3d ago"
-            description="Simple companion job for an elderly person. Reading books, walking assistance, and talking."
-          />
-           <JobCard
-            title="Stroke Patient Care"
-            company="Medical Care BD"
-            location="Bashundhara, Dhaka"
-            salary="35,000"
-            type="Full-time"
-            posted="1w ago"
-            description="Professional nurse needed for stroke patient rehabilitation. Diploma in Nursing required. High salary."
-          />
+          <JobCard title="Senior Caregiver Needed" company="Care Home BD" location="Gulshan, Dhaka" salary="25,000" type="Full-time" posted="2h ago" description="Urgent requirement for an experienced caregiver for an elderly patient." />
+          <JobCard title="Night Shift Care Specialist" company="Comfort Care Ltd" location="Dhanmondi, Dhaka" salary="30,000" type="Contract" posted="5h ago" description="Looking for a certified nurse for night shift duty. Safe environment provided." />
+          <JobCard title="Patient Care Attendant" company="Private Employer" location="Uttara, Dhaka" salary="18,000" type="Part-time" posted="1d ago" description="Need a female attendant for daytime support. 8 hours duty." />
+           <JobCard title="Baby Sitter / Nanny" company="HomeAid Service" location="Banani, Dhaka" salary="15,000" type="Full-time" posted="2d ago" description="Experienced nanny needed for a 2-year-old child." />
+           <JobCard title="Elderly Companion" company="Family Support" location="Mirpur, Dhaka" salary="14,000" type="Part-time" posted="3d ago" description="Simple companion job for an elderly person." />
+           <JobCard title="Stroke Patient Care" company="Medical Care BD" location="Bashundhara, Dhaka" salary="35,000" type="Full-time" posted="1w ago" description="Professional nurse needed for stroke patient rehabilitation." />
         </div>
 
         <div className="mt-8 text-center md:hidden">

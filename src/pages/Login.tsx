@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react"; // X আইকন
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -37,8 +38,6 @@ const Login = () => {
         title: "Welcome Back!",
         description: "Successfully logged in.",
       });
-      
-      // লগইন সফল হলে প্রোফাইলে বা ড্যাশবোর্ডে পাঠাবো
       navigate("/profile");
 
     } catch (error: any) {
@@ -57,8 +56,16 @@ const Login = () => {
       <Navbar />
       
       <div className="flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
+        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl relative">
           
+          {/* ✅ ফিক্স: Close Button (X) */}
+          <button 
+            onClick={() => navigate("/")} 
+            className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors bg-gray-100 hover:bg-red-50 p-1 rounded-full"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           <div className="text-center">
             <h2 className="mt-2 text-3xl font-extrabold text-blue-900">
               Welcome Back
@@ -114,7 +121,6 @@ const Login = () => {
 
             <div className="text-center text-sm mt-4">
               <span className="text-gray-600">Don't have an account? </span>
-              {/* এই লিংকটি এখন Signup পেজে নিয়ে যাবে */}
               <Link to="/signup" className="font-bold text-green-600 hover:text-green-800">
                 Create one here
               </Link>

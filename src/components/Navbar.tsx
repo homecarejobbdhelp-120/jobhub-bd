@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, LogOut, Heart, Home, Plus } from "lucide-react"; // কাস্টম লোগোর জন্য আইকন
+import { Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -25,70 +25,60 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50 w-full border-b border-gray-100 font-sans h-16 md:h-20 flex items-center">
+    // ১. স্লিম হেডার (h-16), বেশি মোটা প্যাডিং বাদ দিয়েছি
+    <nav className="bg-white shadow-sm sticky top-0 z-50 w-full border-b border-gray-100 font-sans h-16 flex items-center">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center w-full">
           
-          {/* === বাম পাশ: কাস্টম ব্র্যান্ড লোগো === */}
+          {/* === কাস্টম লোগো (Deep Thought Design) === */}
           <div className="flex items-center flex-shrink-0">
-            <Link to="/" className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center gap-2.5 group">
               
-              {/* --- লোগো আইকন (মিনিংফুল ডিজাইন) --- */}
-              <div className="relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">
+              {/* --- লোগো আইকন: ঘরের ভেতরে স্টেথিসকোপ (SVG Code) --- */}
+              <div className="relative w-10 h-10 flex items-center justify-center">
+                 {/* নীল রঙের ঘর (House Outline) */}
+                 <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-blue-900 transition-transform group-hover:scale-105" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                 </svg>
                  
-                 {/* ১. ঘর (Home) - নীল (সুরক্ষা) */}
-                 <Home className="w-full h-full text-blue-900 absolute z-10" strokeWidth={2} />
-                 
-                 {/* ২. হার্ট (Care) - ঘরের ঠিক মাঝখানে সবুজ হার্ট */}
-                 <div className="absolute z-20 top-[40%] bg-white rounded-full p-[1px]">
-                    <Heart className="w-4 h-4 md:w-5 md:h-5 text-green-600 fill-green-600" />
-                 </div>
-
-                 {/* ৩. প্লাস (+) - মেডিকেল সাইন (উপরে ডানদিকে) */}
-                 <div className="absolute top-0 right-0 z-30 bg-white rounded-full border border-blue-100">
-                    <Plus className="w-3 h-3 md:w-4 md:h-4 text-green-600 stroke-[4px]" />
-                 </div>
+                 {/* সবুজ রঙের স্টেথিসকোপ (ঘরের ভেতরে হার্ট শেপ তৈরি করছে) */}
+                 <svg viewBox="0 0 24 24" className="absolute top-2 left-0 w-full h-full p-[5px]" fill="none">
+                    <path d="M4.5 9a4.5 4.5 0 0 1 9 0 4.5 4.5 0 0 1 9 0c0 4.5-5.5 8.5-9 11-3.5-2.5-9-6.5-9-11z" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" />
+                    <circle cx="12" cy="18" r="1.5" fill="#16a34a" />
+                 </svg>
               </div>
               
-              {/* --- টেক্সট লোগো --- */}
-              <div className="flex flex-col justify-center -space-y-1">
-                <div className="flex items-center text-lg md:text-2xl font-extrabold tracking-tight">
+              {/* --- লোগো টেক্সট --- */}
+              <div className="flex flex-col justify-center -space-y-0.5">
+                <div className="flex items-center text-xl md:text-2xl font-extrabold tracking-tight">
                   <span className="text-blue-900">HomeCare</span>
                   <span className="text-green-600 ml-1">JobBD</span>
                 </div>
-                <span className="text-[9px] md:text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase pl-0.5">
+                {/* ট্যাগলাইন (মোবাইলে লুকানো থাকবে) */}
+                <span className="text-[9px] font-bold text-gray-400 tracking-[0.15em] uppercase hidden md:block">
                   Medical & Care
                 </span>
               </div>
             </Link>
           </div>
 
-          {/* === ডান পাশ: লগইন বাটন (মোবাইল ফ্রেন্ডলি) === */}
+          {/* === ডান পাশ: অ্যাকশন === */}
           <div className="flex items-center justify-end gap-3 flex-1 md:flex-none">
             
-            {/* ১. মোবাইল ভিউ: সিরিয়াল বাটন (Login & Create) */}
-            <div className="md:hidden flex flex-col items-end gap-1 mr-1">
+            {/* ২. মোবাইল ভিউ: শুধু ক্লিন "Log In" টেক্সট (কোনো মোটা বাটন না) */}
+            <div className="md:hidden flex items-center gap-3 mr-1">
                 {!user ? (
-                    <>
-                        <Link to="/login">
-                            <span className="block text-[10px] font-bold px-3 py-1 border border-blue-600 text-blue-700 rounded-md bg-blue-50 leading-none active:scale-95 transition-transform text-center w-[85px]">
-                                Login
-                            </span>
-                        </Link>
-                        <Link to="/login">
-                            <span className="block text-[10px] font-bold px-3 py-1 bg-green-600 text-white rounded-md leading-none active:scale-95 transition-transform text-center w-[85px] border border-green-700 shadow-sm">
-                                Create Account
-                            </span>
-                        </Link>
-                    </>
+                    <Link to="/login" className="text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+                        Log In
+                    </Link>
                 ) : (
-                    <Link to="/profile" className="bg-blue-100 p-2 rounded-full text-blue-900 border border-blue-200">
-                        <User className="w-5 h-5" />
+                    <Link to="/profile" className="bg-blue-50 p-1.5 rounded-full text-blue-900 border border-blue-100">
+                        <User className="w-4 h-4" />
                     </Link>
                 )}
             </div>
 
-            {/* ২. ডেস্কটপ মেনু */}
+            {/* ৩. ডেস্কটপ মেনু */}
             <div className="hidden md:flex items-center space-x-8">
                 <Link to="/" className="text-gray-600 hover:text-blue-900 font-semibold transition text-sm uppercase">Home</Link>
                 <Link to="/jobs" className="text-gray-600 hover:text-blue-900 font-semibold transition text-sm uppercase">Jobs</Link>
@@ -114,8 +104,8 @@ const Navbar = () => {
                 )}
             </div>
 
-            {/* ৩. মোবাইল হ্যামবার্গার */}
-            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-gray-600 hover:text-blue-900 p-1 rounded-md hover:bg-gray-100 transition border border-gray-200">
+            {/* ৪. মোবাইল হ্যামবার্গার */}
+            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-gray-600 hover:text-blue-900 p-1 rounded-md hover:bg-gray-100 transition">
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
@@ -130,6 +120,10 @@ const Navbar = () => {
             <Link to="/" className="block px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>Home</Link>
             <Link to="/jobs" className="block px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>All Jobs</Link>
             <Link to="/training" className="block px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>Training</Link>
+            
+            {!user && (
+                <Link to="/login" className="block px-4 py-3 rounded-lg text-sm font-bold text-green-700 bg-green-50 mt-2" onClick={() => setIsOpen(false)}>Create Account</Link>
+            )}
             
             {user && (
               <div className="mt-2 pt-2">

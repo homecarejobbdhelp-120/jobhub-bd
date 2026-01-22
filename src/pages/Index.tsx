@@ -11,7 +11,6 @@ const Index = () => {
       <Navbar />
 
       {/* === HERO SECTION === */}
-      {/* ১. প্যাডিং কমিয়ে pt-10 করেছি (আগে pt-20 ছিল) - এখন স্পেস কম হবে */}
       <div className="relative bg-blue-900 pt-10 pb-32 text-center text-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6">
@@ -21,27 +20,22 @@ const Index = () => {
             The most professional platform for Caregivers & Nurses. Connect with verified homecare services and build your career.
           </p>
 
-          {/* Buttons Section */}
           <div className="flex flex-col items-center gap-6 mb-16">
             
-            {/* Main CTA (Green Button) */}
-            <Link to="/jobs">
+            {/* ✅ ফিক্স: এখানে লিংক /jobs এর বদলে /login করা হয়েছে যাতে একাউন্ট খুলতে বলে */}
+            <Link to="/login">
               <Button className="w-full sm:w-auto h-14 px-10 text-lg font-bold bg-green-500 hover:bg-green-600 text-white shadow-xl rounded-full transition-all hover:scale-105 border-2 border-green-400">
                 Get a HomeCare Job Today
               </Button>
             </Link>
 
-            {/* ২. বাটন ফিক্স: সাদা এবং গোলাপী কালার */}
             <div className="flex flex-row gap-4 justify-center w-full">
-              
-              {/* Post a Job: সাদা ব্যাকগ্রাউন্ড + নীল টেক্সট (প্রফেশনাল লুক) */}
               <Link to="/post-job">
                 <Button className="h-12 px-6 text-sm md:text-base font-bold bg-white text-blue-900 hover:bg-gray-100 rounded-full shadow-lg border-0">
                   Post a Job
                 </Button>
               </Link>
 
-              {/* Training: পিংক (গোলাপী) ব্যাকগ্রাউন্ড + সাদা টেক্সট (চোখে পড়ার মতো) */}
               <Link to="/training">
                 <Button className="h-12 px-6 text-sm md:text-base font-bold bg-pink-600 text-white hover:bg-pink-700 rounded-full shadow-lg border-0">
                   Need Training?
@@ -50,7 +44,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Stats Section */}
           <div className="bg-white text-gray-800 rounded-3xl shadow-xl p-8 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center border-b-4 border-green-500">
             <div className="text-center">
               <div className="flex justify-center items-center gap-2 mb-1">
@@ -80,7 +73,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Recent Opportunities Title */}
       <div className="container mx-auto px-4 mt-16 mb-6 flex justify-between items-end">
         <div>
            <h2 className="text-2xl md:text-3xl font-bold text-blue-900">Recent Opportunities</h2>
@@ -91,51 +83,14 @@ const Index = () => {
         </Link>
       </div>
 
-      {/* Job Cards Section */}
       <div className="container mx-auto px-4 pb-20">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <JobCard
-            title="Senior Caregiver Needed"
-            location="Gulshan, Dhaka"
-            salary="18,000"
-            type="Full-time"
-            posted="2 days ago"
-          />
-          <JobCard
-            title="Patient Care Attendant"
-            location="Uttara, Dhaka"
-            salary="15,000"
-            type="Part-time"
-            posted="1 day ago"
-          />
-          <JobCard
-            title="Registered Nurse for Home"
-            location="Dhanmondi, Dhaka"
-            salary="25,000"
-            type="Contract"
-            posted="Just now"
-          />
-           <JobCard
-            title="Baby Sitter / Nanny"
-            location="Banani, Dhaka"
-            salary="12,000"
-            type="Full-time"
-            posted="3 days ago"
-          />
-           <JobCard
-            title="Elderly Companion"
-            location="Mirpur, Dhaka"
-            salary="14,000"
-            type="Part-time"
-            posted="5 hours ago"
-          />
-           <JobCard
-            title="Stroke Patient Care"
-            location="Bashundhara, Dhaka"
-            salary="20,000"
-            type="Full-time"
-            posted="1 week ago"
-          />
+          <JobCard title="Senior Caregiver Needed" location="Gulshan, Dhaka" salary="18,000" type="Full-time" posted="2 days ago" />
+          <JobCard title="Patient Care Attendant" location="Uttara, Dhaka" salary="15,000" type="Part-time" posted="1 day ago" />
+          <JobCard title="Registered Nurse for Home" location="Dhanmondi, Dhaka" salary="25,000" type="Contract" posted="Just now" />
+           <JobCard title="Baby Sitter / Nanny" location="Banani, Dhaka" salary="12,000" type="Full-time" posted="3 days ago" />
+           <JobCard title="Elderly Companion" location="Mirpur, Dhaka" salary="14,000" type="Part-time" posted="5 hours ago" />
+           <JobCard title="Stroke Patient Care" location="Bashundhara, Dhaka" salary="20,000" type="Full-time" posted="1 week ago" />
         </div>
 
         <div className="mt-8 text-center md:hidden">

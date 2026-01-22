@@ -1,21 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
-import BottomNavigation from "@/components/BottomNavigation";
+import Navbar from "@/components/Navbar"; 
+import MobileCompanyBottomNav from "@/components/company/MobileCompanyBottomNav";
+import { Bell } from "lucide-react";
+
+// আপনার তৈরি করা কম্পোনেন্টগুলো ইমপোর্ট
+import CompanyMenu from "@/components/company/CompanyMenu";
+import CompanyFeedTab from "@/components/company/CompanyFeedTab"; 
 import MyJobsTab from "@/components/company/MyJobsTab";
 import PostJobTab from "@/components/company/PostJobTab";
-import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import ApplicantsTab from "@/components/company/ApplicantsTab";
-import CompanyFeedTab from "@/components/company/CompanyFeedTab";
-import MessagesTab from "@/components/caregiver/MessagesTab";
-import Navbar from "@/components/Navbar";
-import CompactHeader from "@/components/CompactHeader";
+import CompanyProfileTab from "@/components/company/CompanyProfileTab";
+import MessagesTab from "@/components/caregiver/MessagesTab"; // মেসেজ ট্যাব (কেয়ারগিভার ফোল্ডার থেকে)
 
 const CompanyDashboard = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const currentTab = searchParams.get("tab") || "jobs";
+  
+  // ডিফল্ট ট্যাব 'home' (আগের কোডে 'jobs' ছিল, এখন আমরা 'home' দিচ্ছি)
+  const currentTab = searchParams.get("tab") || "home";
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -26,15 +31,15 @@ const CompanyDashboard = () => {
         return;
       }
 
-      // Verify user role
+      // রোল চেক: যদি কোম্পানি না হয়, তবে কেয়ারগিভার ড্যাশবোর্ডে পাঠাবে
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      if (roleData?.role !== "employer") {
-        navigate("/dashboard/caregiver");
+      if (roleData?.role !== "employer" && roleData?.role !== "company") {
+        navigate("/dashboard/caregiver"); 
         return;
       }
 
@@ -44,46 +49,87 @@ const CompanyDashboard = () => {
     checkAuth();
   }, [navigate]);
 
+  // ট্যাব পরিবর্তনের ফাংশন
+  const handleTabChange = (tab: string) => {
+    setSearchParams({ tab });
+    window.scrollTo(0, 0); 
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Loading...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-14">
-      {/* Desktop: Full Navbar */}
-      <div className="hidden md:block">
+    <div className="min-h-screen bg-gray-50 pb-24 md:pb-10 font-sans">
+      
+      {/* --- Desktop Navbar --- */}
+      <div className="hidden md:block sticky top-0 z-50">
         <Navbar />
       </div>
 
-      {/* Mobile: Compact Header with Hamburger */}
-      <div className="md:hidden">
-        <CompactHeader />
-      </div>
+      {/* --- Mobile Top Bar (Header) --- */}
+      {/* শুধুমাত্র মেনু ট্যাব ছাড়া বাকি সব ট্যাবে দেখাবে */}
+      {currentTab !== "menu" && (
+        <div className="md:hidden bg-white px-4 py-3 shadow-sm sticky top-0 z-40 flex justify-between items-center">
+           <div className="flex items-center gap-2">
+             <h1 className="text-xl font-bold text-blue-900">
+               HomeCare<span className="text-green-500">JobBD</span>
+             </h1>
+             <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
+               Employer
+             </span>
+           </div>
+           
+           <div className="relative cursor-pointer hover:bg-gray-100 p-2 rounded-full transition">
+              <Bell className="w-6 h-6 text-gray-600" />
+              <span className="absolute top-1 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+           </div>
+        </div>
+      )}
 
-      {/* Main Content */}
-      <main className="px-3 py-3 max-w-lg mx-auto md:max-w-4xl md:px-4 md:py-6">
-        {currentTab === "jobs" && <MyJobsTab />}
-        {currentTab === "post" && <PostJobTab />}
-        {currentTab === "profile" && <CompanyProfileTab />}
-        {currentTab === "applicants" && <ApplicantsTab />}
-        {currentTab === "feed" && <CompanyFeedTab />}
-        {currentTab === "messages" && (
-          <MessagesTab
-            initialPartnerId={searchParams.get("partnerId") || undefined}
-            initialPartnerName={searchParams.get("partnerName") || undefined}
-            initialPartnerCompany={searchParams.get("partnerCompany") || undefined}
-          />
-        )}
+      {/* --- Main Content Area --- */}
+      <main className="max-w-5xl mx-auto px-0 md:px-4 md:py-6">
+        <div className="md:bg-white md:rounded-xl md:shadow-sm md:min-h-[600px] md:p-6 p-0">
+            
+            {/* 1. Home Feed */}
+            {currentTab === "home" && <CompanyFeedTab />}
+
+            {/* 2. My Jobs List */}
+            {currentTab === "jobs" && <MyJobsTab />}
+
+            {/* 3. Post a Job */}
+            {currentTab === "post" && <PostJobTab />}
+
+            {/* 4. Applicants / CVs */}
+            {currentTab === "applicants" && <ApplicantsTab />}
+
+            {/* 5. Company Menu (Settings, etc.) */}
+            {currentTab === "menu" && <CompanyMenu />}
+
+            {/* 6. Profile */}
+            {currentTab === "profile" && <CompanyProfileTab />}
+
+            {/* 7. Messages */}
+            {currentTab === "messages" && (
+                <div className="p-3">
+                    <MessagesTab 
+                        initialPartnerId={searchParams.get("partnerId") || undefined}
+                        initialPartnerName={searchParams.get("partnerName") || undefined}
+                        initialPartnerCompany={searchParams.get("partnerCompany") || undefined}
+                    />
+                </div>
+            )}
+
+        </div>
       </main>
 
-      {/* Mobile: Bottom Navigation */}
-      <div className="md:hidden">
-        <BottomNavigation role="employer" />
-      </div>
+      {/* --- Mobile Bottom Navigation (Special Company Version) --- */}
+      <MobileCompanyBottomNav activeTab={currentTab} onTabChange={handleTabChange} />
+      
     </div>
   );
 };

@@ -4,73 +4,62 @@
 
 @layer base {
   :root {
-    /* ✨ CHANGE 1: Modern Vibrant Background (একদম সাদা নয়, হালকা নীলাভ আভা) */
-    --background: 210 50% 99%; 
-    --foreground: 222 47% 11%;
-
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    /* ✨ CHANGE 2: Electric Emerald (আগের চেয়ে উজ্জ্বল সবুজ) */
-    --primary: 150 100% 38%; /* Bright Green like Upwork/Fiverr */
-    --primary-foreground: 0 0% 100%;
-
-    /* Deep Navy for contrast */
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 0 0% 100%;
-
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
-    --accent-foreground: 222 47% 11%;
-
+    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 150 100% 38%;
-
-    --radius: 0.75rem; /* একটু বেশি গোল (Rounded) */
-    
-    /* ✨ CHANGE 3: Modern Shadows (রঙিন শ্যাডো) */
-    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 10px 40px -3px rgba(16, 185, 129, 0.15); /* Greenish glow */
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
   }
-
+ 
   .dark {
-    --background: 222 47% 11%;
+    --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    /* Dark mode colors skipped for brevity */
-  }
-
-  html {
-    font-size: 15px; /* ফন্ট সাইজ একটু বড় করলাম */
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  /* ✨ CHANGE 4: Cool Background Mesh Gradient */
-  body {
-    @apply bg-background text-foreground antialiased;
-    background-image: 
-      radial-gradient(at 0% 0%, hsla(150,100%,93%,0.5) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(210,100%,96%,0.5) 0px, transparent 50%);
-    background-attachment: fixed; /* ব্যাকগ্রাউন্ড ফিক্সড থাকবে */
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
-@layer utilities {
-  /* Gradient Text Utility */
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-blue-600;
-  }
+/* === এই অংশটি জোর করে ব্যাকগ্রাউন্ড সাদা করবে === */
+body {
+  @apply bg-white text-slate-900 antialiased;
+  background-color: #ffffff !important; /* Force White */
+}
+
+html {
+  background-color: #ffffff !important;
+}
+
+#root {
+  background-color: #ffffff !important;
+  min-h-screen;
 }

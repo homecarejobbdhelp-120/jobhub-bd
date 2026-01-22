@@ -7,12 +7,12 @@ import { Briefcase, Users, Star } from "lucide-react";
 
 const Index = () => {
   return (
-    // ✅ ফিক্স: ব্যাকগ্রাউন্ড কালার 'bg-white' করা হয়েছে
     <div className="min-h-screen bg-white flex flex-col font-sans">
       <Navbar />
 
       {/* === HERO SECTION === */}
-      <div className="relative bg-blue-900 pt-20 pb-32 text-center text-white overflow-hidden">
+      {/* ১. প্যাডিং কমিয়ে pt-10 করেছি (আগে pt-20 ছিল) - এখন স্পেস কম হবে */}
+      <div className="relative bg-blue-900 pt-10 pb-32 text-center text-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6">
             Find <span className="text-green-400">Trusted Home Care</span> Jobs in Bangladesh
@@ -21,21 +21,29 @@ const Index = () => {
             The most professional platform for Caregivers & Nurses. Connect with verified homecare services and build your career.
           </p>
 
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+          {/* Buttons Section */}
+          <div className="flex flex-col items-center gap-6 mb-16">
+            
+            {/* Main CTA (Green Button) */}
             <Link to="/jobs">
-              <Button className="w-full sm:w-auto h-14 px-8 text-lg font-bold bg-green-500 hover:bg-green-600 text-white shadow-lg rounded-full transition-all hover:scale-105">
+              <Button className="w-full sm:w-auto h-14 px-10 text-lg font-bold bg-green-500 hover:bg-green-600 text-white shadow-xl rounded-full transition-all hover:scale-105 border-2 border-green-400">
                 Get a HomeCare Job Today
               </Button>
             </Link>
-            <div className="flex gap-4 justify-center">
+
+            {/* ২. বাটন ফিক্স: সাদা এবং গোলাপী কালার */}
+            <div className="flex flex-row gap-4 justify-center w-full">
+              
+              {/* Post a Job: সাদা ব্যাকগ্রাউন্ড + নীল টেক্সট (প্রফেশনাল লুক) */}
               <Link to="/post-job">
-                <Button variant="outline" className="h-14 px-6 text-base font-bold text-white border-blue-400 hover:bg-blue-800 hover:text-white rounded-full">
+                <Button className="h-12 px-6 text-sm md:text-base font-bold bg-white text-blue-900 hover:bg-gray-100 rounded-full shadow-lg border-0">
                   Post a Job
                 </Button>
               </Link>
+
+              {/* Training: পিংক (গোলাপী) ব্যাকগ্রাউন্ড + সাদা টেক্সট (চোখে পড়ার মতো) */}
               <Link to="/training">
-                <Button variant="outline" className="h-14 px-6 text-base font-bold text-white border-blue-400 hover:bg-blue-800 hover:text-white rounded-full">
+                <Button className="h-12 px-6 text-sm md:text-base font-bold bg-pink-600 text-white hover:bg-pink-700 rounded-full shadow-lg border-0">
                   Need Training?
                 </Button>
               </Link>

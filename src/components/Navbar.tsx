@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut, Home, Stethoscope } from "lucide-react"; // Home এবং Stethoscope আইকন আনলাম
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -25,64 +25,44 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50 w-full border-b border-gray-100 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
+    <nav className="bg-white shadow-sm sticky top-0 z-50 w-full border-b border-gray-100 font-sans h-14 md:h-20 flex items-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center w-full">
           
-          {/* === বাম পাশ: লোগো (স্পষ্ট ও বড়) === */}
+          {/* === বাম পাশ: কাস্টম লোগো + নাম === */}
           <div className="flex items-center flex-shrink-0">
-            <Link to="/" className="flex items-center gap-2">
-              {/* লোগো সাইজ মোবাইলে h-12 (৪৮px) করেছি যাতে স্পষ্ট দেখা যায় */}
-              <img 
-                src="/logo.png" 
-                alt="HomeCare Logo" 
-                className="h-12 w-12 md:h-14 md:w-14 object-contain"
-                onError={(e) => {
-                    e.currentTarget.style.display = 'none'; 
-                }}
-              />
+            <Link to="/" className="flex items-center gap-2 group">
               
-              {/* টাইটেল */}
+              {/* --- কাস্টম কোড লোগো (Home + Stethoscope) --- */}
+              <div className="relative flex items-center justify-center bg-blue-50 p-1 rounded-xl w-9 h-9 md:w-11 md:h-11 group-hover:bg-blue-100 transition-colors">
+                 {/* পেছনের হোম আইকন (নীল) */}
+                 <Home className="w-full h-full text-blue-900 absolute opacity-90" strokeWidth={1.5} />
+                 {/* সামনের স্টেথিসকোপ আইকন (সবুজ) */}
+                 <Stethoscope className="w-3/5 h-3/5 text-green-600 relative z-10 bg-white/80 rounded-full p-0.5" strokeWidth={2} />
+              </div>
+              
+              {/* --- আলাদা টেক্সট নাম --- */}
               <div className="flex flex-col justify-center">
                 <div className="flex items-center text-lg md:text-2xl font-extrabold tracking-tight leading-none">
                   <span className="text-blue-900">HomeCare</span>
-                  <span className="text-green-600 ml-1">Job BD</span>
+                  <span className="text-green-600 ml-0.5">JobBD</span>
                 </div>
-                <span className="text-[10px] font-semibold text-gray-500 tracking-wider uppercase hidden md:block">
-                  Trusted Medical Jobs
-                </span>
               </div>
             </Link>
           </div>
 
-          {/* === ডান পাশ: মোবাইল বাটন (সিরিয়াল) === */}
+          {/* === ডান পাশ: অ্যাকশন বাটন === */}
           <div className="flex items-center justify-end gap-3 flex-1 md:flex-none">
             
-            {/* ১. মোবাইলে সিরিয়াল বাটন (Login & Create Account) */}
-            <div className="md:hidden flex flex-col items-end gap-1 mr-1">
+            {/* ১. মোবাইল ভিউ: শুধু ক্লিন "Log In" টেক্সট */}
+            <div className="md:hidden flex items-center gap-3 mr-1">
                 {!user ? (
-                    <>
-                        {/* Login Button */}
-                        <Link to="/login">
-                            <span className="block text-[11px] font-bold px-3 py-1 border border-blue-600 text-blue-700 rounded bg-blue-50 leading-none active:scale-95 transition-transform text-center w-24">
-                                Login
-                            </span>
-                        </Link>
-                        
-                        {/* OR text (Optional, clean look) */}
-                        {/* <span className="text-[8px] text-gray-400 -my-0.5 pr-8">or</span> */}
-
-                        {/* Create Account Button */}
-                        <Link to="/login">
-                            <span className="block text-[11px] font-bold px-3 py-1 bg-green-600 text-white rounded leading-none active:scale-95 transition-transform text-center w-24 border border-green-700">
-                                Create Account
-                            </span>
-                        </Link>
-                    </>
+                    <Link to="/login" className="text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+                        Log In
+                    </Link>
                 ) : (
-                    // লগইন করা থাকলে প্রোফাইল আইকন
-                    <Link to="/profile" className="bg-blue-100 p-2 rounded-full text-blue-900 border border-blue-200">
-                        <User className="w-5 h-5" />
+                    <Link to="/profile" className="bg-blue-50 p-1.5 rounded-full text-blue-900 border border-blue-100">
+                        <User className="w-4 h-4" />
                     </Link>
                 )}
             </div>
@@ -114,8 +94,8 @@ const Navbar = () => {
             </div>
 
             {/* ৩. মোবাইল হ্যামবার্গার মেনু */}
-            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-gray-700 hover:text-blue-900 p-1.5 rounded-md hover:bg-gray-100 transition border border-gray-200 flex-shrink-0">
-              {isOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
+            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-gray-600 hover:text-blue-900 p-1 rounded-md hover:bg-gray-100 transition border border-gray-200">
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
 
@@ -124,16 +104,19 @@ const Navbar = () => {
 
       {/* মোবাইল ড্রপডাউন মেনু */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 shadow-xl absolute w-full animate-in slide-in-from-top-5 z-50">
+        <div className="md:hidden bg-white border-t border-gray-100 shadow-xl absolute top-14 left-0 w-full animate-in slide-in-from-top-2 z-40">
           <div className="px-4 pt-2 pb-6 space-y-2">
-            <Link to="/" className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>Home</Link>
-            <Link to="/jobs" className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>All Jobs</Link>
-            <Link to="/training" className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>Training</Link>
-            <Link to="/post-job" className="block px-4 py-3 rounded-lg text-base font-bold text-green-700 bg-green-50 mt-2" onClick={() => setIsOpen(false)}>+ Post a Job</Link>
+            <Link to="/" className="block px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>Home</Link>
+            <Link to="/jobs" className="block px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>All Jobs</Link>
+            <Link to="/training" className="block px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 border-b border-gray-50" onClick={() => setIsOpen(false)}>Training</Link>
+            
+            {!user && (
+                <Link to="/login" className="block px-4 py-3 rounded-lg text-sm font-bold text-green-700 bg-green-50 mt-2" onClick={() => setIsOpen(false)}>Create Account</Link>
+            )}
             
             {user && (
               <div className="mt-2 pt-2">
-                <button onClick={() => { handleLogout(); setIsOpen(false); }} className="flex items-center gap-2 w-full text-left px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50">
+                <button onClick={() => { handleLogout(); setIsOpen(false); }} className="flex items-center gap-2 w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50">
                   <LogOut className="w-4 h-4"/> Logout
                 </button>
               </div>

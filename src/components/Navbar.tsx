@@ -38,29 +38,29 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
-      <div className="container mx-auto px-4 h-20 sm:h-24 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-24 flex items-center justify-between">
         
-        {/* লোগো এবং টাইটেল সেকশন */}
+        {/* লোগো এবং সাবটাইটেল সেকশন - মোবাইল ও ডেক্সটপ এর জন্য আলাদাভাবে সাজানো */}
         <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
           <img 
             src="/app-logo.png" 
             alt="HomeCare JobBD" 
-            className="h-12 w-12 sm:h-16 sm:w-16 transition-transform group-hover:scale-105 object-contain" 
+            className="h-14 w-14 sm:h-16 sm:w-16 transition-transform group-hover:scale-105 object-contain" 
           />
-          <div className="flex flex-col leading-none">
-            <span className="text-lg sm:text-xl font-extrabold text-blue-900 tracking-tight">
+          <div className="flex flex-col justify-center">
+            <span className="text-lg sm:text-xl font-extrabold text-blue-900 leading-none">
               HomeCare <span className="text-green-600">JobBD</span>
             </span>
-            {/* মোবাইল ফ্রেন্ডলি সাবটাইটেল */}
-            <div className="flex flex-wrap gap-x-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-tighter sm:tracking-tight mt-0.5 max-w-[150px] sm:max-w-none">
-              <span className="text-green-600">Connecting</span>
-              <span className="text-blue-900">Caregivers, Nurses</span>
+            {/* সাবটাইটেল - মোবাইলে সুন্দরভাবে লাইন ব্রেক হবে */}
+            <div className="flex flex-wrap text-[8px] sm:text-[10px] font-bold uppercase mt-1 leading-tight max-w-[140px] sm:max-w-none">
+              <span className="text-green-600 mr-1">Connecting</span>
+              <span className="text-blue-900 mr-1">Caregivers, Nurses</span>
               <span className="text-green-600">& Companies</span>
             </div>
           </div>
         </Link>
 
-        {/* Desktop Menu (কম্পিউটারের জন্য) */}
+        {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
           <Link to="/" className="text-gray-600 hover:text-green-600 font-medium transition">Home</Link>
           <Link to="/jobs" className="text-gray-600 hover:text-green-600 font-medium transition">Browse Jobs</Link>
@@ -94,20 +94,22 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Buttons (মোবাইলের জন্য মেনু বাটন) */}
-        <div className="flex items-center gap-2 md:hidden">
+        {/* Mobile Buttons */}
+        <div className="flex items-center gap-1 sm:gap-2 md:hidden">
           {!user && (
             <Link to="/login">
-              <Button size="sm" variant="ghost" className="text-blue-700 font-bold text-xs px-2">Log In</Button>
+              <Button size="sm" variant="outline" className="text-blue-700 border-blue-200 font-bold text-[10px] px-2 h-8">
+                Log In
+              </Button>
             </Link>
           )}
           <button className="p-2 text-gray-600" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X /> : <Menu />}
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Dropdown (মোবাইল মেনু খুললে যা দেখাবে) */}
+      {/* Mobile Dropdown */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-lg py-4 px-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
           <Link to="/" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded" onClick={() => setMenuOpen(false)}>Home</Link>
@@ -125,8 +127,12 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 mt-2">
-              <Link to="/login" onClick={() => setMenuOpen(false)}><Button variant="outline" className="w-full border-blue-600 text-blue-600">Log In</Button></Link>
-              <Link to="/signup" onClick={() => setMenuOpen(false)}><Button className="w-full bg-green-600 hover:bg-green-700">Sign Up</Button></Link>
+              <Link to="/login" onClick={() => setMenuOpen(false)}>
+                <Button variant="outline" className="w-full border-blue-600 text-blue-600">Log In</Button>
+              </Link>
+              <Link to="/signup" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full bg-green-600 hover:bg-green-700">Sign Up</Button>
+              </Link>
             </div>
           )}
         </div>

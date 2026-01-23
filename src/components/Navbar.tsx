@@ -40,7 +40,7 @@ const Navbar = () => {
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
       <div className="container mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
         
-        {/* লোগো এবং টাইটেল - এক লাইনের ক্লিন ডিজাইন */}
+        {/* লোগো এবং টাইটেল - ধূসর রঙ বাদ দিয়ে নীল ও সবুজের কম্বিনেশন */}
         <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
           <img 
             src="/app-logo.png" 
@@ -51,10 +51,12 @@ const Navbar = () => {
             <span className="text-base sm:text-xl font-extrabold text-blue-900 leading-tight">
               HomeCare <span className="text-green-600">JobBD</span>
             </span>
-            {/* এক লাইনের সাবটাইটেল - মোবাইলে খুব ছোট এবং এক লাইনেই থাকবে */}
-            <span className="text-[7px] sm:text-[10px] font-bold uppercase text-gray-400 tracking-tight whitespace-nowrap">
-              Connecting <span className="text-green-600">Caregivers</span>, <span className="text-blue-900">Nurses</span> & <span className="text-green-600">Companies</span>
-            </span>
+            {/* সাবটাইটেল - আপনার চাহিদা অনুযায়ী নীল এবং সবুজ রঙের মিশ্রণ */}
+            <div className="flex gap-1 text-[7px] sm:text-[10px] font-bold uppercase tracking-tight whitespace-nowrap mt-0.5">
+              <span className="text-green-600">Connecting</span>
+              <span className="text-blue-900">Caregivers, Nurses</span>
+              <span className="text-green-600">& Companies</span>
+            </div>
           </div>
         </Link>
 

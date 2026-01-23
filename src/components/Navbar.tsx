@@ -40,9 +40,8 @@ const Navbar = () => {
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         
-        {/* লোগো সেকশন */}
+        {/* লোগো সেকশন - app-logo.png ব্যবহার করা হয়েছে */}
         <Link to="/" className="flex items-center gap-2 group">
-          {/* ফাইলের নাম এখানে app-logo.png দেওয়া হয়েছে */}
           <img 
             src="/app-logo.png" 
             alt="HomeCare JobBD" 

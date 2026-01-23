@@ -38,25 +38,23 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
-      <div className="container mx-auto px-4 h-24 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
         
-        {/* লোগো এবং সাবটাইটেল সেকশন - মোবাইল ও ডেক্সটপ এর জন্য আলাদাভাবে সাজানো */}
+        {/* লোগো এবং টাইটেল - এক লাইনের ক্লিন ডিজাইন */}
         <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
           <img 
             src="/app-logo.png" 
             alt="HomeCare JobBD" 
-            className="h-14 w-14 sm:h-16 sm:w-16 transition-transform group-hover:scale-105 object-contain" 
+            className="h-10 w-10 sm:h-14 sm:w-14 transition-transform group-hover:scale-105 object-contain" 
           />
           <div className="flex flex-col justify-center">
-            <span className="text-lg sm:text-xl font-extrabold text-blue-900 leading-none">
+            <span className="text-base sm:text-xl font-extrabold text-blue-900 leading-tight">
               HomeCare <span className="text-green-600">JobBD</span>
             </span>
-            {/* সাবটাইটেল - মোবাইলে সুন্দরভাবে লাইন ব্রেক হবে */}
-            <div className="flex flex-wrap text-[8px] sm:text-[10px] font-bold uppercase mt-1 leading-tight max-w-[140px] sm:max-w-none">
-              <span className="text-green-600 mr-1">Connecting</span>
-              <span className="text-blue-900 mr-1">Caregivers, Nurses</span>
-              <span className="text-green-600">& Companies</span>
-            </div>
+            {/* এক লাইনের সাবটাইটেল - মোবাইলে খুব ছোট এবং এক লাইনেই থাকবে */}
+            <span className="text-[7px] sm:text-[10px] font-bold uppercase text-gray-400 tracking-tight whitespace-nowrap">
+              Connecting <span className="text-green-600">Caregivers</span>, <span className="text-blue-900">Nurses</span> & <span className="text-green-600">Companies</span>
+            </span>
           </div>
         </Link>
 
@@ -94,17 +92,17 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Buttons */}
-        <div className="flex items-center gap-1 sm:gap-2 md:hidden">
+        {/* Mobile Action Buttons */}
+        <div className="flex items-center gap-2 md:hidden">
           {!user && (
             <Link to="/login">
-              <Button size="sm" variant="outline" className="text-blue-700 border-blue-200 font-bold text-[10px] px-2 h-8">
+              <Button size="sm" variant="outline" className="text-blue-700 border-blue-100 font-bold text-[10px] px-2 h-7">
                 Log In
               </Button>
             </Link>
           )}
-          <button className="p-2 text-gray-600" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          <button className="p-1 text-gray-500" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>

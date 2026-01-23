@@ -38,23 +38,15 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-24 flex items-center justify-between">
         
-        {/* লোগো সেকশন - app-logo.png ব্যবহার করা হয়েছে */}
-        <Link to="/" className="flex items-center gap-2 group">
+        {/* লোগো সেকশন - শুধুমাত্র লোগো আইকন বড় আকারে রাখা হয়েছে */}
+        <Link to="/" className="flex items-center group">
           <img 
             src="/app-logo.png" 
             alt="HomeCare JobBD" 
-            className="h-10 w-10 transition-transform group-hover:scale-105" 
+            className="h-20 w-20 transition-transform group-hover:scale-105 object-contain" 
           />
-          <div className="flex flex-col leading-none">
-            <span className="text-xl font-extrabold text-blue-900 tracking-tight">
-              HomeCare <span className="text-green-600">JobBD</span>
-            </span>
-            <span className="text-[10px] text-gray-500 font-medium tracking-wider hidden sm:block">
-              FIND YOUR CAREER
-            </span>
-          </div>
         </Link>
 
         {/* Desktop Menu */}

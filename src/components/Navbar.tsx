@@ -38,15 +38,23 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
-      <div className="container mx-auto px-4 h-24 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         
-        {/* লোগো সেকশন - শুধুমাত্র লোগো আইকন বড় আকারে রাখা হয়েছে */}
-        <Link to="/" className="flex items-center group">
+        {/* লোগো এবং টাইটেল সেকশন - টাইটেল ফিরিয়ে আনা হয়েছে */}
+        <Link to="/" className="flex items-center gap-3 group">
           <img 
             src="/app-logo.png" 
             alt="HomeCare JobBD" 
-            className="h-20 w-20 transition-transform group-hover:scale-105 object-contain" 
+            className="h-14 w-14 transition-transform group-hover:scale-105 object-contain" 
           />
+          <div className="flex flex-col leading-none">
+            <span className="text-xl font-extrabold text-blue-900 tracking-tight">
+              HomeCare <span className="text-green-600">JobBD</span>
+            </span>
+            <span className="text-[10px] text-gray-500 font-medium tracking-wider hidden sm:block">
+              FIND YOUR CAREER
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Menu */}
@@ -91,7 +99,7 @@ const Navbar = () => {
 
       {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-lg py-4 px-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
+        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-lg py-4 px-4 flex flex-col gap-4">
           <Link to="/" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded">Home</Link>
           <Link to="/jobs" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded">Browse Jobs</Link>
           <Link to="/training" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded">Training</Link>

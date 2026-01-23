@@ -38,21 +38,21 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
-      <div className="container mx-auto px-4 h-24 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-20 sm:h-24 flex items-center justify-between">
         
-        {/* লোগো এবং কালারফুল সাবটাইটেল সেকশন */}
-        <Link to="/" className="flex items-center gap-3 group">
+        {/* লোগো এবং টাইটেল সেকশন */}
+        <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
           <img 
             src="/app-logo.png" 
             alt="HomeCare JobBD" 
-            className="h-16 w-16 transition-transform group-hover:scale-105 object-contain" 
+            className="h-12 w-12 sm:h-16 sm:w-16 transition-transform group-hover:scale-105 object-contain" 
           />
-          <div className="flex flex-col leading-tight">
-            <span className="text-xl font-extrabold text-blue-900 tracking-tight">
+          <div className="flex flex-col leading-none">
+            <span className="text-lg sm:text-xl font-extrabold text-blue-900 tracking-tight">
               HomeCare <span className="text-green-600">JobBD</span>
             </span>
-            {/* আপনার নতুন কালারফুল সাবটাইটেল */}
-            <div className="flex gap-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-tight mt-0.5">
+            {/* মোবাইল ফ্রেন্ডলি সাবটাইটেল */}
+            <div className="flex flex-wrap gap-x-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-tighter sm:tracking-tight mt-0.5 max-w-[150px] sm:max-w-none">
               <span className="text-green-600">Connecting</span>
               <span className="text-blue-900">Caregivers, Nurses</span>
               <span className="text-green-600">& Companies</span>
@@ -60,7 +60,7 @@ const Navbar = () => {
           </div>
         </Link>
 
-        {/* Desktop Menu */}
+        {/* Desktop Menu (কম্পিউটারের জন্য) */}
         <div className="hidden md:flex items-center gap-6">
           <Link to="/" className="text-gray-600 hover:text-green-600 font-medium transition">Home</Link>
           <Link to="/jobs" className="text-gray-600 hover:text-green-600 font-medium transition">Browse Jobs</Link>
@@ -94,22 +94,29 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <button className="md:hidden p-2 text-gray-600" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X /> : <Menu />}
-        </button>
+        {/* Mobile Buttons (মোবাইলের জন্য মেনু বাটন) */}
+        <div className="flex items-center gap-2 md:hidden">
+          {!user && (
+            <Link to="/login">
+              <Button size="sm" variant="ghost" className="text-blue-700 font-bold text-xs px-2">Log In</Button>
+            </Link>
+          )}
+          <button className="p-2 text-gray-600" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Dropdown (মোবাইল মেনু খুললে যা দেখাবে) */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-lg py-4 px-4 flex flex-col gap-4">
-          <Link to="/" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded">Home</Link>
-          <Link to="/jobs" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded">Browse Jobs</Link>
-          <Link to="/training" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded">Training</Link>
+        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-lg py-4 px-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
+          <Link to="/" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded" onClick={() => setMenuOpen(false)}>Home</Link>
+          <Link to="/jobs" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded" onClick={() => setMenuOpen(false)}>Browse Jobs</Link>
+          <Link to="/training" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded" onClick={() => setMenuOpen(false)}>Training</Link>
           
           {user ? (
             <div className="flex flex-col gap-3 mt-2">
-              <Link to={getDashboardLink()}>
+              <Link to={getDashboardLink()} onClick={() => setMenuOpen(false)}>
                 <Button className="w-full bg-blue-900 text-white">Go to Dashboard</Button>
               </Link>
               <Button variant="outline" onClick={handleLogout} className="w-full text-red-600 border-red-100 hover:bg-red-50">
@@ -118,8 +125,8 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 mt-2">
-              <Link to="/login"><Button variant="outline" className="w-full">Log In</Button></Link>
-              <Link to="/signup"><Button className="w-full bg-green-600 hover:bg-green-700">Sign Up</Button></Link>
+              <Link to="/login" onClick={() => setMenuOpen(false)}><Button variant="outline" className="w-full border-blue-600 text-blue-600">Log In</Button></Link>
+              <Link to="/signup" onClick={() => setMenuOpen(false)}><Button className="w-full bg-green-600 hover:bg-green-700">Sign Up</Button></Link>
             </div>
           )}
         </div>

@@ -25,17 +25,17 @@ const Dashboard = () => {
 
         const userRole = roleData?.role;
         const userEmail = session.user.email?.toLowerCase();
-        const isDefaultAdmin = userEmail === "homecarejobbd.help@gmail.com";
         
-        // Redirect based on role (prioritize admin check)
-        if (userRole === "admin" || isDefaultAdmin) {
+        // Redirect logic update
+        if (userRole === "admin") {
           navigate("/admin", { replace: true });
         } else if (userRole === "caregiver" || userRole === "nurse") {
-          navigate("/", { replace: true });
-        } else if (userRole === "employer") {
-          navigate("/dashboard/company?tab=jobs", { replace: true });
+          // আগে এখানে "/" ছিল, এখন সরাসরি আপনার তৈরি করা ড্যাশবোর্ডে পাঠাবে
+          navigate("/dashboard/caregiver", { replace: true }); 
+        } else if (userRole === "employer" || userRole === "company") {
+          navigate("/dashboard/company", { replace: true });
         } else {
-          navigate("/general-dashboard", { replace: true });
+          navigate("/", { replace: true });
         }
       } catch (error) {
         console.error("Error redirecting:", error);
@@ -51,7 +51,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">Loading Dashboard...</p>
       </div>
     );
   }

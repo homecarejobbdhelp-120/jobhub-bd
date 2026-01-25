@@ -1,74 +1,66 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar"; // হেডার আবার যুক্ত করেছি
-import Index from "./pages/Index";
-import Jobs from "./pages/Jobs";
-import Training from "./pages/Training";
-import PostJob from "./pages/PostJob";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Profile from "./pages/Profile";
-import About from "./pages/About";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Help from "./pages/Help";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient";
 
-// Dashboard Imports
-import Dashboard from "./pages/Dashboard";
-import CaregiverDashboard from "./pages/CaregiverDashboard";
-import CompanyDashboard from "./pages/CompanyDashboard";
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-// Admin Imports
-import AdminLayout from "./components/admin/AdminLayout";
-import AdminOverview from "./pages/admin/AdminOverview";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminJobs from "./pages/admin/AdminJobs";
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          navigate("/login");
+          return;
+        }
 
-const queryClient = new QueryClient();
+        // 1. Check profile logic
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="flex flex-col min-h-screen">
-          {/* Navbar ফিরিয়ে এনেছি */}
-          <Navbar />
-          <main className="flex-grow pt-16">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/jobs" element={<Jobs />} />
-              <Route path="/training" element={<Training />} />
-              <Route path="/post-job" element={<PostJob />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/profile" element={<Profile />} />
+        if (error) {
+          console.error("Profile Error:", error);
+          // রোল খুঁজে না পেলে হোম পেজে যাবেন না, প্রোফাইলে যান (লুপ বন্ধ হবে)
+          navigate("/profile"); 
+          return;
+        }
 
-              {/* Dashboard Routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/dashboard/caregiver" element={<CaregiverDashboard />} />
-              <Route path="/dashboard/company" element={<CompanyDashboard />} />
+        const role = profile?.role;
 
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminLayout><AdminOverview /></AdminLayout>} />
-              <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
-              <Route path="/admin/jobs" element={<AdminLayout><AdminJobs /></AdminLayout>} />
+        // 2. Redirect based on role
+        if (role === "admin") {
+          navigate("/admin");
+        } else if (role === "company" || role === "employer") {
+          navigate("/dashboard/company");
+        } else if (role === "caregiver" || role === "nurse") {
+          navigate("/dashboard/caregiver");
+        } else {
+          // রোল সেট করা না থাকলে প্রোফাইলে পাঠান
+          navigate("/profile");
+        }
 
-              {/* Support Pages */}
-              <Route path="/about" element={<About />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/help" element={<Help />} />
-            </Routes>
-          </main>
-        </div>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      } catch (error) {
+        console.error("Critical Dashboard Error:", error);
+        navigate("/profile"); // কোনো এরর হলে প্রোফাইল পেজে যাবে
+      } finally {
+        setLoading(false);
+      }
+    };
 
-export default App;
+    checkUserRole();
+  }, [navigate]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+      <p className="text-gray-600 font-medium">Checking your profile...</p>
+    </div>
+  );
+};
+
+export default Dashboard;

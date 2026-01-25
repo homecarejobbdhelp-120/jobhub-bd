@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
+// Navbar removed from here to prevent double header issue
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
 import Training from "./pages/Training";
@@ -20,9 +20,8 @@ import Help from "./pages/Help";
 import Dashboard from "./pages/Dashboard";
 import CaregiverDashboard from "./pages/CaregiverDashboard";
 import CompanyDashboard from "./pages/CompanyDashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
 
-// Admin Imports
+// Admin Imports (Restored)
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -37,8 +36,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow pt-16">
+          {/* Navbar removed from global layout to fix double header */}
+          <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/jobs" element={<Jobs />} />
@@ -48,17 +47,15 @@ const App = () => (
               <Route path="/signup" element={<Signup />} />
               <Route path="/profile" element={<Profile />} />
               
-              {/* Dashboard Routes - Fixed */}
+              {/* Dashboard Routes */}
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/caregiver" element={<CaregiverDashboard />} />
               <Route path="/dashboard/company" element={<CompanyDashboard />} />
 
-              {/* Admin Routes */}
-              <Route path="/admin" element={<ProtectedRoute component={AdminLayout} roles={['admin']} />}>
-                <Route index element={<AdminOverview />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="jobs" element={<AdminJobs />} />
-              </Route>
+              {/* Admin Routes - Restored */}
+              <Route path="/admin" element={<AdminLayout><AdminOverview /></AdminLayout>} />
+              <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
+              <Route path="/admin/jobs" element={<AdminLayout><AdminJobs /></AdminLayout>} />
 
               {/* Support Pages */}
               <Route path="/about" element={<About />} />

@@ -1,58 +1,66 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const redirectToRoleDashboard = async () => {
+    const checkUser = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
-          navigate("/login", { replace: true });
+          navigate("/login");
           return;
         }
 
-        const { data: roleData } = await supabase
-          .from("user_roles")
+        // Fetch user profile to get role
+        const { data: profile, error } = await supabase
+          .from("profiles")
           .select("role")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
+          .eq("id", session.user.id)
+          .single();
 
-        const userRole = roleData?.role;
-        
-        if (userRole === "admin") {
-          navigate("/admin", { replace: true });
-        } else if (userRole === "caregiver" || userRole === "nurse") {
-          navigate("/dashboard/caregiver", { replace: true }); 
-        } else if (userRole === "employer" || userRole === "company") {
-          navigate("/dashboard/company", { replace: true });
+        if (error) {
+          console.error("Error fetching profile:", error);
+          // If error, verify if profile exists, otherwise go to profile creation
+          navigate("/profile");
+          return;
+        }
+
+        const role = profile?.role;
+
+        // Strict Redirect Logic
+        if (role === "admin") {
+          navigate("/admin");
+        } else if (role === "company" || role === "employer") {
+          navigate("/dashboard/company");
+        } else if (role === "caregiver" || role === "nurse") {
+          navigate("/dashboard/caregiver");
         } else {
-          navigate("/", { replace: true });
+          // If no role found, go to index or profile
+          navigate("/profile");
         }
       } catch (error) {
-        console.error("Error redirecting:", error);
-        navigate("/login", { replace: true });
+        console.error("Dashboard Error:", error);
+        navigate("/login");
       } finally {
         setLoading(false);
       }
     };
 
-    redirectToRoleDashboard();
+    checkUser();
   }, [navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading Dashboard...</p>
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="text-center animate-pulse">
+        <p className="text-lg font-medium text-gray-600">Loading your Dashboard...</p>
       </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 };
 
 export default Dashboard;

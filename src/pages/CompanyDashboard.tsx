@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
-import Navbar from "@/components/Navbar"; 
 import MobileCompanyBottomNav from "@/components/company/MobileCompanyBottomNav";
 import { Bell } from "lucide-react";
 
@@ -39,7 +38,7 @@ const CompanyDashboard = () => {
         .maybeSingle();
 
       if (roleData?.role !== "employer" && roleData?.role !== "company") {
-        navigate("/dashboard/caregiver"); 
+        navigate("/login"); 
         return;
       }
 

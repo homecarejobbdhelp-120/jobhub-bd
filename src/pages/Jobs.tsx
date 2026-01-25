@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Search, MapPin, Clock, DollarSign, Star, Filter, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer"; // Footer import যোগ করা হয়েছে
 
 const Jobs = () => {

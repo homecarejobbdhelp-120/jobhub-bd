@@ -8,8 +8,6 @@ import { Briefcase, Users, Star } from "lucide-react";
 const Index = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
-      <Navbar />
-
       {/* === HERO SECTION === */}
       <div className="relative bg-blue-900 pt-10 pb-32 text-center text-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">

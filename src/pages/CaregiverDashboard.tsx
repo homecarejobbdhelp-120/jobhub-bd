@@ -5,7 +5,6 @@ import BottomNavigation from "@/components/BottomNavigation";
 import JobFeed from "@/components/caregiver/JobFeed";
 import MessagesTab from "@/components/caregiver/MessagesTab";
 import ProfileTab from "@/components/caregiver/ProfileTab";
-import Navbar from "@/components/Navbar";
 import CompactHeader from "@/components/CompactHeader";
 
 const CaregiverDashboard = () => {
@@ -31,7 +30,7 @@ const CaregiverDashboard = () => {
         .maybeSingle();
 
       if (roleData?.role !== "caregiver" && roleData?.role !== "nurse") {
-        navigate("/dashboard/company");
+        navigate("/login");
         return;
       }
 
@@ -51,11 +50,6 @@ const CaregiverDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-14">
-      {/* Desktop: Full Navbar */}
-      <div className="hidden md:block">
-        <Navbar />
-      </div>
-
       {/* Mobile: Compact Header with Hamburger */}
       <div className="md:hidden">
         <CompactHeader />

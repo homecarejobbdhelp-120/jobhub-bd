@@ -23,7 +23,7 @@ import CompanyDashboard from "./pages/CompanyDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Admin Imports
-import AdminLayout from "./pages/admin/AdminLayout";
+import AdminLayout from "./components/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminJobs from "./pages/admin/AdminJobs";

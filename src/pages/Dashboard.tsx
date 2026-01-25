@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+// সঠিক ইম্পোর্ট পাথ (আপনার কোড অনুযায়ী)
+import { supabase } from "@/lib/supabaseClient";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkUser = async () => {
+    const checkUserRole = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
@@ -16,23 +17,29 @@ const Dashboard = () => {
           return;
         }
 
-        // Fetch user profile to get role
-        const { data: profile, error } = await supabase
+        console.log("Checking role for:", session.user.id);
+
+        // ১. আগে profiles টেবিলে চেক করি
+        let { data: profile, error } = await supabase
           .from("profiles")
           .select("role")
           .eq("id", session.user.id)
           .single();
 
-        if (error) {
-          console.error("Error fetching profile:", error);
-          // If error, verify if profile exists, otherwise go to profile creation
-          navigate("/profile");
-          return;
+        // ২. যদি profiles এ না থাকে, user_roles টেবিলে চেক করি (ব্যাকআপ)
+        if (!profile || error) {
+           const { data: userRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+          
+          if (userRole) profile = userRole;
         }
 
-        const role = profile?.role;
+        const role = profile?.role?.toLowerCase(); // ছোট হাতের অক্ষরে কনভার্ট করে চেক
 
-        // Strict Redirect Logic
+        // ৩. আপনার দেওয়া লজিক অনুযায়ী রিডাইরেক্ট
         if (role === "admin") {
           navigate("/admin");
         } else if (role === "company" || role === "employer") {
@@ -40,25 +47,25 @@ const Dashboard = () => {
         } else if (role === "caregiver" || role === "nurse") {
           navigate("/dashboard/caregiver");
         } else {
-          // If no role found, go to index or profile
+          // যদি রোল না থাকে তবে প্রোফাইল পেজে পাঠান
           navigate("/profile");
         }
+
       } catch (error) {
-        console.error("Dashboard Error:", error);
+        console.error("Error in Dashboard:", error);
         navigate("/login");
       } finally {
         setLoading(false);
       }
     };
 
-    checkUser();
+    checkUserRole();
   }, [navigate]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="text-center animate-pulse">
-        <p className="text-lg font-medium text-gray-600">Loading your Dashboard...</p>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+      <p className="text-gray-600 font-medium">Loading Dashboard...</p>
     </div>
   );
 };

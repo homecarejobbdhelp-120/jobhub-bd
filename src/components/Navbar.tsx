@@ -1,14 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, Home, Briefcase, GraduationCap, LayoutDashboard, LogOut, UserCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [user, setUser] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getUser = async () => {
@@ -16,9 +17,9 @@ const Navbar = () => {
       if (session) {
         setUser(session.user);
         const { data } = await supabase
-          .from("user_roles")
+          .from("profiles") // আপনার ডাটাবেস অনুযায়ী profiles বা user_roles চেক করবে
           .select("role")
-          .eq("user_id", session.user.id)
+          .eq("id", session.user.id)
           .maybeSingle();
         setRole(data?.role || null);
       }
@@ -28,11 +29,13 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/login";
+    navigate("/login");
+    setMenuOpen(false);
   };
 
   const getDashboardLink = () => {
     if (role === "employer" || role === "company") return "/dashboard/company";
+    if (role === "admin") return "/admin";
     return "/dashboard/caregiver";
   };
 
@@ -40,7 +43,7 @@ const Navbar = () => {
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm font-sans">
       <div className="container mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
         
-        {/* লোগো এবং টাইটেল - ধূসর রঙ বাদ দিয়ে নীল ও সবুজের কম্বিনেশন */}
+        {/* Branding - Blue & Green Combination */}
         <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
           <img 
             src="/app-logo.png" 
@@ -51,7 +54,6 @@ const Navbar = () => {
             <span className="text-base sm:text-xl font-extrabold text-blue-900 leading-tight">
               HomeCare <span className="text-green-600">JobBD</span>
             </span>
-            {/* সাবটাইটেল - আপনার চাহিদা অনুযায়ী নীল এবং সবুজ রঙের মিশ্রণ */}
             <div className="flex gap-1 text-[7px] sm:text-[10px] font-bold uppercase tracking-tight whitespace-nowrap mt-0.5">
               <span className="text-green-600">Connecting</span>
               <span className="text-blue-900">Caregivers, Nurses</span>
@@ -73,10 +75,10 @@ const Navbar = () => {
                   Dashboard
                 </Button>
               </Link>
-              <Avatar className="cursor-pointer border border-gray-200" onClick={() => window.location.href = getDashboardLink()}>
+              <Avatar className="h-10 w-10 cursor-pointer border border-gray-200" onClick={() => navigate(getDashboardLink())}>
                 <AvatarImage src={user.user_metadata?.avatar_url} />
-                <AvatarFallback className="bg-green-100 text-green-700 font-bold">
-                  <User className="w-4 h-4" />
+                <AvatarFallback className="bg-green-100 text-green-700">
+                  <User className="w-5 h-5" />
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -94,44 +96,65 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Action Buttons */}
-        <div className="flex items-center gap-2 md:hidden">
+        {/* Mobile Action Controls */}
+        <div className="flex items-center gap-3 md:hidden">
           {!user && (
             <Link to="/login">
-              <Button size="sm" variant="outline" className="text-blue-700 border-blue-100 font-bold text-[10px] px-2 h-7">
+              <Button size="sm" variant="outline" className="text-blue-700 border-blue-100 font-bold text-xs h-8">
                 Log In
               </Button>
             </Link>
           )}
-          <button className="p-1 text-gray-500" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          <button className="p-2 text-gray-600 bg-gray-50 rounded-lg" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Menu (Shomvob Style Drawer) */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-lg py-4 px-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
-          <Link to="/" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded" onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link to="/jobs" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded" onClick={() => setMenuOpen(false)}>Browse Jobs</Link>
-          <Link to="/training" className="text-gray-600 font-medium p-2 hover:bg-gray-50 rounded" onClick={() => setMenuOpen(false)}>Training</Link>
+        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-2xl py-6 px-4 flex flex-col gap-2 animate-in slide-in-from-top duration-300">
+          {/* User Profile Card in Menu */}
+          {user && (
+            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl mb-4">
+              <Avatar className="h-12 w-12 border-2 border-white">
+                <AvatarImage src={user.user_metadata?.avatar_url} />
+                <AvatarFallback className="bg-blue-100 text-blue-700"><User /></AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-bold text-blue-900 text-sm">{user.email}</p>
+                <p className="text-[10px] text-blue-600 uppercase font-bold tracking-widest">{role || 'Member'}</p>
+              </div>
+            </div>
+          )}
+
+          <Link to="/" className="flex items-center gap-3 text-gray-700 font-bold p-3 hover:bg-green-50 rounded-lg transition" onClick={() => setMenuOpen(false)}>
+            <Home size={20} className="text-green-600" /> Home
+          </Link>
+          <Link to="/jobs" className="flex items-center gap-3 text-gray-700 font-bold p-3 hover:bg-green-50 rounded-lg transition" onClick={() => setMenuOpen(false)}>
+            <Briefcase size={20} className="text-green-600" /> Browse Jobs
+          </Link>
+          <Link to="/training" className="flex items-center gap-3 text-gray-700 font-bold p-3 hover:bg-green-50 rounded-lg transition" onClick={() => setMenuOpen(false)}>
+            <GraduationCap size={20} className="text-green-600" /> Training
+          </Link>
+          
+          <div className="border-t border-gray-100 my-2"></div>
           
           {user ? (
-            <div className="flex flex-col gap-3 mt-2">
+            <div className="flex flex-col gap-3 pt-2">
               <Link to={getDashboardLink()} onClick={() => setMenuOpen(false)}>
-                <Button className="w-full bg-blue-900 text-white">Go to Dashboard</Button>
+                <Button className="w-full bg-blue-900 hover:bg-blue-800 text-white flex gap-2">
+                  <LayoutDashboard size={18} /> Dashboard
+                </Button>
               </Link>
-              <Button variant="outline" onClick={handleLogout} className="w-full text-red-600 border-red-100 hover:bg-red-50">
-                Log Out
+              <Button variant="ghost" onClick={handleLogout} className="w-full text-red-600 hover:bg-red-50 flex gap-2">
+                <LogOut size={18} /> Log Out
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <Link to="/login" onClick={() => setMenuOpen(false)}>
-                <Button variant="outline" className="w-full border-blue-600 text-blue-600">Log In</Button>
-              </Link>
-              <Link to="/signup" onClick={() => setMenuOpen(false)}>
-                <Button className="w-full bg-green-600 hover:bg-green-700">Sign Up</Button>
+            <div className="grid grid-cols-1 gap-3 pt-2">
+              <Link to="/signup" className="w-full" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full bg-green-600 hover:bg-green-700 font-bold">Create Free Account</Button>
               </Link>
             </div>
           )}

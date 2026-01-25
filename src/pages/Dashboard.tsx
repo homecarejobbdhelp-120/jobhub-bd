@@ -1,28 +1,21 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const hasRedirected = useRef(false);
 
   useEffect(() => {
-    if (hasRedirected.current) {
-      return;
-    }
-
     const redirectToRoleDashboard = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
-          navigate("/login");
-          hasRedirected.current = true;
+          navigate("/login", { replace: true });
           return;
         }
 
-        // Get user role
         const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
@@ -30,9 +23,7 @@ const Dashboard = () => {
           .maybeSingle();
 
         const userRole = roleData?.role;
-        const userEmail = session.user.email?.toLowerCase();
         
-        // Redirect logic update
         if (userRole === "admin") {
           navigate("/admin", { replace: true });
         } else if (userRole === "caregiver" || userRole === "nurse") {
@@ -42,10 +33,9 @@ const Dashboard = () => {
         } else {
           navigate("/", { replace: true });
         }
-        hasRedirected.current = true;
       } catch (error) {
         console.error("Error redirecting:", error);
-        navigate("/login");
+        navigate("/login", { replace: true });
       } finally {
         setLoading(false);
       }

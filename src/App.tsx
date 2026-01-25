@@ -20,6 +20,13 @@ import Help from "./pages/Help";
 import Dashboard from "./pages/Dashboard";
 import CaregiverDashboard from "./pages/CaregiverDashboard";
 import CompanyDashboard from "./pages/CompanyDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+// Admin Imports
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminJobs from "./pages/admin/AdminJobs";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +52,13 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/caregiver" element={<CaregiverDashboard />} />
               <Route path="/dashboard/company" element={<CompanyDashboard />} />
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={<ProtectedRoute component={AdminLayout} roles={['admin']} />}>
+                <Route index element={<AdminOverview />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="jobs" element={<AdminJobs />} />
+              </Route>
 
               {/* Support Pages */}
               <Route path="/about" element={<About />} />

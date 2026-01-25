@@ -3,8 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// Navbar ইম্পোর্ট বাদ দিয়েছি, কারণ পেজের ভেতরেই সেটা আছে
-
+import Navbar from "./components/Navbar"; // হেডার আবার ইম্পোর্ট করলাম
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
 import Training from "./pages/Training";
@@ -37,8 +36,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
-          {/* এখানে <Navbar /> নেই, তাই ডাবল দেখাবে না */}
-          <main className="flex-grow">
+          {/* Navbar ফিরিয়ে আনা হয়েছে কারণ স্ক্রিনশটে দেখা যাচ্ছে বর্তমানে কোনো হেডার নেই */}
+          <Navbar />
+          <main className="flex-grow pt-16">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/jobs" element={<Jobs />} />

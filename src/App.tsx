@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar"; // হেডার আবার ইম্পোর্ট করলাম
+import Navbar from "./components/Navbar"; 
+
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
 import Training from "./pages/Training";
@@ -36,9 +37,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
-          {/* Navbar ফিরিয়ে আনা হয়েছে কারণ স্ক্রিনশটে দেখা যাচ্ছে বর্তমানে কোনো হেডার নেই */}
+          {/* Navbar এখানে থাকবে */}
           <Navbar />
-          <main className="flex-grow pt-16">
+          {/* অতিরিক্ত pt-16 সরিয়ে দেওয়া হয়েছে যাতে প্যাডিং বড় না দেখায় */}
+          <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/jobs" element={<Jobs />} />

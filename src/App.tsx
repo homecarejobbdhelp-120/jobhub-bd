@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar"; // Navbar অবশ্যই থাকবে
+// Navbar ইম্পোর্ট বাদ দিয়েছি, কারণ পেজের ভেতরেই সেটা আছে
+
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
 import Training from "./pages/Training";
@@ -36,8 +37,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow pt-16">
+          {/* এখানে <Navbar /> নেই, তাই ডাবল দেখাবে না */}
+          <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/jobs" element={<Jobs />} />
